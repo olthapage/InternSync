@@ -11,7 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_kota', function (Blueprint $table) {
+            $table->id('kota_id');
+            $table->string('kota_nama');
+            $table->unsignedBigInteger('provinsi_id');
+
+            $table->foreign('provinsi_id')->references('provinsi_id')->on('m_provinsi');
+        });
     }
 
     /**

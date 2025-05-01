@@ -11,7 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('user_ipk', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->primary();
+            $table->decimal('ipk', 3, 2);
+            $table->timestamp('created_at')->nullable();
+
+            $table->foreign('user_id')->references('user_id')->on('m_user');
+        });
     }
 
     /**

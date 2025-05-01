@@ -11,7 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_industri', function (Blueprint $table) {
+            $table->id('industri_id');
+            $table->string('industri_nama');
+            $table->unsignedBigInteger('kota_id');
+            $table->unsignedBigInteger('kategori_industri_id')->nullable();
+
+            $table->foreign('kota_id')->references('kota_id')->on('m_kota');
+            $table->foreign('kategori_industri_id')->references('kategori_industri_id')->on('m_kategori_industri');
+        });
+
     }
 
     /**
