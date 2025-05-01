@@ -11,7 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('user_kompetensi', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('kompetensi_id');
+            $table->decimal('nilai', 5, 2);
+
+            $table->foreign('user_id')->references('user_id')->on('m_user');
+            $table->foreign('kompetensi_id')->references('kompetensi_id')->on('m_detail_kompetensi');
+        });
+
     }
 
     /**

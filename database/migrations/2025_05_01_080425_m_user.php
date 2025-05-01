@@ -11,7 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_user', function (Blueprint $table) {
+            $table->id('user_id');
+            $table->string('nama_lengkap');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->unsignedBigInteger('level_id');
+            $table->timestamp('created_at')->nullable();
+
+            $table->foreign('level_id')->references('level_id')->on('m_level_user');
+        });
     }
 
     /**

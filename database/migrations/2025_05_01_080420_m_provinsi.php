@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_provinsi', function (Blueprint $table) {
+            $table->id('provinsi_id');
+            $table->string('provinsi_nama');
+        });
     }
 
     /**

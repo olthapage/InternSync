@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_kategori_lowongan', function (Blueprint $table) {
+            $table->id('kategori_lowongan_id');
+            $table->string('kategori_nama');
+        });
     }
 
     /**

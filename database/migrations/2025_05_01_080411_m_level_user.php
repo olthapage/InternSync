@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::create('m_level_user', function (Blueprint $table) {
+            $table->id('level_id');
+            $table->string('level_nama');
+        });
     }
 
     /**
