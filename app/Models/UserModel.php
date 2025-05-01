@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\UserIpkModel;
 use App\Models\LevelUserModel;
+use App\Models\DetailSkillModel;
+use App\Models\DetailKompetensiModel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\UserPreferensiLokasiModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
