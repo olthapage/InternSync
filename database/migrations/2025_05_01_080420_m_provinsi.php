@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('m_provinsi', function (Blueprint $table) {
             $table->id('provinsi_id');
+            $table->string('provinsi_kode')->unique();
             $table->string('provinsi_nama');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('m_provinsi');
     }
 };

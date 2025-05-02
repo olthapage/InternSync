@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('skill_id');
             $table->string('skill_nama');
             $table->unsignedBigInteger('kategori_skill_id')->nullable();
+            $table->timestamp('created_at')->nullable();
 
             $table->foreign('kategori_skill_id')->references('kategori_skill_id')->on('m_kategori_skill');
         });
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('m_detail_skill');
     }
 };

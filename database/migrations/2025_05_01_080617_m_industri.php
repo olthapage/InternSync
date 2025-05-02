@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('kota_id');
             $table->unsignedBigInteger('kategori_industri_id')->nullable();
 
+
             $table->foreign('kota_id')->references('kota_id')->on('m_kota');
             $table->foreign('kategori_industri_id')->references('kategori_industri_id')->on('m_kategori_industri');
         });
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('m_industri');
     }
 };
