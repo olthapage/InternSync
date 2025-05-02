@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->unsignedBigInteger('level_id');
-            $table->timestamp('created_at')->nullable();
+            $table->unsignedBigInteger('prodi_id')->nullable();
+            $table->timestamps();
 
             $table->foreign('level_id')->references('level_id')->on('m_level_user');
+
+            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi');
         });
     }
 
