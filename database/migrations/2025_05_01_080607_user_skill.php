@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('user_skill', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('skill_id');
+            $table->timestamp('created_at')->nullable();
 
             $table->foreign('user_id')->references('user_id')->on('m_user');
             $table->foreign('skill_id')->references('skill_id')->on('m_detail_skill');
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('user_skill');
     }
 };

@@ -2,128 +2,114 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $now = Carbon::now();
+
+        // m_level_user
         DB::table('m_level_user')->insert([
-            ['level_nama' => 'Admin'],
-            ['level_nama' => 'User'],
-            ['level_nama' => 'Perusahaan'],
+            ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
+            ['level_kode' => 'MHS', 'level_nama' => 'Mahasiswa', 'created_at' => $now],
+            ['level_kode' => 'DSN', 'level_nama' => 'Dosen', 'created_at' => $now],
         ]);
 
+        // m_provinsi
         DB::table('m_provinsi')->insert([
-            ['provinsi_nama' => 'Jawa Timur'],
-            ['provinsi_nama' => 'Jawa Barat'],
-            ['provinsi_nama' => 'DKI Jakarta'],
+            ['provinsi_kode' => 'JTM', 'provinsi_nama' => 'Jawa Timur', 'created_at' => $now],
+            ['provinsi_kode' => 'JTG', 'provinsi_nama' => 'Jawa Tengah', 'created_at' => $now],
         ]);
 
+        // m_kota
         DB::table('m_kota')->insert([
-            ['kota_nama' => 'Surabaya', 'provinsi_id' => 1],
-            ['kota_nama' => 'Bandung', 'provinsi_id' => 2],
-            ['kota_nama' => 'Jakarta Pusat', 'provinsi_id' => 3],
+            ['kota_kode' => 'MLG', 'kota_nama' => 'Malang', 'provinsi_id' => 1, 'created_at' => $now],
+            ['kota_kode' => 'SMG', 'kota_nama' => 'Semarang', 'provinsi_id' => 2, 'created_at' => $now],
         ]);
 
+        // m_user
         DB::table('m_user')->insert([
             [
-                'nama_lengkap' => 'Melinda Winarno',
-                'email' => 'lmahendra@hotmail.com',
-                'password' => Hash::make('password'),
-                'level_id' => 3,
-                'created_at' => '2021-07-25 14:41:10',
-            ],
-            [
-                'nama_lengkap' => 'Laila Winarno, S.I.Kom',
-                'email' => 'mariaramadan@yahoo.com',
+                'nama_lengkap' => 'Admin Satu',
+                'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
                 'level_id' => 1,
-                'created_at' => '2020-10-03 09:01:36',
+                'created_at' => $now
             ],
-            // Tambah user lainnya sesuai kebutuhan
+            [
+                'nama_lengkap' => 'Mahasiswa Satu',
+                'email' => 'mhs@example.com',
+                'password' => Hash::make('password'),
+                'level_id' => 2,
+                'created_at' => $now
+            ],
         ]);
 
-        DB::table('user_preferensi_lokasi')->insert([
-            ['user_id' => 1, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => now()],
-            ['user_id' => 1, 'kota_id' => 2, 'prioritas' => 2, 'created_at' => now()],
-        ]);
-
-        DB::table('m_kategori_skill')->insert([
-            ['kategori_nama' => 'Programming'],
-            ['kategori_nama' => 'Design'],
-        ]);
-
-        DB::table('m_detail_skill')->insert([
-            ['skill_nama' => 'Laravel', 'kategori_skill_id' => 1],
-            ['skill_nama' => 'Adobe XD', 'kategori_skill_id' => 2],
-        ]);
-
-        DB::table('user_skill')->insert([
-            ['user_id' => 1, 'skill_id' => 1],
-            ['user_id' => 1, 'skill_id' => 2],
-        ]);
-
+        // m_kategori_kompetensi
         DB::table('m_kategori_kompetensi')->insert([
-            ['kategori_nama' => 'Teknik Informatika'],
-            ['kategori_nama' => 'Manajemen'],
+            ['kategori_kompetensi_kode' => 'KOMP1', 'kategori_nama' => 'Manajerial', 'created_at' => $now],
         ]);
 
-        DB::table('m_detail_kompetensi')->insert([
-            ['nama_matkul' => 'Basis Data', 'kategori_kompetensi_id' => 1],
-            ['nama_matkul' => 'Kepemimpinan', 'kategori_kompetensi_id' => 2],
+        // m_kategori_skill
+        DB::table('m_kategori_skill')->insert([
+            ['kategori_skill_kode' => 'SKL1', 'kategori_nama' => 'Programming', 'created_at' => $now],
         ]);
 
-        DB::table('user_kompetensi')->insert([
-            ['user_id' => 1, 'kompetensi_id' => 1, 'nilai' => 3.5],
-            ['user_id' => 1, 'kompetensi_id' => 2, 'nilai' => 3.8],
-        ]);
-
-        DB::table('m_kategori_industri')->insert([
-            ['kategori_nama' => 'Teknologi'],
-            ['kategori_nama' => 'Desain'],
-        ]);
-
-        DB::table('m_industri')->insert([
-            ['industri_nama' => 'PT. Teknologi Canggih', 'kota_id' => 1, 'kategori_industri_id' => 1],
-            ['industri_nama' => 'CV. Kreatif Desain', 'kota_id' => 2, 'kategori_industri_id' => 2],
-        ]);
-
+        // m_kategori_lowongan
         DB::table('m_kategori_lowongan')->insert([
-            ['kategori_nama' => 'Full Time'],
-            ['kategori_nama' => 'Internship'],
+            ['kategori_lowongan_kode' => 'LOW1', 'kategori_nama' => 'Magang', 'created_at' => $now],
         ]);
 
+        // m_kategori_industri
+        DB::table('m_kategori_industri')->insert([
+            ['kategori_industri_kode' => 'IND1', 'kategori_nama' => 'Teknologi Informasi', 'created_at' => $now],
+        ]);
+
+        // m_detail_skill
+        DB::table('m_detail_skill')->insert([
+            ['skill_nama' => 'Laravel', 'kategori_skill_id' => 1, 'created_at' => $now],
+        ]);
+
+        // user_ipk
+        DB::table('user_ipk')->insert([
+            ['user_id' => 2, 'ipk' => 3.75, 'created_at' => $now],
+        ]);
+
+        // user_preferensi_lokasi
+        DB::table('user_preferensi_lokasi')->insert([
+            ['user_id' => 2, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => $now],
+        ]);
+
+        // user_skill
+        DB::table('user_skill')->insert([
+            ['user_id' => 2, 'skill_id' => 1, 'created_at' => $now],
+        ]);
+
+        // m_industri
+        DB::table('m_industri')->insert([
+            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1],
+        ]);
+
+        // m_detail_lowongan
         DB::table('m_detail_lowongan')->insert([
             [
-                'judul_lowongan' => 'Web Developer Laravel',
-                'deskripsi' => 'Membangun aplikasi berbasis Laravel',
+                'judul_lowongan' => 'Magang Web Developer',
+                'deskripsi' => 'Mengembangkan aplikasi Laravel.',
                 'industri_id' => 1,
                 'kategori_lowongan_id' => 1,
-            ],
-            [
-                'judul_lowongan' => 'UI/UX Intern',
-                'deskripsi' => 'Magang desain UI/UX',
-                'industri_id' => 2,
-                'kategori_lowongan_id' => 2,
+                'created_at' => $now
             ],
         ]);
 
+        // lowongan_skill
         DB::table('lowongan_skill')->insert([
-            ['lowongan_id' => 1, 'skill_id' => 1],
-            ['lowongan_id' => 2, 'skill_id' => 2],
-        ]);
-
-        DB::table('lowongan_kompetensi')->insert([
-            ['lowongan_id' => 1, 'kompetensi_id' => 1],
-            ['lowongan_id' => 2, 'kompetensi_id' => 2],
-        ]);
-
-        DB::table('user_ipk')->insert([
-            ['user_id' => 1, 'ipk' => 3.75, 'created_at' => now()],
+            ['lowongan_id' => 1, 'skill_id' => 1, 'created_at' => $now],
         ]);
     }
 }
