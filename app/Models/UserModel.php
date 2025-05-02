@@ -9,8 +9,9 @@ use App\Models\DetailKompetensiModel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\UserPreferensiLokasiModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class UserModel extends Model
+class UserModel extends Authenticatable
 {
     use HasFactory;
     protected $table = 'm_user';
@@ -18,6 +19,10 @@ class UserModel extends Model
     public $timestamps = false;
 
     protected $fillable = ['nama_lengkap', 'email', 'password', 'level_id', 'created_at'];
+
+    protected $hidden = ['password'];
+
+    protected $casts = ['password' => 'hashed'];
 
     public function level()
     {
