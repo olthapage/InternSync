@@ -24,6 +24,8 @@ Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::get('/', function () {
-    return view('layouts.template');
+Route::middleware(['auth'])->group(function() {
+    Route::get('/', function () {
+        return view('layouts.template');
+    });
 });
