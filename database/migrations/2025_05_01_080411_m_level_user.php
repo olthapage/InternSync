@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('m_level_user', function (Blueprint $table) {
             $table->id('level_id');
+            $table->string('level_kode')->unique();
             $table->string('level_nama');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('m_level_user');
     }
 };

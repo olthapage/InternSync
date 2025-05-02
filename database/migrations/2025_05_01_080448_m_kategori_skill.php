@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('m_kategori_skill', function (Blueprint $table) {
             $table->id('kategori_skill_id');
+            $table->string('kategori_skill_kode')->unique();
             $table->string('kategori_nama');
+            $table->timestamp('created_at')->nullable();
         });
 
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('m_kategori_skill');
     }
 };
