@@ -14,6 +14,13 @@ class DatabaseSeeder extends Seeder
     {
         $now = Carbon::now();
 
+        // tabel_prodi
+        DB::table('tabel_prodi')->insert([
+            'prodi_id'=> 1,
+            'kode_prodi'=> 'TI',
+            'nama_prodi'=> 'Teknik Informatika'
+        ]);
+
         // m_level_user
         DB::table('m_level_user')->insert([
             ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
@@ -40,6 +47,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'password' => Hash::make('password'),
                 'level_id' => 1,
+                'prodi_id'=> null,
                 'created_at' => $now
             ],
             [
@@ -47,6 +55,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'mhs@example.com',
                 'password' => Hash::make('password'),
                 'level_id' => 2,
+                'prodi_id'=> 1,
                 'created_at' => $now
             ],
         ]);
