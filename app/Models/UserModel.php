@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ProdiModel;
 use App\Models\UserIpkModel;
 use App\Models\LevelUserModel;
 use App\Models\DetailSkillModel;
@@ -18,7 +19,7 @@ class UserModel extends Authenticatable
     protected $primaryKey = 'user_id';
     public $timestamps = false;
 
-    protected $fillable = ['nama_lengkap', 'email','foto', 'password', 'level_id', 'created_at'];
+    protected $fillable = ['nama_lengkap', 'email', 'password', 'level_id', 'created_at'];
 
     protected $hidden = ['password'];
 
@@ -48,4 +49,10 @@ class UserModel extends Authenticatable
     {
         return $this->hasOne(UserIpkModel::class, 'user_id');
     }
+
+    public function prodi()
+    {
+        return $this->belongsTo(ProdiModel::class, 'prodi_id', 'prodi_id');
+    }
+
 }
