@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('nim');
+            $table->boolean('status')->default(0);
             $table->decimal('ipk', 3, 2);
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
