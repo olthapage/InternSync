@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\ProdiModel;
 use App\Models\UserIpkModel;
-use App\Models\LevelUserModel;
+use App\Models\LevelModel;
 use App\Models\DetailSkillModel;
 use App\Models\DetailKompetensiModel;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +27,7 @@ class UserModel extends Authenticatable
 
     public function level()
     {
-        return $this->belongsTo(LevelUserModel::class, 'level_id');
+        return $this->belongsTo(LevelModel::class, 'level_id');
     }
 
     public function preferensiLokasi()
