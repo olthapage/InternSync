@@ -23,6 +23,8 @@ Route::pattern('id', '[0-9]+');
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
+Route::get('signup', [AuthController::class, 'signup']);
+Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 
 Route::middleware(['auth'])->group(function() {
