@@ -157,6 +157,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('mahasiswa123'),
                 'nim' => '22410001',
                 'ipk' => 3.45,
+                'status' => 1,
                 'level_id' => 2, // level mahasiswa
                 'prodi_id' => 1,
                 'dosen_id' => 1, // pastikan dosen_id = 1 sudah ada
@@ -169,6 +170,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('mahasiswa123'),
                 'nim' => '22410002',
                 'ipk' => 3.80,
+                'status' => 0,
                 'level_id' => 2,
                 'prodi_id' => 2,
                 'dosen_id' => 2,

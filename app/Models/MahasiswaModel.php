@@ -18,6 +18,7 @@ class MahasiswaModel extends Model
         'password',
         'ipk',
         'nim',
+        'status',
         'level_id',
         'prodi_id',
         'dosen_id'
