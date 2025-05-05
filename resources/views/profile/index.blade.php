@@ -75,7 +75,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/tables.html">
+           <a class="nav-link  " href="softTemplate/pages/tables.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>office</title>
@@ -95,7 +95,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/billing.html">
+           <a class="nav-link  " href="softTemplate/pages/billing.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>credit-card</title>
@@ -115,7 +115,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/virtual-reality.html">
+           <a class="nav-link  " href="softTemplate/pages/virtual-reality.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>box-3d-50</title>
@@ -136,7 +136,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/rtl.html">
+           <a class="nav-link  " href="softTemplate/pages/rtl.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>settings</title>
@@ -160,7 +160,7 @@
            <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
          </li>
          <li class="nav-item">
-           <a class="nav-link  active" href="../pages/profile.html">
+           <a class="nav-link  active" href="softTemplate/pages/profile.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 46 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>customer-support</title>
@@ -181,7 +181,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/sign-in.html">
+           <a class="nav-link  " href="softTemplate/pages/sign-in.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="12px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>document</title>
@@ -201,7 +201,7 @@
            </a>
          </li>
          <li class="nav-item">
-           <a class="nav-link  " href="../pages/sign-up.html">
+           <a class="nav-link  " href="softTemplate/pages/sign-up.html">
              <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                <svg width="12px" height="20px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                  <title>spaceship</title>
@@ -294,7 +294,7 @@
                    <a class="dropdown-item border-radius-md" href="javascript:;">
                      <div class="d-flex py-1">
                        <div class="my-auto">
-                         <img src="../assets/img/team-2.jpg" class="avatar avatar-sm me-3">
+                         <img src="softTemplate/assets/img/team-2.jpg" class="avatar avatar-sm me-3">
                        </div>
                        <div class="d-flex flex-column justify-content-center">
                          <h6 class="text-sm font-weight-normal mb-1">
@@ -312,7 +312,7 @@
                    <a class="dropdown-item border-radius-md" href="javascript:;">
                      <div class="d-flex py-1">
                        <div class="my-auto">
-                         <img src="../assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark me-3">
+                         <img src="softTemplate/assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark me-3">
                        </div>
                        <div class="d-flex flex-column justify-content-center">
                          <h6 class="text-sm font-weight-normal mb-1">
@@ -370,7 +370,7 @@
                  <div class="d-flex justify-content-between align-items-end">
                      <div class="d-flex align-items-center">
                          <div class="avatar avatar-xl position-relative me-3">
-                           <img id="profileHeaderImage" src="{{ asset('storage/foto/' . Auth::user()->foto) }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                           <img id="profileHeaderImage" src="{{ asset('storage/public/foto/' . Auth::user()->foto) }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
                          </div>
                          <div>
                              <h5 class="mb-1 text-white font-weight-bolder">
@@ -473,7 +473,7 @@
            
                    <div class="mb-3">
                      <label for="foto" class="form-label">Foto Profil</label><br>
-                     <img id="profileImage" src="{{ asset('storage/foto/' . $user->foto) }}" width="60" class="rounded mb-2" alt="Foto Profil">
+                     <img id="profileImage" src="{{ asset('storage/public/foto/' . $user->foto) }}" width="60" class="rounded mb-2" alt="Foto Profil">
                      <input type="file" name="foto" class="form-control">
                    </div>
            
@@ -497,7 +497,7 @@
                <ul class="list-group">
                  <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
                    <div class="avatar me-3">
-                     <img src="../assets/img/kal-visuals-square.jpg" alt="kal" class="border-radius-lg shadow">
+                     <img src="softTemplate/assets/img/kal-visuals-square.jpg" alt="kal" class="border-radius-lg shadow">
                    </div>
                    <div class="d-flex align-items-start flex-column justify-content-center">
                      <h6 class="mb-0 text-sm">Sophie B.</h6>
@@ -507,7 +507,7 @@
                  </li>
                  <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
                    <div class="avatar me-3">
-                     <img src="../assets/img/marie.jpg" alt="kal" class="border-radius-lg shadow">
+                     <img src="softTemplate/assets/img/marie.jpg" alt="kal" class="border-radius-lg shadow">
                    </div>
                    <div class="d-flex align-items-start flex-column justify-content-center">
                      <h6 class="mb-0 text-sm">Anne Marie</h6>
@@ -517,7 +517,7 @@
                  </li>
                  <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
                    <div class="avatar me-3">
-                     <img src="../assets/img/ivana-square.jpg" alt="kal" class="border-radius-lg shadow">
+                     <img src="softTemplate/assets/img/ivana-square.jpg" alt="kal" class="border-radius-lg shadow">
                    </div>
                    <div class="d-flex align-items-start flex-column justify-content-center">
                      <h6 class="mb-0 text-sm">Ivanna</h6>
@@ -527,7 +527,7 @@
                  </li>
                  <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
                    <div class="avatar me-3">
-                     <img src="../assets/img/team-4.jpg" alt="kal" class="border-radius-lg shadow">
+                     <img src="softTemplate/assets/img/team-4.jpg" alt="kal" class="border-radius-lg shadow">
                    </div>
                    <div class="d-flex align-items-start flex-column justify-content-center">
                      <h6 class="mb-0 text-sm">Peterson</h6>
@@ -537,7 +537,7 @@
                  </li>
                  <li class="list-group-item border-0 d-flex align-items-center px-0">
                    <div class="avatar me-3">
-                     <img src="../assets/img/team-3.jpg" alt="kal" class="border-radius-lg shadow">
+                     <img src="softTemplate/assets/img/team-3.jpg" alt="kal" class="border-radius-lg shadow">
                    </div>
                    <div class="d-flex align-items-start flex-column justify-content-center">
                      <h6 class="mb-0 text-sm">Nick Daniel</h6>
@@ -561,7 +561,7 @@
                    <div class="card card-blog card-plain">
                      <div class="position-relative">
                        <a class="d-block">
-                         <img src="../assets/img/home-decor-1.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
+                         <img src="softTemplate/assets/img/home-decor-1.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
                        </a>
                      </div>
                      <div class="card-body px-1 pb-0">
@@ -578,16 +578,16 @@
                          <button type="button" class="btn btn-outline-primary btn-sm mb-0">View Project</button>
                          <div class="avatar-group mt-2">
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Elena Morison">
-                             <img alt="Image placeholder" src="../assets/img/team-1.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Milly">
-                             <img alt="Image placeholder" src="../assets/img/team-2.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nick Daniel">
-                             <img alt="Image placeholder" src="../assets/img/team-3.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                             <img alt="Image placeholder" src="../assets/img/team-4.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
                            </a>
                          </div>
                        </div>
@@ -598,7 +598,7 @@
                    <div class="card card-blog card-plain">
                      <div class="position-relative">
                        <a class="d-block">
-                         <img src="../assets/img/home-decor-2.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
+                         <img src="softTemplate/assets/img/home-decor-2.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
                        </a>
                      </div>
                      <div class="card-body px-1 pb-0">
@@ -615,16 +615,16 @@
                          <button type="button" class="btn btn-outline-primary btn-sm mb-0">View Project</button>
                          <div class="avatar-group mt-2">
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nick Daniel">
-                             <img alt="Image placeholder" src="../assets/img/team-3.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                             <img alt="Image placeholder" src="../assets/img/team-4.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Elena Morison">
-                             <img alt="Image placeholder" src="../assets/img/team-1.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Milly">
-                             <img alt="Image placeholder" src="../assets/img/team-2.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
                            </a>
                          </div>
                        </div>
@@ -635,7 +635,7 @@
                    <div class="card card-blog card-plain">
                      <div class="position-relative">
                        <a class="d-block">
-                         <img src="../assets/img/home-decor-3.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
+                         <img src="softTemplate/assets/img/home-decor-3.jpg" alt="img-blur-shadow" class="img-fluid shadow border-radius-md">
                        </a>
                      </div>
                      <div class="card-body px-1 pb-0">
@@ -652,16 +652,16 @@
                          <button type="button" class="btn btn-outline-primary btn-sm mb-0">View Project</button>
                          <div class="avatar-group mt-2">
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                             <img alt="Image placeholder" src="../assets/img/team-4.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nick Daniel">
-                             <img alt="Image placeholder" src="../assets/img/team-3.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ryan Milly">
-                             <img alt="Image placeholder" src="../assets/img/team-2.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
                            </a>
                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Elena Morison">
-                             <img alt="Image placeholder" src="../assets/img/team-1.jpg">
+                             <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
                            </a>
                          </div>
                        </div>
@@ -790,10 +790,10 @@
      </div>
    </div>
    <!--   Core JS Files   -->
-   <script src="../assets/js/core/popper.min.js"></script>
-   <script src="../assets/js/core/bootstrap.min.js"></script>
-   <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
-   <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
+   <script src="softTemplate/assets/js/core/popper.min.js"></script>
+   <script src="softTemplate/assets/js/core/bootstrap.min.js"></script>
+   <script src="softTemplate/assets/js/plugins/perfect-scrollbar.min.js"></script>
+   <script src="softTemplate/assets/js/plugins/smooth-scrollbar.min.js"></script>
    <script>
      var win = navigator.platform.indexOf('Win') > -1;
      if (win && document.querySelector('#sidenav-scrollbar')) {
