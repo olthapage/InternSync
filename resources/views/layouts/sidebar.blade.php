@@ -55,7 +55,7 @@
             </a>
             <ul class="collapse list-unstyled ps-4" id="dropdownMenuUser">
                 <li><a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">Mahasiswa</a></li>
-                <li><a class="dropdown-item py-2 border-bottom" href="/dosen">Dosen</a></li>
+                <li><a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">Dosen</a></li>
                 <li><a class="dropdown-item py-2" href="/admin">Admin</a></li>
             </ul>            
         </li>                   
