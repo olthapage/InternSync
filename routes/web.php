@@ -44,6 +44,14 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
     Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
 
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+    Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
+    Route::get('/dosen/create', [DosenController::class, 'create'])->name('dosen.create');
+    Route::get('/dosen/{id}', [DosenController::class, 'show'])->name('dosen.show');
+    Route::get('/dosen/{id}/edit', [DosenController::class, 'edit'])->name('dosen.edit');
+    Route::put('/dosen/{id}', [DosenController::class, 'update'])->name('dosen.update');
+    Route::delete('/dosen/{id}', [DosenController::class, 'destroy'])->name('dosen.destroy');
+
     Route::get('/mitra', [MitraController::class, 'index'])->name('mitra.index');
     Route::get('/mitra/create', [MitraController::class, 'create'])->name('mitra.create');
     Route::post('/mitra', [MitraController::class, 'store'])->name('mitra.store');
