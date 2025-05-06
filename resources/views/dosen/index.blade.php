@@ -12,6 +12,7 @@
                     <th scope="col">Email</th>
                     <th scope="col">NIP</th>
                     <th scope="col">Program Studi</th>
+                    <th scope="col">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,6 +23,16 @@
                     <td>{{ $dsn->email }}</td>
                     <td class="text-center">{{ $dsn->nip }}</td>
                     <td>{{ $dsn->prodi->nama_prodi ?? '-' }}</td>
+                    <td class="text-center">
+                        <a href="{{ route('dosen.show', $dsn->dosen_id) }}" class="btn btn-sm btn-warning">Detail</a>
+                        <a href="{{ route('dosen.edit', $dsn->dosen_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ route('dosen.destroy', $dsn->dosen_id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Yakin ingin hapus?')" class="btn btn-sm btn-danger">Hapus</button>
+                        </form>
+                    </td>
+
                 </tr>
                 @endforeach
             </tbody>

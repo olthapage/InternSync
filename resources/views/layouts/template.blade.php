@@ -31,9 +31,9 @@
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
-    <link id="pagestyle" href="softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0" rel="stylesheet" />
-    <link rel="apple-touch-icon" sizes="76x76" href="softTemplate/assets/img/LogoInternSync.png">
-    <link rel="icon" type="image/png" href="softTemplate/assets/img/LogoInternSync.png">
+    <link id="pagestyle" href="{{ asset('softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0') }}" rel="stylesheet" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
@@ -143,11 +143,11 @@
         </div>
     </div>
     <!--   Core JS Files   -->
-    <script src="softTemplate/assets/js/core/popper.min.js"></script>
-    <script src="softTemplate/assets/js/core/bootstrap.min.js"></script>
-    <script src="softTemplate/assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="softTemplate/assets/js/plugins/smooth-scrollbar.min.js"></script>
-    <script src="softTemplate/assets/js/plugins/chartjs.min.js"></script>
+    <script src="{{ asset('softTemplate/assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/assets/js/plugins/chartjs.min.js') }}"></script>
     <script>
         var ctx = document.getElementById("chart-bars").getContext("2d");
 
@@ -330,7 +330,7 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
+    <script src="{{ asset('softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0') }}"></script>
 </body>
 
 </html>
