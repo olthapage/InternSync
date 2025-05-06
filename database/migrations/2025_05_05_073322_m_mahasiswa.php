@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('nim');
             $table->boolean('status')->default(0);
-            $table->decimal('ipk', 3, 2);
+            $table->decimal('ipk', 3, 2)->nullable();
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
             $table->unsignedBigInteger('dosen_id')->nullable();

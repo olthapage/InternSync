@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DosenModel;
 use App\Models\MahasiswaModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class AuthController extends Controller
 
     public function signup()
     {
-        if (Auth::guard('mahasiswa')->check()) {
+        if (Auth::guard('mahasiswa')->check() || Auth::guard('dosen')->check()) {
             return redirect('/');
         }
 
@@ -71,11 +72,28 @@ class AuthController extends Controller
 
     public function postsignup(Request $request)
     {
+        // Validasi input
         $validator = Validator::make($request->all(), [
             'nama_lengkap' => 'required|string|max:255',
             'email' => 'required|email|unique:m_user,email',
-            'password' => 'required|min:6|confirmed'
+            'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:mahasiswa,dosen',
         ]);
+
+        // Validasi NIDN untuk Dosen dan NIM untuk Mahasiswa
+        if ($request->role === 'dosen') {
+            $validator->after(function ($validator) use ($request) {
+                if (strlen($request->nidn) !== 10 || !preg_match('/^\d+$/', $request->nidn)) {
+                    $validator->errors()->add('nidn', 'NIDN tidak valid.');
+                }
+            });
+        } elseif ($request->role === 'mahasiswa') {
+            $validator->after(function ($validator) use ($request) {
+                if (strlen($request->nim) !== 8 || !preg_match('/^\d+$/', $request->nim)) {
+                    $validator->errors()->add('nim', 'NIM tidak valid.');
+                }
+            });
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -84,15 +102,29 @@ class AuthController extends Controller
             ]);
         }
 
-        $user = MahasiswaModel::create([
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'level_id' => 2,
-        ]);
-    
-        Auth::login($user);
-    
+        // Menyimpan data berdasarkan role
+        if ($request->role === 'mahasiswa') {
+            $user = MahasiswaModel::create([
+                'nama_lengkap' => $request->nama_lengkap,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'nim' => $request->nim,
+                'level_id' => 2,
+            ]);
+
+            Auth::guard('mahasiswa')->login($user);
+        } elseif ($request->role === 'dosen') {
+            $user = DosenModel::create([
+                'nama_lengkap' => $request->nama_lengkap,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'nip' => $request->nidn,
+                'level_id' => 3,
+            ]);
+
+            Auth::guard('dosen')->login($user);
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Registrasi berhasil.',

@@ -27,7 +27,7 @@ Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('signup', [AuthController::class, 'signup']);
 Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
-Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
+Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,mahasiswa,dosen');
 
 Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
