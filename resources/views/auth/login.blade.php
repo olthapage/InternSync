@@ -23,9 +23,8 @@
   <title>
     InternSync
   </title>
-  <!--     Toastr     -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <!-- iziToast CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
   <!-- Nucleo Icons -->
@@ -216,27 +215,8 @@
   <!-- jQuery (required for Toastr) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Toastr JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-  <script>
-    toastr.options = {
-      "closeButton": true,
-      "progressBar": true,
-      "positionClass": "toast-center-center",
-      "timeOut": "3000"
-    };
-  </script>
-  
-  <style>
-    .toast-center-center {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999; /* Agar toastr muncul di atas elemen lain */
-}
-  </style>
+<!-- iziToast CSS & JS -->
+<script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -253,22 +233,34 @@
           "X-CSRF-TOKEN": token,
           "Accept": "application/json"
         },
-        body: JSON.stringify({ email: email, password: password, role: role }) // FIXED
+        body: JSON.stringify({ email: email, password: password, role: role })
       })
       .then(response => response.json())
       .then(data => {
         if (data.status) {
-          toastr.success(data.message, 'Berhasil');
+          iziToast.success({
+            title: 'Sukses',
+            message: data.message,
+            position: 'topCenter'
+          });
           setTimeout(() => {
             window.location.href = data.redirect;
           }, 2000);
         } else {
-          toastr.error(data.message, 'Login Gagal');
+          iziToast.error({
+            title: 'Gagal',
+            message: data.message,
+            position: 'topCenter'
+          });
         }
       })
       .catch(error => {
         console.error("Login error:", error);
-        toastr.error("Terjadi kesalahan pada server.", 'Error');
+        iziToast.error({
+          title: 'Error',
+          message: 'Terjadi kesalahan pada server.',
+          position: 'topCenter'
+        });
       });
     });
   });

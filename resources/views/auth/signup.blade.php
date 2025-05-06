@@ -23,6 +23,7 @@
   <title>
     Soft UI Dashboard 3 by Creative Tim
   </title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
   <!-- Nucleo Icons -->
@@ -170,12 +171,10 @@
                   <!-- NIDN (Dosen) atau NIM (Mahasiswa) -->
                   <div class="mb-3" id="nidn-group" style="display:none;">
                     <input type="text" name="nidn" id="nidn" class="form-control" placeholder="NIDN" required>
-                    <small id="nidn-error" class="text-danger d-none">NIDN tidak valid!</small>
                   </div>
                 
                   <div class="mb-3" id="nim-group" style="display:none;">
                     <input type="text" name="nim" id="nim" class="form-control" placeholder="NIM" required>
-                    <small id="nim-error" class="text-danger d-none">NIM tidak valid!</small>
                   </div>
                 
                   <!-- Nama Lengkap -->
@@ -195,8 +194,7 @@
                 
                   <!-- Confirm Password -->
                   <div class="mb-3">
-                    <input type="password" name="password_confirmation" id="confirmPassword" class="form-control" placeholder="Confirm Password" required>
-                    <small id="passwordMismatch" class="text-danger d-none">Password tidak cocok</small>
+                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirm Password" required>
                   </div>
                 
                   <!-- Terms and Conditions -->
@@ -279,6 +277,8 @@
   <script src="softTemplate/assets/js/core/bootstrap.min.js"></script>
   <script src="softTemplate/assets/js/plugins/perfect-scrollbar.min.js"></script>
   <script src="softTemplate/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
     if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -294,99 +294,131 @@
   <script src="softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+
+  <style>
+    label.error {
+      color: red;
+      font-size: 0.6rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+  </style>
 
   <script>
     $(document).ready(function () {
+      // Tampilkan atau sembunyikan field NIDN/NIM berdasarkan role
       $('#role').change(function () {
         var role = $(this).val();
-
+  
         if (role === 'dosen') {
           $('#nidn-group').show();
           $('#nim-group').hide();
-          $('#nidn').prop('required', true);
-          $('#nim').prop('required', false);
         } else if (role === 'mahasiswa') {
           $('#nidn-group').hide();
           $('#nim-group').show();
-          $('#nidn').prop('required', false);
-          $('#nim').prop('required', true);
         } else {
           $('#nidn-group').hide();
           $('#nim-group').hide();
-          $('#nidn').prop('required', false);
-          $('#nim').prop('required', false);
         }
       });
-
+  
+      // Trigger pertama kali saat halaman dimuat
       $('#role').trigger('change');
-    });
   
-      // Submit form
-      $('#form-register').submit(function (e) {
-        e.preventDefault();
-  
-        if (!validateForm()) return;
-  
-        var formData = new FormData(this);
-  
-        $.ajax({
-          url: '{{ route("post.signup") }}',
-          method: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          success: function (response) {
-            if (response.status) {
-              window.location.href = response.redirect;
-            } else {
-              alert(response.message);
-            }
+      // Inisialisasi jQuery Validate
+      $('#form-register').validate({
+        rules: {
+          nidn: {
+            required: function () {
+              return $('#role').val() === 'dosen';
+            },
+            digits: true,
+            minlength: 10,
+            maxlength: 10
           },
-          error: function (xhr) {
-            console.error(xhr.responseText);
-            alert("Terjadi kesalahan. Silakan coba lagi.");
+          nim: {
+            required: function () {
+              return $('#role').val() === 'mahasiswa';
+            },
+            digits: true,
+            minlength: 8,
+            maxlength: 8
+          },
+          password: {
+            required: true
+          },
+          confirmPassword: {
+            required: true,
+            equalTo: "#password"
+          },
+          role: {
+            required: true
           }
-        });
+        },
+        messages: {
+          nidn: {
+            required: "NIDN wajib diisi untuk dosen.",
+            digits: "NIDN harus berupa angka.",
+            minlength: "NIDN harus terdiri dari 10 digit.",
+            maxlength: "NIDN harus terdiri dari 10 digit."
+          },
+          nim: {
+            required: "NIM wajib diisi untuk mahasiswa.",
+            digits: "NIM harus berupa angka.",
+            minlength: "NIM harus terdiri dari 8 digit.",
+            maxlength: "NIM harus terdiri dari 8 digit."
+          },
+          password: {
+            required: "Password wajib diisi."
+          },
+          confirmPassword: {
+            required: "Konfirmasi password wajib diisi.",
+            equalTo: "Konfirmasi password tidak cocok."
+          },
+          role: {
+            required: "Silakan pilih role."
+          }
+        },
+        submitHandler: function (form) {
+          var formData = new FormData(form);
+  
+          $.ajax({
+            url: '{{ route("post.signup") }}',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+              if (response.status) {
+                iziToast.success({
+                  title: 'Berhasil',
+                  message: response.message,
+                  position: 'topCenter'
+                });
+                setTimeout(() => {
+                  window.location.href = response.redirect;
+                }, 2000);
+              } else {
+                iziToast.error({
+                  title: 'Gagal',
+                  message: response.message,
+                  position: 'topCenter'
+                });
+              }
+            },
+            error: function (xhr) {
+              console.error(xhr.responseText);
+              iziToast.error({
+                title: 'Error',
+                message: 'Terjadi kesalahan. Silakan coba lagi.',
+                position: 'topCenter'
+              });
+            }
+          });
+        }
       });
-  
-    function validateForm() {
-      var role = $('#role').val();
-      var isValid = true;
-  
-      // Validasi NIDN
-      if (role === 'dosen') {
-        var nidn = $('#nidn').val();
-        if (nidn.length !== 10 || !/^\d+$/.test(nidn)) {
-          $('#nidn-error').removeClass('d-none');
-          isValid = false;
-        } else {
-          $('#nidn-error').addClass('d-none');
-        }
-      }
-  
-      // Validasi NIM
-      if (role === 'mahasiswa') {
-        var nim = $('#nim').val();
-        if (nim.length !== 8 || !/^\d+$/.test(nim)) {
-          $('#nim-error').removeClass('d-none');
-          isValid = false;
-        } else {
-          $('#nim-error').addClass('d-none');
-        }
-      }
-  
-      // Validasi password
-      var password = $('#password').val();
-      var confirmPassword = $('#confirmPassword').val();
-      if (password !== confirmPassword) {
-        $('#passwordMismatch').removeClass('d-none');
-        isValid = false;
-      } else {
-        $('#passwordMismatch').addClass('d-none');
-      }
-  
-      return isValid;
-    }
+    });
   </script>  
 </body>
 </html>
