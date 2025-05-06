@@ -29,7 +29,7 @@ Route::get('signup', [AuthController::class, 'signup']);
 Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
     Route::get('/', function () {
         return view('layouts.template');
