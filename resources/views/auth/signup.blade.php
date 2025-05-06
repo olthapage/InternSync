@@ -156,31 +156,63 @@
               </div>
               <div class="card-body">
                 <!-- Form Register -->
-                <form onsubmit="return validatePasswords()" role="form text-left" id="form-register" method="POST">
+                <form onsubmit="return validateForm()" role="form text-left" id="form-register" method="POST">
                   @csrf
+                  <!-- Pilihan Role -->
+                  <div class="mb-3">
+                    <select id="role" name="role" class="form-control" required>
+                      <option value="">Pilih Role</option>
+                      <option value="dosen">Dosen</option>
+                      <option value="mahasiswa">Mahasiswa</option>
+                    </select>
+                  </div>
+                
+                  <!-- NIDN (Dosen) atau NIM (Mahasiswa) -->
+                  <div class="mb-3" id="nidn-group" style="display:none;">
+                    <input type="text" name="nidn" id="nidn" class="form-control" placeholder="NIDN" required>
+                    <small id="nidn-error" class="text-danger d-none">NIDN tidak valid!</small>
+                  </div>
+                
+                  <div class="mb-3" id="nim-group" style="display:none;">
+                    <input type="text" name="nim" id="nim" class="form-control" placeholder="NIM" required>
+                    <small id="nim-error" class="text-danger d-none">NIM tidak valid!</small>
+                  </div>
+                
+                  <!-- Nama Lengkap -->
                   <div class="mb-3">
                     <input type="text" name="nama_lengkap" class="form-control" placeholder="Nama Lengkap" required>
                   </div>
+                
+                  <!-- Email -->
                   <div class="mb-3">
                     <input type="email" name="email" class="form-control" placeholder="Email" required>
                   </div>
+                
+                  <!-- Password -->
                   <div class="mb-3">
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
                   </div>
+                
+                  <!-- Confirm Password -->
                   <div class="mb-3">
-                    <input type="password" name="password_confirmation" class="form-control" id="confirmPassword" placeholder="Confirm Password">
+                    <input type="password" name="password_confirmation" id="confirmPassword" class="form-control" placeholder="Confirm Password" required>
                     <small id="passwordMismatch" class="text-danger d-none">Password tidak cocok</small>
                   </div>
+                
+                  <!-- Terms and Conditions -->
                   <div class="form-check form-check-info text-left">
                     <input class="form-check-input" type="checkbox" id="terms" required>
                     <label class="form-check-label" for="terms">
                       I agree the <a href="#" class="text-dark font-weight-bolder">Terms and Conditions</a>
                     </label>
                   </div>
+                
+                  <!-- Submit Button -->
                   <div class="text-center">
                     <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Sign up</button>
                   </div>
                 </form>
+
               </div>
             </div>
           </div>
@@ -261,57 +293,100 @@
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
 
-  <!-- Script Submit -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <script>
-    document.getElementById('form-register').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
+    $(document).ready(function () {
+      $('#role').change(function () {
+        var role = $(this).val();
+
+        if (role === 'dosen') {
+          $('#nidn-group').show();
+          $('#nim-group').hide();
+          $('#nidn').prop('required', true);
+          $('#nim').prop('required', false);
+        } else if (role === 'mahasiswa') {
+          $('#nidn-group').hide();
+          $('#nim-group').show();
+          $('#nidn').prop('required', false);
+          $('#nim').prop('required', true);
+        } else {
+          $('#nidn-group').hide();
+          $('#nim-group').hide();
+          $('#nidn').prop('required', false);
+          $('#nim').prop('required', false);
+        }
+      });
+
+      $('#role').trigger('change');
+    });
   
-      fetch("{{ route('post.signup') }}", {
-        method: "POST",
-        headers: {
-          'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: formData
-      }).then(res => res.json())
-        .then(data => {
-          if (data.status) {
-            alert(data.message);
-            window.location.href = data.redirect;
-          } else {
-            alert(data.message);
+      // Submit form
+      $('#form-register').submit(function (e) {
+        e.preventDefault();
+  
+        if (!validateForm()) return;
+  
+        var formData = new FormData(this);
+  
+        $.ajax({
+          url: '{{ route("post.signup") }}',
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            if (response.status) {
+              window.location.href = response.redirect;
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function (xhr) {
+            console.error(xhr.responseText);
+            alert("Terjadi kesalahan. Silakan coba lagi.");
           }
         });
-    });
-
-    const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirmPassword');
-    const message = document.getElementById('passwordMismatch');
-
-    confirmPassword.addEventListener('input', function () {
-      if (confirmPassword.value !== password.value) {
-        message.classList.remove('d-none');
+      });
+  
+    function validateForm() {
+      var role = $('#role').val();
+      var isValid = true;
+  
+      // Validasi NIDN
+      if (role === 'dosen') {
+        var nidn = $('#nidn').val();
+        if (nidn.length !== 10 || !/^\d+$/.test(nidn)) {
+          $('#nidn-error').removeClass('d-none');
+          isValid = false;
+        } else {
+          $('#nidn-error').addClass('d-none');
+        }
+      }
+  
+      // Validasi NIM
+      if (role === 'mahasiswa') {
+        var nim = $('#nim').val();
+        if (nim.length !== 8 || !/^\d+$/.test(nim)) {
+          $('#nim-error').removeClass('d-none');
+          isValid = false;
+        } else {
+          $('#nim-error').addClass('d-none');
+        }
+      }
+  
+      // Validasi password
+      var password = $('#password').val();
+      var confirmPassword = $('#confirmPassword').val();
+      if (password !== confirmPassword) {
+        $('#passwordMismatch').removeClass('d-none');
+        isValid = false;
       } else {
-        message.classList.add('d-none');
+        $('#passwordMismatch').addClass('d-none');
       }
-    });
-
-    password.addEventListener('input', function () {
-      if (confirmPassword.value !== password.value) {
-        message.classList.remove('d-none');
-      } else {
-        message.classList.add('d-none');
-      }
-    });
-
-    function validatePasswords() {
-      if (password.value !== confirmPassword.value) {
-        message.classList.remove('d-none');
-        confirmPassword.focus();
-        return false;
-      }
-      return true;
+  
+      return isValid;
     }
-  </script>
+  </script>  
 </body>
 </html>
