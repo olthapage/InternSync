@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\MitraController;
 use App\Http\Controllers\DosenController;
 
 /*
@@ -42,4 +43,12 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
     Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
     Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
+
+    Route::get('/mitra', [MitraController::class, 'index'])->name('mitra.index');
+    Route::get('/mitra/create', [MitraController::class, 'create'])->name('mitra.create');
+    Route::post('/mitra', [MitraController::class, 'store'])->name('mitra.store');
+    Route::get('/mitra/{id}', [MitraController::class, 'show'])->name('mitra.show');
+    Route::get('/mitra/{id}/edit', [MitraController::class, 'edit'])->name('mitra.edit');
+    Route::put('/mitra/{id}', [MitraController::class, 'update'])->name('mitra.update');
+    Route::delete('/mitra/{id}', [MitraController::class, 'destroy'])->name('mitra.destroy');
 });
