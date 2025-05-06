@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MahasiswaModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,38 +22,47 @@ class AuthController extends Controller
 
     public function postlogin(Request $request)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            $credentials = $request->only('email', 'password');
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'role' => 'required|in:web,mahasiswa,dosen'
+        ]);
 
-            if (Auth::attempt($credentials)) {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Login Berhasil',
-                    'redirect' => url('/')
-                ]);
-            }
+        $credentials = $request->only('email', 'password');
+        $guard = $request->role;
 
+        if (Auth::guard($guard)->attempt($credentials)) {
             return response()->json([
-                'status' => false,
-                'message' => 'Login Gagal'
+                'status' => true,
+                'message' => 'Login berhasil sebagai ' . ucfirst($guard),
+                'redirect' => url('/')
             ]);
         }
 
-        return redirect('login');
+        return response()->json([
+            'status' => false,
+            'message' => 'Email atau password salah.'
+        ]);
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        foreach (['mahasiswa', 'web', 'dosen'] as $guard) {
+            if (Auth::guard($guard)->check()) {
+                Auth::guard($guard)->logout();
+            }
+        }
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('login');
     }
 
+
     public function signup()
     {
-        if (Auth::check()) {
+        if (Auth::guard('mahasiswa')->check()) {
             return redirect('/');
         }
 
@@ -74,7 +84,7 @@ class AuthController extends Controller
             ]);
         }
 
-        $user = UserModel::create([
+        $user = MahasiswaModel::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email' => $request->email,
             'password' => Hash::make($request->password),

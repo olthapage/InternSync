@@ -123,6 +123,14 @@
                     <div class="mb-3">
                       <input type="password" id="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon">
                     </div>
+                    <label>Login Sebagai</label>
+                    <div class="mb-3">
+                      <select id="role" class="form-control" name="role" required>
+                        <option value="mahasiswa">Mahasiswa</option>
+                        <option value="dosen">Dosen</option>
+                        <option value="web">Admin</option>
+                    </select>
+                    </div>
                     <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" id="rememberMe" checked="">
                       <label class="form-check-label" for="rememberMe">Remember me</label>
@@ -230,40 +238,40 @@
 }
   </style>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('btnLogin').addEventListener('click', function () {
-        let email = document.getElementById('email').value;
-        let password = document.getElementById('password').value;
-        let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('btnLogin').addEventListener('click', function () {
+      let email = document.getElementById('email').value;
+      let password = document.getElementById('password').value;
+      let role = document.getElementById('role').value;
+      let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        fetch("{{ route('login') }}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": token,
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({ email: email, password: password })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(toastr);
+      fetch("{{ route('login') }}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": token,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ email: email, password: password, role: role }) // FIXED
+      })
+      .then(response => response.json())
+      .then(data => {
         if (data.status) {
-            toastr.success(data.message, 'Berhasil');
-            setTimeout(() => {
+          toastr.success(data.message, 'Berhasil');
+          setTimeout(() => {
             window.location.href = data.redirect;
-            }, 2000);
+          }, 2000);
         } else {
-            toastr.error(data.message, 'Login Gagal');
+          toastr.error(data.message, 'Login Gagal');
         }
-        })
-        .catch(error => {
-          console.error("Login error:", error);
-          alert("Terjadi kesalahan.");
-        });
+      })
+      .catch(error => {
+        console.error("Login error:", error);
+        toastr.error("Terjadi kesalahan pada server.", 'Error');
       });
     });
-  </script>  
+  });
+</script>
 </body>
 </html>

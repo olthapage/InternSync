@@ -6,8 +6,9 @@ use App\Models\DosenModel;
 use App\Models\LevelModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class MahasiswaModel extends Model
+class MahasiswaModel extends Authenticatable
 {
     use HasFactory;
     protected $table = 'm_mahasiswa';
@@ -23,6 +24,11 @@ class MahasiswaModel extends Model
         'prodi_id',
         'dosen_id'
     ];
+
+    protected $hidden = ['password'];
+
+    protected $casts = ['password' => 'hashed'];
+
     public function level()
     {
         return $this->belongsTo(LevelModel::class, 'level_id');
