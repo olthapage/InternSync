@@ -10,7 +10,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover align-middle">
+        <table class="table table-bordered table-striped table-hover align-middle" id="table_mahasiswa">
             <thead class="table-dark text-center">
                 <tr>
                     <th scope="col">No</th>
@@ -52,4 +52,61 @@
         </table>
     </div>
 </div>
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+    data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
+
+@push('js')
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
+
+        var dataMhs;
+
+        $(document).ready(function() {
+            dataMhs = $('#table_user').DataTable({
+                serverSide: true,
+                ajax: {
+                    "url": "{{ url('user/list') }}",
+                    "dataType": "json",
+                    "type": "POST",
+                    "data": function(d) {
+                        d.level_id = $('#level_id').val();
+                    }
+                },
+                columns: [{
+                    data: "DT_RowIndex",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
+                }, {
+                    data: "username",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                }, {
+                    data: "nama",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                }, {
+                    data: "level.level_nama",
+                    className: "",
+                    orderable: false,
+                    searchable: false
+                }, {
+                    data: "aksi",
+                    className: "",
+                    orderable: false,
+                    searchable: false
+                }]
+            });
+            $('#level_id').on('change', function() {
+                dataUser.ajax.reload();
+            });
+        });
+    </script>
+@endpush

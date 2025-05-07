@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\MahasiswaController;
 
 /*
@@ -25,6 +26,8 @@ use App\Http\Controllers\MahasiswaController;
 
 Route::pattern('id', '[0-9]+');
 
+Route::get('/', [WelcomeController::class, 'index']);
+
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('signup', [AuthController::class, 'signup']);
@@ -33,9 +36,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,ma
 
 Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
-    Route::get('/', function () {
-        return view('layouts.template');
-    });
+    Route::get('/dashboard', [WelcomeController::class, 'dashboard'])->name('home');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
