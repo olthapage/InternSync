@@ -24,11 +24,11 @@ return new class extends Migration
             $table->unsignedBigInteger('dosen_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('level_id')->references('level_id')->on('m_level_user');
+            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');;
 
-            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi');
+            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');;
 
-            $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen');
+            $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen')->onDelete('cascade');;
         });
     }
 

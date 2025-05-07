@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('prioritas');
             $table->timestamp('created_at')->nullable();
 
-            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa');
-            $table->foreign('kota_id')->references('kota_id')->on('m_kota');
+            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');
+            $table->foreign('kota_id')->references('kota_id')->on('m_kota')->onDelete('cascade');
         });
     }
 

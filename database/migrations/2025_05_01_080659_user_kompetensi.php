@@ -17,8 +17,8 @@ return new class extends Migration
             $table->decimal('nilai', 5, 2);
             $table->timestamp('created_at')->nullable();
 
-            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa');
-            $table->foreign('kompetensi_id')->references('kompetensi_id')->on('m_detail_kompetensi');
+            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');
+            $table->foreign('kompetensi_id')->references('kompetensi_id')->on('m_detail_kompetensi')->onDelete('cascade');
         });
 
     }

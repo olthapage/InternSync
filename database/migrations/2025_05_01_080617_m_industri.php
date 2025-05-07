@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('kategori_industri_id')->nullable();
 
 
-            $table->foreign('kota_id')->references('kota_id')->on('m_kota');
-            $table->foreign('kategori_industri_id')->references('kategori_industri_id')->on('m_kategori_industri');
+            $table->foreign('kota_id')->references('kota_id')->on('m_kota')->onDelete('cascade');
+            $table->foreign('kategori_industri_id')->references('kategori_industri_id')->on('m_kategori_industri')->onDelete('cascade');
         });
 
     }

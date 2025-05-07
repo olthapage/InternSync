@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('kategori_skill_id')->nullable();
             $table->timestamp('created_at')->nullable();
 
-            $table->foreign('kategori_skill_id')->references('kategori_skill_id')->on('m_kategori_skill');
+            $table->foreign('kategori_skill_id')->references('kategori_skill_id')->on('m_kategori_skill')->onDelete('cascade');
         });
 
     }
