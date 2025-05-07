@@ -3,6 +3,12 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="mb-4">Daftar Mahasiswa</h2>
+
+    <!-- Container tombol di bawah judul -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">+ Tambah Mahasiswa</a>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark text-center">
@@ -13,6 +19,7 @@
                     <th scope="col">NIM</th>
                     <th scope="col">Program Studi</th>
                     <th scope="col">Status Magang</th>
+                    <th scope="col">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,6 +36,15 @@
                         @else
                             <span class="badge bg-secondary">Belum Magang</span>
                         @endif
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route('mahasiswa.show', $mhs->mahasiswa_id) }}" class="btn btn-sm btn-warning">Detail</a>
+                        <a href="{{ route('mahasiswa.edit', $mhs->mahasiswa_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ route('mahasiswa.destroy', $mhs->mahasiswa_id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Yakin ingin hapus?')" class="btn btn-sm btn-danger">Hapus</button>
+                        </form>
                     </td>
                 </tr>
                 @endforeach

@@ -45,11 +45,6 @@ class UserModel extends Authenticatable
         return $this->belongsToMany(DetailKompetensiModel::class, 'user_kompetensi', 'user_id', 'kompetensi_id')->withPivot('nilai');
     }
 
-    public function ipk()
-    {
-        return $this->hasOne(UserIpkModel::class, 'user_id');
-    }
-
     public function prodi()
     {
         return $this->belongsTo(ProdiModel::class, 'prodi_id', 'prodi_id');
