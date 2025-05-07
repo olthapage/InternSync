@@ -11,13 +11,15 @@ class DosenController extends Controller
     public function index()
     {
         $dosen = DosenModel::with('prodi')->get();
-        return view('dosen.index', compact('dosen'));
+        $activeMenu = 'dosen';
+        return view('dosen.index', compact('dosen', 'activeMenu'));
     }
     public function create()
     {
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
-        return view('dosen.create', compact('prodi', 'level'));
+        $activeMenu = 'dosen';
+        return view('dosen.create', compact('prodi', 'level', 'activeMenu'));
     }
     public function store(Request $request)
     {
@@ -44,14 +46,16 @@ class DosenController extends Controller
     public function show($id)
     {
         $dosen = DosenModel::with(['prodi', 'level'])->findOrFail($id);
-        return view('dosen.show', compact('dosen'));
+        $activeMenu = 'dosen';
+        return view('dosen.show', compact('dosen', 'activeMenu'));
     }
     public function edit($id)
     {
         $dosen = DosenModel::findOrFail($id);
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
-        return view('dosen.edit', compact('dosen', 'prodi', 'level'));
+        $activeMenu = 'dosen';
+        return view('dosen.edit', compact('dosen', 'prodi', 'level', 'activeMenu'));
     }
     public function update(Request $request, $id)
     {

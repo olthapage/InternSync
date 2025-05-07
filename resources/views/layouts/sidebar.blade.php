@@ -11,7 +11,7 @@
 <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link  active" href="../pages/dashboard.html">
+            <a class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}" href="../pages/dashboard.html">
                 <div
                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1"
@@ -53,12 +53,25 @@
                 </div>
                 <span class="nav-link-text ms-1">Daftar Pengguna</span>
             </a>
-            <ul class="collapse list-unstyled ps-4" id="dropdownMenuUser">
-                <li><a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">Mahasiswa</a></li>
-                <li><a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">Dosen</a></li>
-                <li><a class="dropdown-item py-2" href="/admin">Admin</a></li>
-            </ul>            
-        </li>                   
+            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['mahasiswa', 'dosen', 'admin']) ? 'show' : '' }}" id="dropdownMenuUser">
+                <li>
+                    <a class="dropdown-item py-2 border-bottom {{ $activeMenu == 'mahasiswa' ? 'active' : '' }}" href="{{ route('mahasiswa.index') }}">
+                        Mahasiswa
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom {{ $activeMenu == 'dosen' ? 'active' : '' }}" href="{{ route('dosen.index') }}">
+                        Dosen
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 {{ $activeMenu == 'admin' ? 'active' : '' }}" href="/admin">
+                        Admin
+                    </a>
+                </li>
+            </ul>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link  " href="../pages/billing.html">
                 <div
@@ -176,7 +189,7 @@
                 </div>
                 <span class="nav-link-text ms-1">Profile</span>
             </a>
-        </li>        
+        </li>
         <li class="nav-item">
             <a class="nav-link  " href="../pages/sign-in.html">
                 <div

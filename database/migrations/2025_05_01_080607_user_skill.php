@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_skill', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('skill_id');
             $table->timestamp('created_at')->nullable();
 
-            $table->foreign('user_id')->references('user_id')->on('m_user');
-            $table->foreign('skill_id')->references('skill_id')->on('m_detail_skill');
+            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');
+            $table->foreign('skill_id')->references('skill_id')->on('m_detail_skill')->onDelete('cascade');
         });
 
     }

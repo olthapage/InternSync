@@ -15,8 +15,8 @@ return new class extends Migration
             $table->unsignedBigInteger('lowongan_id');
             $table->unsignedBigInteger('kompetensi_id');
 
-            $table->foreign('lowongan_id')->references('lowongan_id')->on('m_detail_lowongan');
-            $table->foreign('kompetensi_id')->references('kompetensi_id')->on('m_detail_kompetensi');
+            $table->foreign('lowongan_id')->references('lowongan_id')->on('m_detail_lowongan')->onDelete('cascade');
+            $table->foreign('kompetensi_id')->references('kompetensi_id')->on('m_detail_kompetensi')->onDelete('cascade');
         });
 
     }

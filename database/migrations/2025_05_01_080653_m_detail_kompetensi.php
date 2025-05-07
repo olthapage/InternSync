@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id('kompetensi_id');
             $table->string('nama_matkul');
             $table->unsignedBigInteger('kategori_kompetensi_id')->nullable();
+            $table->timestamp('created_at')->nullable();
 
-            $table->foreign('kategori_kompetensi_id')->references('kategori_kompetensi_id')->on('m_kategori_kompetensi');
+            $table->foreign('kategori_kompetensi_id')->references('kategori_kompetensi_id')->on('m_kategori_kompetensi')->onDelete('cascade');
         });
 
     }

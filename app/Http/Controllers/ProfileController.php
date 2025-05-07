@@ -12,7 +12,8 @@ class ProfileController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('profile.index', compact('user'));
+        $activeMenu = 'profile';
+        return view('profile.index', compact('user', 'activeMenu'));
     }
 
     public function edit()

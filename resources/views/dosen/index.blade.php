@@ -3,6 +3,9 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="mb-4">Daftar Dosen</h2>
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('dosen.create') }}" class="btn btn-primary">+ Tambah Dosen</a>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover align-middle">
             <thead class="table-dark text-center">

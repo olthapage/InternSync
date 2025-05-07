@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('provinsi_id');
             $table->timestamp('created_at')->nullable();
 
-            $table->foreign('provinsi_id')->references('provinsi_id')->on('m_provinsi');
+            $table->foreign('provinsi_id')->references('provinsi_id')->on('m_provinsi')->onDelete('cascade');;
         });
     }
 

@@ -11,24 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_mahasiswa', function (Blueprint $table) {
-            $table->id('mahasiswa_id');
+        Schema::create('m_dosen', function (Blueprint $table) {
+            $table->id('dosen_id');
             $table->string('nama_lengkap');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('nim');
-            $table->boolean('status')->default(0);
-            $table->decimal('ipk', 3, 2)->nullable();
+            $table->string('nip');
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
-            $table->unsignedBigInteger('dosen_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('level_id')->references('level_id')->on('m_level_user');
+            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');
 
-            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi');
-
-            $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen');
+            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');
         });
     }
 
@@ -37,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('m_mahasiswa');
+        Schema::dropIfExists('m_dosen');
     }
 };

@@ -32,13 +32,63 @@ class DatabaseSeeder extends Seeder
                 'nama_prodi'=> 'Manajemen Informatika'
             ],
             ]);
-
+            DB::table('m_level_user')->insert([
+                ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
+                ['level_kode' => 'MHS', 'level_nama' => 'Mahasiswa', 'created_at' => $now],
+                ['level_kode' => 'DSN', 'level_nama' => 'Dosen', 'created_at' => $now],
+            ]);
+            DB::table('m_dosen')->insert([
+                [
+                    'nama_lengkap' => 'Dr. Budi Santoso',
+                    'email' => 'budi@example.com',
+                    'password' => Hash::make('password123'),
+                    'nip' => '19800101123456',
+                    'level_id' => 3,
+                    'prodi_id' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'nama_lengkap' => 'Dr. Siti Aminah',
+                    'email' => 'siti@example.com',
+                    'password' => Hash::make('password123'),
+                    'nip' => '19750506123456',
+                    'level_id' => 3,
+                    'prodi_id' => 2,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
+            DB::table('m_mahasiswa')->insert([
+                [
+                    'nama_lengkap' => 'Andi Nugroho',
+                    'email' => 'andi@example.com',
+                    'password' => Hash::make('mahasiswa123'),
+                    'nim' => '22410001',
+                    'ipk' => 3.45,
+                    'status' => 1,
+                    'level_id' => 2, // level mahasiswa
+                    'prodi_id' => 1,
+                    'dosen_id' => 1, // pastikan dosen_id = 1 sudah ada
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'nama_lengkap' => 'Rina Lestari',
+                    'email' => 'rina@example.com',
+                    'password' => Hash::make('mahasiswa123'),
+                    'nim' => '22410002',
+                    'ipk' => 3.80,
+                    'status' => 0,
+                    'level_id' => 2,
+                    'prodi_id' => 2,
+                    'dosen_id' => 2,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
         // m_level_user
-        DB::table('m_level_user')->insert([
-            ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
-            ['level_kode' => 'MHS', 'level_nama' => 'Mahasiswa', 'created_at' => $now],
-            ['level_kode' => 'DSN', 'level_nama' => 'Dosen', 'created_at' => $now],
-        ]);
+
 
         // m_provinsi
         DB::table('m_provinsi')->insert([
@@ -74,7 +124,7 @@ class DatabaseSeeder extends Seeder
 
         // m_kategori_kompetensi
         DB::table('m_kategori_kompetensi')->insert([
-            ['kategori_kompetensi_kode' => 'KOMP1', 'kategori_nama' => 'Manajerial', 'created_at' => $now],
+            ['kategori_kompetensi_id' => 1, 'kategori_kompetensi_kode' => 'KOMP1', 'kategori_nama' => 'Manajerial', 'created_at' => $now],
         ]);
 
         // m_kategori_skill
@@ -99,12 +149,12 @@ class DatabaseSeeder extends Seeder
 
         // user_preferensi_lokasi
         DB::table('user_preferensi_lokasi')->insert([
-            ['user_id' => 2, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => $now],
+            ['mahasiswa_id' => 2, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => $now],
         ]);
 
         // user_skill
         DB::table('user_skill')->insert([
-            ['user_id' => 2, 'skill_id' => 1, 'created_at' => $now],
+            ['mahasiswa_id' => 2, 'skill_id' => 1, 'created_at' => $now],
         ]);
 
         // m_industri
@@ -127,57 +177,43 @@ class DatabaseSeeder extends Seeder
         DB::table('lowongan_skill')->insert([
             ['lowongan_id' => 1, 'skill_id' => 1, 'created_at' => $now],
         ]);
+        // user_kompetensi
+    // m_detail_kompetensi
+    DB::table('m_detail_kompetensi')->insert([
+        [
+            'kompetensi_id' => 1,
+            'nama_matkul' => 'Bahasa Inggris',
+            'kategori_kompetensi_id' => 1,
+            'created_at' => $now,
+        ],
+        [
+            'kompetensi_id' => 2,
+            'kompetensi_nama' => 'PBO',
+            'kategori_kompetensi_id' => 1,
+            'created_at' => $now,
+        ],
+    ]);
 
-        DB::table('m_dosen')->insert([
-            [
-                'nama_lengkap' => 'Dr. Budi Santoso',
-                'email' => 'budi@example.com',
-                'password' => Hash::make('password123'),
-                'nip' => '19800101123456',
-                'level_id' => 3,
-                'prodi_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_lengkap' => 'Dr. Siti Aminah',
-                'email' => 'siti@example.com',
-                'password' => Hash::make('password123'),
-                'nip' => '19750506123456',
-                'level_id' => 3,
-                'prodi_id' => 2,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
-        DB::table('m_mahasiswa')->insert([
-            [
-                'nama_lengkap' => 'Andi Nugroho',
-                'email' => 'andi@example.com',
-                'password' => Hash::make('mahasiswa123'),
-                'nim' => '22410001',
-                'ipk' => 3.45,
-                'status' => 1,
-                'level_id' => 2, // level mahasiswa
-                'prodi_id' => 1,
-                'dosen_id' => 1, // pastikan dosen_id = 1 sudah ada
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_lengkap' => 'Rina Lestari',
-                'email' => 'rina@example.com',
-                'password' => Hash::make('mahasiswa123'),
-                'nim' => '22410002',
-                'ipk' => 3.80,
-                'status' => 0,
-                'level_id' => 2,
-                'prodi_id' => 2,
-                'dosen_id' => 2,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        ]);
-
+    // user_kompetensi
+    DB::table('user_kompetensi')->insert([
+        [
+            'mahasiswa_id' => 1,
+            'kompetensi_id' => 1,
+            'nilai' => 85.50,
+            'created_at' => $now
+        ],
+        [
+            'mahasiswa_id' => 1,
+            'kompetensi_id' => 2,
+            'nilai' => 86.50,
+            'created_at' => $now
+        ],
+        [
+            'mahasiswa_id' => 2,
+            'kompetensi_id' => 2,
+            'nilai' => 92.00,
+            'created_at' => $now
+        ],
+    ]);
     }
 }
