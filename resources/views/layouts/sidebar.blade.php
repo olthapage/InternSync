@@ -1,4 +1,4 @@
-<div class="sidenav-header">
+<div class="sidenav-header mb-2">
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
         aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
@@ -11,7 +11,7 @@
 <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}" href="../pages/dashboard.html">
+            <a class="nav-link {{ $activeMenu == 'home' ? 'active' : '' }}" href="{{ route('home') }}">
                 <div
                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1"
@@ -71,6 +71,93 @@
                 </li>
             </ul>
         </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
+                data-bs-target="#dropdownMenuIndustri" aria-expanded="false" aria-controls="dropdownMenuIndustri">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                        <title>office</title>
+                        <g fill="#FFFFFF" fill-rule="nonzero">
+                            <path class="color-background opacity-6"
+                                d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z" />
+                            <path class="color-background"
+                                d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z" />
+                        </g>
+                    </svg>
+                </div>
+                <span class="nav-link-text ms-1">Industri</span>
+            </a>
+            <ul class="collapse list-unstyled ps-4" id="dropdownMenuIndustri">
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
+                        Kategori Industri
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
+                        Daftar Industri
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
+                data-bs-target="#dropdownMenuSkill" aria-expanded="false" aria-controls="dropdownMenuSkill">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                        <title>office</title>
+                        <g fill="#FFFFFF" fill-rule="nonzero">
+                            <path class="color-background opacity-6"
+                                d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z" />
+                            <path class="color-background"
+                                d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z" />
+                        </g>
+                    </svg>
+                </div>
+                <span class="nav-link-text ms-1">Skill</span>
+            </a>
+            <ul class="collapse list-unstyled ps-4" id="dropdownMenuSkill">
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
+                        Kategori Skill
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
+                        Daftar Skill
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
+                data-bs-target="#dropdownMenuLokasi" aria-expanded="false" aria-controls="dropdownMenuLokasi">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
+                        <title>office</title>
+                        <g fill="#FFFFFF" fill-rule="nonzero">
+                            <path class="color-background opacity-6"
+                                d="M12.25,17.5 L8.75,17.5 L8.75,1.75 C8.75,0.78225 9.53225,0 10.5,0 L31.5,0 C32.46775,0 33.25,0.78225 33.25,1.75 L33.25,12.25 L29.75,12.25 L29.75,3.5 L12.25,3.5 L12.25,17.5 Z" />
+                            <path class="color-background"
+                                d="M40.25,14 L24.5,14 C23.53225,14 22.75,14.78225 22.75,15.75 L22.75,38.5 L19.25,38.5 L19.25,22.75 C19.25,21.78225 18.46775,21 17.5,21 L1.75,21 C0.78225,21 0,21.78225 0,22.75 L0,40.25 C0,41.21775 0.78225,42 1.75,42 L40.25,42 C41.21775,42 42,41.21775 42,40.25 L42,15.75 C42,14.78225 41.21775,14 40.25,14 Z M12.25,36.75 L7,36.75 L7,33.25 L12.25,33.25 L12.25,36.75 Z M12.25,29.75 L7,29.75 L7,26.25 L12.25,26.25 L12.25,29.75 Z M35,36.75 L29.75,36.75 L29.75,33.25 L35,33.25 L35,36.75 Z M35,29.75 L29.75,29.75 L29.75,26.25 L35,26.25 L35,29.75 Z M35,22.75 L29.75,22.75 L29.75,19.25 L35,19.25 L35,22.75 Z" />
+                        </g>
+                    </svg>
+                </div>
+                <span class="nav-link-text ms-1">Lokasi</span>
+            </a>
+            <ul class="collapse list-unstyled ps-4" id="dropdownMenuLokasi">
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
+                        Provinsi
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
+                        Kota
+                    </a>
+                </li>
+            </ul>
+        </li>
 
         <li class="nav-item">
             <a class="nav-link  " href="../pages/billing.html">
@@ -96,7 +183,7 @@
                         </g>
                     </svg>
                 </div>
-                <span class="nav-link-text ms-1">Billing</span>
+                <span class="nav-link-text ms-1">Lowongan</span>
             </a>
         </li>
         <li class="nav-item">
@@ -251,4 +338,20 @@
             </a>
         </li>
     </ul>
+</div>
+<div class="sidenav-footer mx-3 ">
+    <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
+      <div class="full-background" style="background-image: url('../assets/img/curved-images/white-curved.jpg')"></div>
+      <div class="card-body text-start p-3 w-100">
+        <div class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
+          <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true" id="sidenavCardIcon"></i>
+        </div>
+        <div class="docs-info">
+          <h6 class="text-white up mb-0">Butuh bantuan?</h6>
+          <p class="text-xs font-weight-bold">Hubungi Admin</p>
+          <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank" class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
+        </div>
+      </div>
+    </div>
+    <a class="btn btn-primary mt-3 w-100" href="{{ url('logout')}}">Log out</a>
 </div>
