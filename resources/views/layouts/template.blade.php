@@ -18,6 +18,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/LogoInternSync.png">
     <link rel="icon" type="image/png" href="../assets/img/LogoInternSync.png">
     <title>
@@ -32,6 +33,11 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0') }}" rel="stylesheet" />
+    {{-- DataTables --}}
+    <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
     <!-- Nepcha Analytics (nepcha.com) -->
@@ -52,9 +58,10 @@
         </nav>
         <!-- End Navbar -->
         {{-- Main Content --}}
-        <div class="container-fluid py-4">
+        <div class="container-fluid py-4 bg-white rounded-start">
             @yield('content')
         </div>
+
             <footer class="footer pt-3  ">
                 @include('layouts.footer')
             </footer>
@@ -142,12 +149,27 @@
             </div>
         </div>
     </div>
+    <!-- jQuery -->
+    <script src="{{ asset('softTemplate/plugins/jquery/jquery.min.js') }}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{{ asset('softTemplate/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <!--   Core JS Files   -->
     <script src="{{ asset('softTemplate/assets/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/core/bootstrap.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/plugins/chartjs.min.js') }}"></script>
+
+    {{-- DataTables --}}
+    <script src="{{ asset('softTemplate/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('softTemplate/plugins/datatables-buttons/js/buttons.colvis.min.js') }}"></script>
     <script>
         var ctx = document.getElementById("chart-bars").getContext("2d");
 

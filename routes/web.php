@@ -26,13 +26,14 @@ use App\Http\Controllers\MahasiswaController;
 
 Route::pattern('id', '[0-9]+');
 
-Route::get('/', [WelcomeController::class, 'index']);
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('signup', [AuthController::class, 'signup']);
 Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,mahasiswa,dosen');
+
+Route::get('/', [WelcomeController::class, 'index']);
 
 Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
@@ -44,28 +45,31 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
+    Route::post('/dosen/list', [DosenController::class, 'list']);
     Route::get('/dosen/create', [DosenController::class, 'create'])->name('dosen.create');
     Route::post('/dosen', [DosenController::class, 'store'])->name('dosen.store');
-    Route::get('/dosen/{id}', [DosenController::class, 'show'])->name('dosen.show');
+    Route::get('/dosen/{id}/show', [DosenController::class, 'show'])->name('dosen.show');
     Route::get('/dosen/{id}/edit', [DosenController::class, 'edit'])->name('dosen.edit');
     Route::put('/dosen/{id}', [DosenController::class, 'update'])->name('dosen.update');
-    Route::delete('/dosen/{id}', [DosenController::class, 'destroy'])->name('dosen.destroy');
+    Route::delete('/dosen/{id}/delete', [DosenController::class, 'destroy'])->name('dosen.destroy');
 
     Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+    Route::post('/mahasiswa/list', [MahasiswaController::class, 'list']);
     Route::get('/mahasiswa/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
     Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
-    Route::get('/mahasiswa/{id}', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
+    Route::get('/mahasiswa/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
     Route::get('/mahasiswa/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
     Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
-    Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+    Route::delete('/mahasiswa/{id}/delete', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
 
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::post('/admin/list', [AdminController::class, 'list']);
     Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
     Route::post('/admin', [AdminController::class, 'store'])->name('admin.store');
-    Route::get('/admin/{id}', [AdminController::class, 'show'])->name('admin.show');
+    Route::get('/admin/{id}/show', [AdminController::class, 'show'])->name('admin.show');
     Route::get('/admin/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
     Route::put('/admin/{id}', [AdminController::class, 'update'])->name('admin.update');
-    Route::delete('/admin/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+    Route::delete('/admin/{id}/delete', [AdminController::class, 'destroy'])->name('admin.destroy');
 
     Route::get('/mitra', [MitraController::class, 'index'])->name('mitra.index');
     Route::get('/mitra/create', [MitraController::class, 'create'])->name('mitra.create');
