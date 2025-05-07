@@ -72,15 +72,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'admin' ? 'active fw-bold' : '' }}" href="/admin">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'admin' ? 'active fw-bold' : '' }}" href="{{ route('admin.index') }}">
                             <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='admin' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
                                 <i class="fas fa-user-shield text-dark"></i>
                             </div>
                             <span>Admin</span>
                         </a>
                     </li>
-                </ul>                
-            </ul>                      
+                </ul>
+            </ul>
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
@@ -118,7 +118,7 @@
                      </li>
                 </ul>
             </ul>
-        </li>        
+        </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
                 data-bs-target="#dropdownMenuSkill" aria-expanded="false" aria-controls="dropdownMenuSkill">
@@ -156,7 +156,7 @@
                         </a>
                       </li>
                 </ul>
-            </ul>              
+            </ul>
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
@@ -195,7 +195,7 @@
                         </a>
                       </li>
                 </ul>
-            </ul>              
+            </ul>
         </li>
         <li class="nav-item">
             <a class="nav-link  " href="../pages/billing.html">

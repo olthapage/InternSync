@@ -32,19 +32,20 @@ class MahasiswaModel extends Authenticatable
 
     public function level()
     {
-        return $this->belongsTo(LevelModel::class, 'level_id');
+        return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
     }
+
     public function prodi()
     {
-        return $this->belongsTo(ProdiModel::class, 'prodi_id');
+        return $this->belongsTo(ProdiModel::class, 'prodi_id', 'prodi_id');
     }
     public function dosen()
     {
-        return $this->belongsTo(DosenModel::class, 'dosen_id');
+        return $this->belongsTo(DosenModel::class, 'dosen_id', 'dosen_id');
     }
     public function preferensiLokasi()
     {
-        return $this->hasMany(MahasiswaPreferensiLokasiModel::class, 'mahasiswa_id');
+        return $this->hasMany(MahasiswaPreferensiLokasiModel::class, 'mahasiswa_id', 'mahasiswa_id');
     }
     public function skills()
     {

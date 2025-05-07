@@ -7,6 +7,7 @@ use App\Models\LevelModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
 use App\Models\MahasiswaModel;
+use Yajra\DataTables\Facades\DataTables;
 
 class MahasiswaController extends Controller
 {
@@ -16,6 +17,50 @@ class MahasiswaController extends Controller
         $activeMenu = 'mahasiswa';
         return view('mahasiswa.index', compact('mahasiswa', 'activeMenu'));
     }
+    public function list(Request $request)
+    {
+        $users = MahasiswaModel::select(
+                'mahasiswa_id',
+                'nama_lengkap',
+                'email',
+                'ipk',
+                'nim',
+                'status',
+                'level_id',
+                'prodi_id',
+                'dosen_id'
+            )
+            ->with(['level', 'prodi', 'dosen']);
+
+        if ($request->level_id) {
+            $users->where('level_id', $request->level_id);
+        }
+
+        return DataTables::of($users)
+            ->addIndexColumn()
+            ->addColumn('level', function ($user) {
+                return $user->level->level_nama ?? '-';
+            })
+            ->addColumn('prodi', function ($user) {
+                return $user->prodi->nama_prodi ?? '-';
+            })
+            ->addColumn('dosen', function ($user) {
+                return $user->dosen->nama_lengkap ?? '-';
+            })
+            ->addColumn('aksi', function ($user) {
+                $btn  = '<a href="' . url('/mahasiswa/' . $user->mahasiswa_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
+                $btn .= '<a href="' . url('/mahasiswa/' . $user->mahasiswa_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn .= '
+                    <form action="' . url('/mahasiswa/' . $user->mahasiswa_id . '/delete') . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
+                    </form>';
+    return $btn;
+            })
+            ->rawColumns(['aksi']) // Beri tahu bahwa kolom 'aksi' berisi HTML
+            ->make(true);
+    }
+
     public function create()
     {
         $prodi = ProdiModel::all();

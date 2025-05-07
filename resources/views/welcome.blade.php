@@ -5,18 +5,30 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="card">
-                        <span class="mask bg-primary opacity-10 border-radius-lg"></span>
+                        <span class="mask opacity-10 border-radius-lg"
+                            style="background: linear-gradient(135deg, #FFA500, #FFA500, #ffd966, #FFA500); opacity: 0.9;">
+                        </span>
+
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
-                                    <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
-                                        <i class="ni ni-circle-08 text-dark text-gradient text-lg opacity-10"
-                                            aria-hidden="true"></i>
+                                    <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
+                                        style="height: 50px; width: 50px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
+                                            xml:space="preserve">
+                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                                <path
+                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
+                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
+                                            </g>
+                                        </svg>
                                     </div>
                                     <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                        1600
+                                        {{ $mhsMagang }}
                                     </h5>
-                                    <span class="text-white text-sm">Users Active</span>
+                                    <span class="text-white text-sm">Mahasiswa Magang</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropdown text-end mb-6">
@@ -41,18 +53,30 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-12 mt-4 mt-md-0">
                     <div class="card">
-                        <span class="mask bg-dark opacity-10 border-radius-lg"></span>
+                        <span class="mask opacity-10 border-radius-lg"
+                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                        </span>
+
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
-                                    <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
-                                        <i class="ni ni-active-40 text-dark text-gradient text-lg opacity-10"
-                                            aria-hidden="true"></i>
+                                    <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
+                                        style="height: 50px; width: 50px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
+                                            xml:space="preserve">
+                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                                <path
+                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
+                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
+                                            </g>
+                                        </svg>
                                     </div>
                                     <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                        357
+                                        {{ $lowongan }}
                                     </h5>
-                                    <span class="text-white text-sm">Click Events</span>
+                                    <span class="text-white text-sm">Lowongan</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropstart text-end mb-6">
@@ -79,18 +103,29 @@
             <div class="row mt-4">
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="card">
-                        <span class="mask bg-dark opacity-10 border-radius-lg"></span>
+                        <span class="mask opacity-10 border-radius-lg"
+                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                        </span>
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
-                                    <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
-                                        <i class="ni ni-cart text-dark text-gradient text-lg opacity-10"
-                                            aria-hidden="true"></i>
+                                    <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
+                                        style="height: 50px; width: 50px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
+                                            xml:space="preserve">
+                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                                <path
+                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
+                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
+                                            </g>
+                                        </svg>
                                     </div>
                                     <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                        2300
+                                        {{ $mhsCount }}
                                     </h5>
-                                    <span class="text-white text-sm">Purchases</span>
+                                    <span class="text-white text-sm">Mahasiswa Terdaftar</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropdown text-end mb-6">
@@ -115,18 +150,29 @@
                 </div>
                 <div class="col-lg-6 col-md-6 col-12 mt-4 mt-md-0">
                     <div class="card">
-                        <span class="mask bg-dark opacity-10 border-radius-lg"></span>
+                        <span class="mask opacity-10 border-radius-lg"
+                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                        </span>
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
-                                    <div class="icon icon-shape bg-white shadow text-center border-radius-2xl">
-                                        <i class="ni ni-like-2 text-dark text-gradient text-lg opacity-10"
-                                            aria-hidden="true"></i>
+                                    <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
+                                        style="height: 50px; width: 50px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
+                                            xml:space="preserve">
+                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
+                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                                <path
+                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
+                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
+                                            </g>
+                                        </svg>
                                     </div>
                                     <h5 class="text-white font-weight-bolder mb-0 mt-3">
-                                        940
+                                        {{ $industri }}
                                     </h5>
-                                    <span class="text-white text-sm">Likes</span>
+                                    <span class="text-white text-sm">Industri Terdaftar</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropstart text-end mb-6">
@@ -222,7 +268,7 @@
                 <div class="card-header pb-0">
                     <div class="row">
                         <div class="col-lg-6 col-7">
-                            <h6>Projects</h6>
+                            <h6>Progres Magang</h6>
                             <p class="text-sm mb-0">
                                 <i class="fa fa-check text-info" aria-hidden="true"></i>
                                 <span class="font-weight-bold ms-1">30 done</span> this month

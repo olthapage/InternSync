@@ -1,13 +1,13 @@
 @extends('layouts.template')
 
 @section('content')
-<div class="container mt-4">
+<div class="mt-4">
     <h2 class="mb-4">Daftar Dosen</h2>
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ route('dosen.create') }}" class="btn btn-primary">+ Tambah Dosen</a>
     </div>
     <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover align-middle">
+        <table class="table table-bordered table-striped table-hover align-middle" id="table_dosen">
             <thead class="table-dark text-center">
                 <tr>
                     <th scope="col">No</th>
@@ -18,28 +18,82 @@
                     <th scope="col">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach($dosen as $index => $dsn)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $dsn->nama_lengkap }}</td>
-                    <td>{{ $dsn->email }}</td>
-                    <td class="text-center">{{ $dsn->nip }}</td>
-                    <td>{{ $dsn->prodi->nama_prodi ?? '-' }}</td>
-                    <td class="text-center">
-                        <a href="{{ route('dosen.show', $dsn->dosen_id) }}" class="btn btn-sm btn-warning">Detail</a>
-                        <a href="{{ route('dosen.edit', $dsn->dosen_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <form action="{{ route('dosen.destroy', $dsn->dosen_id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" onclick="return confirm('Yakin ingin hapus?')" class="btn btn-sm btn-danger">Hapus</button>
-                        </form>
-                    </td>
-
-                </tr>
-                @endforeach
-            </tbody>
         </table>
     </div>
 </div>
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
+
+@push('js')
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
+
+        var dataDosen;
+
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            dataDosen = $('#table_dosen').DataTable({
+                serverSide: true,
+                ajax: {
+                    "url": "{{ url('dosen/list') }}",
+                    "dataType": "json",
+                    "type": "POST",
+                    "data": function(d) {
+                        d.level_id = $('#level_id').val();
+                    }
+                },
+                columns: [{
+                        data: "DT_RowIndex",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "nama_lengkap",
+                        className: "text-center",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "email",
+                        className: "text-center",
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: "nip",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "prodi",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "aksi",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+
+            });
+            $('#level_id').on('change', function() {
+                dataDosen.ajax.reload();
+            });
+        });
+    </script>
+@endpush

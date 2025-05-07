@@ -5,6 +5,7 @@ use App\Models\DosenModel;
 use App\Models\LevelModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class DosenController extends Controller
 {
@@ -13,6 +14,43 @@ class DosenController extends Controller
         $dosen = DosenModel::with('prodi')->get();
         $activeMenu = 'dosen';
         return view('dosen.index', compact('dosen', 'activeMenu'));
+    }
+    public function list(Request $request)
+    {
+        $users = DosenModel::select(
+                'dosen_id',
+                'nama_lengkap',
+                'email',
+                'nip',
+                'level_id',
+                'prodi_id',
+            )
+            ->with(['level', 'prodi']);
+
+        if ($request->level_id) {
+            $users->where('level_id', $request->level_id);
+        }
+
+        return DataTables::of($users)
+            ->addIndexColumn()
+            ->addColumn('level', function ($user) {
+                return $user->level->level_nama ?? '-';
+            })
+            ->addColumn('prodi', function ($user) {
+                return $user->prodi->nama_prodi ?? '-';
+            })
+            ->addColumn('aksi', function ($user) {
+                $btn  = '<a href="' . url('/dosen/' . $user->dosen_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
+                $btn .= '<a href="' . url('/dosen/' . $user->dosen_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn .= '
+                    <form action="' . url('/dosen/' . $user->dosen_id . '/delete') . '" method="POST" style="display:inline;">
+                        ' . csrf_field() . method_field('DELETE') . '
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
+                    </form>';
+                return $btn;
+            })
+            ->rawColumns(['aksi']) // Beri tahu bahwa kolom 'aksi' berisi HTML
+            ->make(true);
     }
     public function create()
     {
