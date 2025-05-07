@@ -54,22 +54,33 @@
                 <span class="nav-link-text ms-1">Daftar Pengguna</span>
             </a>
             <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['mahasiswa', 'dosen', 'admin']) ? 'show' : '' }}" id="dropdownMenuUser">
-                <li>
-                    <a class="dropdown-item py-2 border-bottom {{ $activeMenu == 'mahasiswa' ? 'active' : '' }}" href="{{ route('mahasiswa.index') }}">
-                        Mahasiswa
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 border-bottom {{ $activeMenu == 'dosen' ? 'active' : '' }}" href="{{ route('dosen.index') }}">
-                        Dosen
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 {{ $activeMenu == 'admin' ? 'active' : '' }}" href="/admin">
-                        Admin
-                    </a>
-                </li>
-            </ul>
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['mahasiswa', 'dosen', 'admin']) ? 'show' : '' }}" id="dropdownMenuUser">
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'mahasiswa' ? 'active fw-bold' : '' }}" href="{{ route('mahasiswa.index') }}">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='mahasiswa' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user-graduate text-dark"></i>
+                            </div>
+                            <span>Mahasiswa</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'dosen' ? 'active fw-bold' : '' }}" href="{{ route('dosen.index') }}">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='dosen' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chalkboard-teacher text-dark"></i>
+                            </div>
+                            <span>Dosen</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'admin' ? 'active fw-bold' : '' }}" href="/admin">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='admin' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user-shield text-dark"></i>
+                            </div>
+                            <span>Admin</span>
+                        </a>
+                    </li>
+                </ul>                
+            </ul>                      
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
@@ -87,19 +98,27 @@
                 </div>
                 <span class="nav-link-text ms-1">Industri</span>
             </a>
-            <ul class="collapse list-unstyled ps-4" id="dropdownMenuIndustri">
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
-                        Kategori Industri
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
-                        Daftar Industri
-                    </a>
-                </li>
+            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'daftar_industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'daftar_industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'kategori_industri' ? 'active fw-bold' : '' }}" href="{{route('mahasiswa.index')}}">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='kategori_industri' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-industry text-dark"></i>
+                            </div>
+                            <span>Kategori Industri</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'daftar_industri' ? 'active fw-bold' : '' }}" href="{{ route('mahasiswa.index') }}">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='daftar_industri' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-building text-dark"></i>
+                            </div>
+                            <span>Daftar Industri</span>
+                        </a>
+                     </li>
+                </ul>
             </ul>
-        </li>
+        </li>        
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
                 data-bs-target="#dropdownMenuSkill" aria-expanded="false" aria-controls="dropdownMenuSkill">
@@ -116,18 +135,28 @@
                 </div>
                 <span class="nav-link-text ms-1">Skill</span>
             </a>
-            <ul class="collapse list-unstyled ps-4" id="dropdownMenuSkill">
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
-                        Kategori Skill
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
-                        Daftar Skill
-                    </a>
-                </li>
-            </ul>
+            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill','daftar_skill']) ? 'show' : '' }}" id="dropdownMenuSkill">
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill','daftar_skill']) ? 'show' : '' }}" id="dropdownMenuSkill">
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu=='kategori_skill' ? 'active fw-bold' : '' }}"
+                           href="{{ route('mahasiswa.index') }}">
+                           <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='kategori_skill' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                            <i class="fas fa-layer-group text-dark"></i>
+                          </div>
+                          <span>Kategori Skill</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu=='daftar_skill' ? 'active fw-bold' : '' }}"
+                           href="{{ route('mahasiswa.index') }}">
+                           <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='daftar_skill' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                            <i class="fas fa-list-alt text-dark"></i>
+                          </div>
+                          <span>Daftar Skill</span>
+                        </a>
+                      </li>
+                </ul>
+            </ul>              
         </li>
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="collapse"
@@ -145,20 +174,29 @@
                 </div>
                 <span class="nav-link-text ms-1">Lokasi</span>
             </a>
-            <ul class="collapse list-unstyled ps-4" id="dropdownMenuLokasi">
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('mahasiswa.index') }}">
-                        Provinsi
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 border-bottom" href="{{ route('dosen.index') }}">
-                        Kota
-                    </a>
-                </li>
-            </ul>
+            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['provinsi','kota']) ? 'show' : '' }}" id="dropdownMenuLokasi">
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['provinsi','kota']) ? 'show' : '' }}" id="dropdownMenuLokasi">
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu=='provinsi' ? 'active fw-bold' : '' }}"
+                           href="{{ route('mahasiswa.index') }}">
+                           <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='provinsi' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                            <i class="fas fa-map-marked-alt text-dark"></i>
+                          </div>
+                          <span>Provinsi</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu=='kota' ? 'active fw-bold' : '' }}"
+                           href="{{ route('mahasiswa.index') }}">
+                           <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='kota' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                            <i class="fas fa-city text-dark"></i>
+                          </div>
+                          <span>Kota</span>
+                        </a>
+                      </li>
+                </ul>
+            </ul>              
         </li>
-
         <li class="nav-item">
             <a class="nav-link  " href="../pages/billing.html">
                 <div
