@@ -35,7 +35,7 @@ class AuthController extends Controller
         if (Auth::guard($guard)->attempt($credentials)) {
             return response()->json([
                 'status' => true,
-                'message' => 'Login berhasil sebagai ' . ucfirst($guard),
+                'message' => 'Login berhasil',
                 'redirect' => url('/')
             ]);
         }
