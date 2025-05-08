@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://yourwebsite.com" target="_blank">
-    <img src="assets/img/LogoInternSync.png" width="300" alt="InternSync Logo">
+    <img src="softTemplate/assets/img/LogoInternSync.png" width="300" alt="InternSync Logo">
   </a>
 </p>
 
