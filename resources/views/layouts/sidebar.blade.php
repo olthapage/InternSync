@@ -98,8 +98,8 @@
                 </div>
                 <span class="nav-link-text ms-1">Industri</span>
             </a>
-            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'daftar_industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
-                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'daftar_industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
+            <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'show' : '' }}" id="dropdownMenuIndustri">
                     <li class="nav-item">
                         <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'kategori_industri' ? 'active fw-bold' : '' }}" href="{{route('mahasiswa.index')}}">
                             <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='kategori_industri' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
