@@ -9,9 +9,9 @@
 </div>
 <hr class="horizontal dark mt-0">
 <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link {{ $activeMenu == 'home' ? 'active' : '' }}" href="{{ route('home') }}">
+    <ul class="navbar-nav  ">
+        <li class="nav-item ">
+            <a class="nav-link {{ $activeMenu == 'home' ? 'active' : '' }}" href="{{ route('home') }} ">
                 <div
                     class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1"
@@ -34,7 +34,7 @@
                         </g>
                     </svg>
                 </div>
-                <span class="nav-link-text ms-1">Dashboard</span>
+                <span class="nav-link-text ms-1 ">Dashboard</span>
             </a>
         </li>
         <li class="nav-item dropdown">
@@ -288,10 +288,9 @@
             <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Account pages</h6>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('profile.index') }}">
+            <a class="nav-link {{ $activeMenu == 'profile' ? 'active' : '' }}" href="{{ route('profile.index') }}">
                 <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                    <svg width="12px" height="12px" viewBox="0 0 46 42" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <svg width="12px" height="12px" viewBox="0 0 46 42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <title>customer-support</title>
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                             <g transform="translate(-1717.000000, -291.000000)" fill="#FFFFFF" fill-rule="nonzero">
@@ -314,17 +313,14 @@
                 </div>
                 <span class="nav-link-text ms-1">Profile</span>
             </a>
-        </li>
+        </li>       
         <li class="nav-item">
-            <a class="nav-link  " href="../pages/sign-in.html">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                    <svg width="12px" height="12px" viewBox="0 0 40 44" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <a class="nav-link {{ $activeMenu == 'signin' ? 'active' : '' }}" href="{{ url('/pages/sign-in.html') }}">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                    <svg width="12px" height="12px" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <title>document</title>
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF"
-                                fill-rule="nonzero">
+                            <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
                                 <g transform="translate(1716.000000, 291.000000)">
                                     <g transform="translate(154.000000, 300.000000)">
                                         <path class="color-background opacity-6"
@@ -341,17 +337,15 @@
                 </div>
                 <span class="nav-link-text ms-1">Sign In</span>
             </a>
-        </li>
+        </li>  
         <li class="nav-item">
-            <a class="nav-link  " href="../pages/sign-up.html">
-                <div
-                    class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+            <a class="nav-link {{ $activeMenu == 'signup' ? 'active' : '' }}" href="../pages/sign-up.html">
+                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                     <svg width="12px" height="20px" viewBox="0 0 40 40" version="1.1"
                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <title>spaceship</title>
                         <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-1720.000000, -592.000000)" fill="#FFFFFF"
-                                fill-rule="nonzero">
+                            <g transform="translate(-1720.000000, -592.000000)" fill="#FFFFFF" fill-rule="nonzero">
                                 <g transform="translate(1716.000000, 291.000000)">
                                     <g transform="translate(4.000000, 301.000000)">
                                         <path class="color-background"
@@ -375,6 +369,7 @@
                 <span class="nav-link-text ms-1">Sign Up</span>
             </a>
         </li>
+        
     </ul>
 </div>
 <div class="sidenav-footer mx-3 ">
