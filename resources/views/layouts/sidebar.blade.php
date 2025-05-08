@@ -109,8 +109,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'daftar_industri' ? 'active fw-bold' : '' }}" href="{{ route('mahasiswa.index') }}">
-                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='daftar_industri' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'industri' ? 'active fw-bold' : '' }}" href="{{ route('industri.index') }}">
+                            <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='industri' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
                                 <i class="fas fa-building text-dark"></i>
                             </div>
                             <span>Daftar Industri</span>
