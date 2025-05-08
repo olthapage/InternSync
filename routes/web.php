@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
-use App\Http\Controllers\MitraController;
+use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\MahasiswaController;
@@ -71,11 +71,12 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::put('/admin/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::delete('/admin/{id}/delete', [AdminController::class, 'destroy'])->name('admin.destroy');
 
-    Route::get('/mitra', [MitraController::class, 'index'])->name('mitra.index');
-    Route::get('/mitra/create', [MitraController::class, 'create'])->name('mitra.create');
-    Route::post('/mitra', [MitraController::class, 'store'])->name('mitra.store');
-    Route::get('/mitra/{id}', [MitraController::class, 'show'])->name('mitra.show');
-    Route::get('/mitra/{id}/edit', [MitraController::class, 'edit'])->name('mitra.edit');
-    Route::put('/mitra/{id}', [MitraController::class, 'update'])->name('mitra.update');
-    Route::delete('/mitra/{id}', [MitraController::class, 'destroy'])->name('mitra.destroy');
+    Route::get('/industri/', [IndustriController::class, 'index'])->name('industri.index');
+    Route::post('/industri/list', [IndustriController::class, 'list'])->name('industri.list');
+    Route::get('/industri/create', [IndustriController::class, 'create'])->name('industri.create');
+    Route::post('/industri/store', [IndustriController::class, 'store'])->name('industri.store');
+    Route::get('/industri/{id}/show', [IndustriController::class, 'show'])->name('industri.show');
+    Route::get('/industriedit', [IndustriController::class, 'edit'])->name('industri.edit');
+    Route::put('/industri/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
+    Route::delete('/industri/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
 });
