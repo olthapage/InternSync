@@ -295,7 +295,10 @@ class DatabaseSeeder extends Seeder
         // Asumsi kota_id merujuk pada m_kota (ID 1-10)
         // Asumsi kategori_industri_id merujuk pada m_kategori_industri (ID 1-10)
         $industriData = [
-            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now], // Added created_at
+            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now], 
+            ['industri_nama' => 'PT DES Teknologi Informasi', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
+            ['industri_nama' => 'PT Mitra Infosarana', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
+            ['industri_nama' => 'PT Datamax Teknologi Indonesia', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now],
         ];
         for ($i = 2; $i <= 10; $i++) {
             $industriData[] = [
