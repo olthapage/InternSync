@@ -104,6 +104,13 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
     Route::get('/lowongan', [LowonganController::class, 'index'])->name('lowongan.index');
     Route::post('/lowongan/list', [LowonganController::class, 'list']);
+    Route::post('/lowongan/list', [LowonganController::class, 'list'])->name('lowongan.list');
+    Route::get('/lowongan/create', [LowonganController::class, 'create'])->name('lowongan.create');
+    Route::post('/lowongan/store', [LowonganController::class, 'store'])->name('lowongan.store');
+    Route::get('/lowongan/{id}/show', [LowonganController::class, 'show'])->name('lowongan.show');
+    Route::get('/lowongan/{id}/edit', [LowonganController::class, 'edit'])->name('lowongan.edit');
+    Route::put('/lowongan/{id}/update', [LowonganController::class, 'update'])->name('lowongan.update');
+    Route::delete('/lowongan/{id}/delete', [LowonganController::class, 'destroy'])->name('lowongan.destroy');
 });
 
 ?>
