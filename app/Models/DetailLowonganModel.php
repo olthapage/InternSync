@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\IndustriModel;
-use App\Models\KategoriLowonganModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailLowonganModel;
-use App\Models\KategoriLowonganModel;
 use Yajra\DataTables\Facades\DataTables;
 
 class LowonganController extends Controller
