@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\KotaModel;
 use App\Models\KategoriIndustriModel;
+use App\Models\LowonganDetailModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -23,5 +24,9 @@ class IndustriModel extends Model
     function kota()
     {
         return $this->belongsTo(KotaModel::class, 'kota_id', 'kota_id');
+    }
+    public function detail_lowongan()
+    {
+        return $this->hasMany(DetailLowonganModel::class, 'industri_id');
     }
 }

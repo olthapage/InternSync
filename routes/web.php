@@ -9,6 +9,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\KategoriIndustriController;
+use App\Http\Controllers\LowonganController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,4 +90,14 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::get('/kategori-industri/{id}/edit', [KategoriIndustriController::class, 'edit'])->name('kategori-industri.edit');
     Route::put('/kategori-industri/{id}/update', [KategoriIndustriController::class, 'update'])->name('kategori-industri.update');
     Route::delete('/kategori-industri/{id}/delete', [KategoriIndustriController::class, 'destroy'])->name('kategori-industri.destroy');
+
+    Route::get('/lowongan', [LowonganController::class, 'index'])->name('lowongan.index');
+    Route::post('/lowongan/list', [LowonganController::class, 'list']);
 });
+
+?>
+
+
+
+
+

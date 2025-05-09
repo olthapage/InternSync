@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\IndustriModel;
 
 class DetailLowonganModel extends Model
 {
@@ -13,4 +14,9 @@ class DetailLowonganModel extends Model
     public $timestamps = false;
 
     protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id', 'kategori_lowongan_id'];
+
+    public function industri()
+    {
+        return $this->belongsTo(IndustriModel::class, 'industri_id');
+    }
 }
