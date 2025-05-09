@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ route('dosen.create') }}" class="btn btn-primary">+ Tambah Dosen</a>
     </div>
-    <div class="table-responsive">
+    <div class="table-responsive text-sm">
         <table class="table table-bordered table-striped table-hover align-middle" id="table_dosen">
             <thead class="table-dark text-center">
                 <tr>

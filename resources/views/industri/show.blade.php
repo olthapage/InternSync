@@ -1,24 +1,24 @@
 @extends('layouts.template')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Detail Mitra</h2>
-
-    <div class="mb-3">
-        <label class="form-label">Nama Mitra</label>
-        <p>{{ $mitra->nama }}</p>
+    <div class="container mt-4">
+        <h2>Detail Industri</h2>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ $industri->industri_nama }}</h5>
+                <p class="card-text"><strong>Kota:</strong> {{ $industri->kota->kota_nama ?? '-' }}</p>
+                <p class="card-text"><strong>Kategori Industri:</strong> {{ $industri->kategori_industri->kategori_nama ?? '-' }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ route('industri.edit', $industri->industri_id) }}" class="btn btn-warning">Edit</a>
+                <form action="{{ route('industri.destroy', $industri->industri_id) }}" method="POST" class="d-inline"
+                    onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger" type="submit">Hapus</button>
+                </form>
+                <a href="{{ route('industri.index') }}" class="btn btn-secondary">Kembali</a>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Alamat</label>
-        <p>{{ $mitra->alamat }}</p>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Status</label>
-        <p>{{ $mitra->status == 1 ? 'Aktif' : 'Nonaktif' }}</p>
-    </div>
-
-    <a href="{{ route('mitra.index') }}" class="btn btn-secondary">Kembali</a>
-</div>
 @endsection

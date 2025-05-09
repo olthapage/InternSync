@@ -4,10 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
-use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\KategoriIndustriController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +77,16 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::get('/industri/create', [IndustriController::class, 'create'])->name('industri.create');
     Route::post('/industri/store', [IndustriController::class, 'store'])->name('industri.store');
     Route::get('/industri/{id}/show', [IndustriController::class, 'show'])->name('industri.show');
-    Route::get('/industriedit', [IndustriController::class, 'edit'])->name('industri.edit');
+    Route::get('/industri/{id}/edit', [IndustriController::class, 'edit'])->name('industri.edit');
     Route::put('/industri/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
     Route::delete('/industri/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
+
+    Route::get('/kategori-industri/', [KategoriIndustriController::class, 'index'])->name('kategori-industri.index');
+    Route::post('/kategori-industri/list', [KategoriIndustriController::class, 'list'])->name('kategori-industri.list');
+    Route::get('/kategori-industri/create', [KategoriIndustriController::class, 'create'])->name('kategori-industri.create');
+    Route::post('/kategori-industri/store', [KategoriIndustriController::class, 'store'])->name('kategori-industri.store');
+    Route::get('/kategori-industri/{id}/show', [KategoriIndustriController::class, 'show'])->name('kategori-industri.show');
+    Route::get('/kategori-industri/{id}/edit', [KategoriIndustriController::class, 'edit'])->name('kategori-industri.edit');
+    Route::put('/kategori-industri/{id}/update', [KategoriIndustriController::class, 'update'])->name('kategori-industri.update');
+    Route::delete('/kategori-industri/{id}/delete', [KategoriIndustriController::class, 'destroy'])->name('kategori-industri.destroy');
 });
