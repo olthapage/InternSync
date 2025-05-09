@@ -4,7 +4,7 @@
     <span class="mask bg-primary opacity-9"></span>
     <div class="w-100 position-relative p-3">
         <div class="d-flex justify-content-between align-items-end">
-            <div class="d-flex align-items-center">
+            <div clasb s="d-flex align-items-center">
                 <div class="avatar avatar-xl position-relative me-3">
                     <img id="profileHeaderImage"
                         src="{{ asset('storage/public/foto/' . Auth::user()->foto) }}" alt="profile_image"
@@ -41,66 +41,23 @@ aria-hidden="true">
 <div class="row">
     <div class="col-12 col-xl-4">
         <div class="card h-100">
-            <div class="card-header pb-0 p-3">
-                <h6 class="mb-0">Platform Settings</h6>
-            </div>
-            <div class="card-body p-3">
-                <h6 class="text-uppercase text-body text-xs font-weight-bolder">Account</h6>
-                <ul class="list-group">
-                    <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault" checked>
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault">Email me when someone follows me</label>
-                        </div>
-                    </li>
-                    <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault1">
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault1">Email me when someone answers on my
-                                post</label>
-                        </div>
-                    </li>
-                    <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault2" checked>
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault2">Email me when someone mentions me</label>
-                        </div>
-                    </li>
-                </ul>
-                <h6 class="text-uppercase text-body text-xs font-weight-bolder mt-4">Application</h6>
-                <ul class="list-group">
-                    <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault3">
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault3">New launches and projects</label>
-                        </div>
-                    </li>
-                    <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault4" checked>
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault4">Monthly product updates</label>
-                        </div>
-                    </li>
-                    <li class="list-group-item border-0 px-0 pb-0">
-                        <div class="form-check form-switch ps-0">
-                            <input class="form-check-input ms-auto" type="checkbox"
-                                id="flexSwitchCheckDefault5">
-                            <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0"
-                                for="flexSwitchCheckDefault5">Subscribe to newsletter</label>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+          <div class="card-header pb-0 p-3">
+            <h6 class="mb-0">📥 Quick Links</h6>
+          </div>
+          <div class="card-body p-3">
+            @php $level = auth()->user()->level->level_kode; @endphp
+            <ul class="list-group">
+              <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🏠 Dashboard</a>
+              <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🏢 Industri</a>
+              @if($level !== 'MHS')
+                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🔔 Notifikasi</a>
+              @endif
+              @if($level === 'MHS')
+                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">📝 Laporan Magang</a>
+              @endif
+              <a href="{{ route('home') }}" class="list-group-item list-group-item-action">⚙️ Pengaturan</a>
+            </ul>
+          </div>
         </div>
     </div>
     <div class="col-12 col-xl-4">
@@ -144,71 +101,58 @@ aria-hidden="true">
         </div>
     </div>
     <div class="col-12 col-xl-4">
-        <div class="card h-100">
+        @php $level = auth()->user()->level->level_kode; @endphp
+        @if(in_array($level, ['ADM', 'DSN']))
+          <div class="card mb-3">
             <div class="card-header pb-0 p-3">
-                <h6 class="mb-0">Conversations</h6>
+              <h6 class="mb-0">⚙️ Status Sistem</h6>
+            </div>
+            <div class="card-body p-3 small">
+              <ul class="list-unstyled">
+                <li>Database: <span class="text-success">Online ✅</span></li>
+                <li>Backup terakhir: <small class="text-muted">{{ now()->subHours(2)->format('H:i') }} WIB</small></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">📥 Unduhan Cepat</h6>
+            </div>
+            <div class="card-body mb-3">
+              <ul class="list-group">
+                <a href="{{ asset('files/panduan_internsync.pdf') }}" class="list-group-item list-group-item-action" target="_blank">📄 Panduan InternSync</a>
+                <a href="{{ asset('files/form_magang.docx') }}" class="list-group-item list-group-item-action" target="_blank">📝 Formulir Magang</a>
+                <a href="{{ asset('files/sertifikat_sample.pdf') }}" class="list-group-item list-group-item-action" target="_blank">🎖️ Contoh Sertifikat</a>
+              </ul>
+            </div>
+          </div>
+        @else
+          <div class="card-body p-3 small">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">💡 Tip Singkat</h6>
+            </div>
+            <div class="card-body p-3 small">
+              <ul class="ps-3 mb-0">
+                <li>Gunakan filter skill untuk hasil lebih tepat.</li>
+                <li>Unggah foto profil agar lebih personal.</li>
+                <li>Perbarui kontak untuk notifikasi lancar.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header pb-0 p-3">
+              <h6 class="mb-0">📥 Unduhan Cepat</h6>
             </div>
             <div class="card-body p-3">
-                <ul class="list-group">
-                    <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                        <div class="avatar me-3">
-                            <img src="softTemplate/assets/img/kal-visuals-square.jpg" alt="kal"
-                                class="border-radius-lg shadow">
-                        </div>
-                        <div class="d-flex align-items-start flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Sophie B.</h6>
-                            <p class="mb-0 text-xs">Hi! I need more information..</p>
-                        </div>
-                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
-                    </li>
-                    <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                        <div class="avatar me-3">
-                            <img src="softTemplate/assets/img/marie.jpg" alt="kal"
-                                class="border-radius-lg shadow">
-                        </div>
-                        <div class="d-flex align-items-start flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Anne Marie</h6>
-                            <p class="mb-0 text-xs">Awesome work, can you..</p>
-                        </div>
-                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
-                    </li>
-                    <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                        <div class="avatar me-3">
-                            <img src="softTemplate/assets/img/ivana-square.jpg" alt="kal"
-                                class="border-radius-lg shadow">
-                        </div>
-                        <div class="d-flex align-items-start flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Ivanna</h6>
-                            <p class="mb-0 text-xs">About files I can..</p>
-                        </div>
-                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
-                    </li>
-                    <li class="list-group-item border-0 d-flex align-items-center px-0 mb-2">
-                        <div class="avatar me-3">
-                            <img src="softTemplate/assets/img/team-4.jpg" alt="kal"
-                                class="border-radius-lg shadow">
-                        </div>
-                        <div class="d-flex align-items-start flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Peterson</h6>
-                            <p class="mb-0 text-xs">Have a great afternoon..</p>
-                        </div>
-                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
-                    </li>
-                    <li class="list-group-item border-0 d-flex align-items-center px-0">
-                        <div class="avatar me-3">
-                            <img src="softTemplate/assets/img/team-3.jpg" alt="kal"
-                                class="border-radius-lg shadow">
-                        </div>
-                        <div class="d-flex align-items-start flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">Nick Daniel</h6>
-                            <p class="mb-0 text-xs">Hi! I need more information..</p>
-                        </div>
-                        <a class="btn btn-link pe-3 ps-0 mb-0 ms-auto" href="javascript:;">Reply</a>
-                    </li>
-                </ul>
+              <ul class="list-group">
+                <a href="{{ asset('files/panduan_internsync.pdf') }}" class="list-group-item list-group-item-action" target="_blank">📄 Panduan InternSync</a>
+                <a href="{{ asset('files/form_magang.docx') }}" class="list-group-item list-group-item-action" target="_blank">📝 Formulir Magang</a>
+                <a href="{{ asset('files/sertifikat_sample.pdf') }}" class="list-group-item list-group-item-action" target="_blank">🎖️ Contoh Sertifikat</a>
+              </ul>
             </div>
-        </div>
-    </div>
+          </div>
+        @endif
+    </div>    
     <div class="col-12 mt-4">
         <div class="card mb-4">
             <div class="card-header pb-0 p-3">
