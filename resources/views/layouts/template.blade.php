@@ -24,6 +24,8 @@
     <title>
         InternSync
     </title>
+     <!-- iziToast CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
     <!-- Nucleo Icons -->
@@ -159,6 +161,12 @@
     <script src="{{ asset('softTemplate/assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     <script src="{{ asset('softTemplate/assets/js/plugins/chartjs.min.js') }}"></script>
+
+    <!-- jQuery (required for Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- iziToast CSS & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
     {{-- DataTables --}}
     <script src="{{ asset('softTemplate/plugins/datatables/jquery.dataTables.min.js') }}"></script>

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('industri_id')->references('industri_id')->on('m_industri')->onDelete('cascade');
-            $table->foreign('kategori_lowongan_id')->references('kategori_lowongan_id')->on('m_kategori_lowongan')->onDelete('cascade');
         });
 
     }
