@@ -2,18 +2,16 @@
 
 @section('content')
 <div class="mt-4">
-    <h2 class="mb-4">Daftar Industri</h2>
+    <h2 class="mb-4">Daftar Kategori Industri</h2>
     <div class="d-flex justify-content-end mb-3">
-        <a href="{{ route('industri.create') }}" class="btn btn-primary">+ Tambah Industri</a>
+        <a href="{{ route('kategori-industri.create') }}" class="btn btn-primary">+ Tambah Kategori</a>
     </div>
     <div class="table-responsive text-sm">
-        <table class="table table-bordered table-striped table-hover align-middle" id="table_industri">
+        <table class="table table-bordered table-striped table-hover align-middle" id="table_kategori_industri">
             <thead class="table-dark text-center">
                 <tr>
                     <th scope="col">No</th>
-                    <th scope="col">Nama Industri</th>
-                    <th scope="col">Kota</th>
-                    <th scope="col">Kategori Industri</th>
+                    <th scope="col">Nama Kategori</th>
                     <th scope="col">Aksi</th>
                 </tr>
             </thead>
@@ -32,8 +30,6 @@
         });
     }
 
-    var dataIndustri;
-
     $(document).ready(function() {
         $.ajaxSetup({
             headers: {
@@ -41,15 +37,12 @@
             }
         });
 
-        dataIndustri = $('#table_industri').DataTable({
+        $('#table_kategori_industri').DataTable({
             serverSide: true,
             ajax: {
-                url: "{{ url('industri/list') }}",
+                url: "{{ url('kategori-industri/list') }}",
                 type: "POST",
                 dataType: "json",
-                data: function(d) {
-                    d.kota_id = $('#kota_id').val(); // kalau ingin disiapkan filter
-                }
             },
             columns: [
                 {
@@ -59,16 +52,10 @@
                     searchable: false
                 },
                 {
-                    data: "industri_nama",
-                    className: "text-center"
-                },
-                {
-                    data: "kota",
-                    className: "text-center"
-                },
-                {
-                    data: "kategori",
-                    className: "text-center"
+                    data: "kategori_nama",
+                    className: "text-center",
+                    orderable: true,
+                    searchable: true
                 },
                 {
                     data: "aksi",
@@ -77,10 +64,6 @@
                     searchable: false
                 }
             ]
-        });
-
-        $('#kota_id').on('change', function() {
-            dataIndustri.ajax.reload();
         });
     });
 </script>
