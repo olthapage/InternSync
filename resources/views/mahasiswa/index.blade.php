@@ -14,10 +14,7 @@
                     <th>No</th>
                     <th>Nama Lengkap</th>
                     <th>Email</th>
-                    <th>NIM</th>
                     <th>Program Studi</th>
-                    <th>IPK</th>
-                    <th>Pengajar</th>
                     <th>Status Magang</th>
                     <th>Aksi</th>
                 </tr>
@@ -74,25 +71,7 @@
                         searchable: true
                     },
                     {
-                        data: "nim",
-                        className: "",
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
                         data: "prodi",
-                        className: "text-center",
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: "ipk",
-                        className: "text-center",
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: "dosen",
                         className: "text-center",
                         orderable: false,
                         searchable: false
