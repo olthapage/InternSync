@@ -1,33 +1,50 @@
 @extends('layouts.template')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Edit Mitra</h2>
+    <div class="container mt-4">
+        <h2>Edit Industri</h2>
+        <form action="{{ route('industri.update', $industri->industri_id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-    <form action="{{ route('mitra.update', $mitra->id) }}" method="POST">
-        @csrf
-        @method('PUT')
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="industri_nama" class="form-label">Nama Industri</label>
+                        <input type="text" name="industri_nama" class="form-control" required
+                            value="{{ old('industri_nama', $industri->industri_nama ?? '') }}">
+                    </div>
 
-        <div class="mb-3">
-            <label for="nama" class="form-label">Nama Mitra</label>
-            <input type="text" name="nama" class="form-control" value="{{ old('nama', $mitra->nama) }}" required>
-        </div>
+                    <div class="mb-3">
+                        <label for="kota_id" class="form-label">Kota</label>
+                        <select name="kota_id" class="form-select" required>
+                            <option value="">-- Pilih Kota --</option>
+                            @foreach ($kota as $k)
+                                <option value="{{ $k->kota_id }}"
+                                    {{ old('kota_id', $industri->kota_id ?? '') == $k->kota_id ? 'selected' : '' }}>
+                                    {{ $k->kota_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-        <div class="mb-3">
-            <label for="alamat" class="form-label">Alamat</label>
-            <textarea name="alamat" class="form-control" rows="3" required>{{ old('alamat', $mitra->alamat) }}</textarea>
-        </div>
+                    <div class="mb-3">
+                        <label for="kategori_industri_id" class="form-label">Kategori Industri</label>
+                        <select name="kategori_industri_id" class="form-select" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach ($kategori as $kat)
+                                <option value="{{ $kat->kategori_industri_id }}"
+                                    {{ old('kategori_industri_id', $industri->kategori_industri_id ?? '') == $kat->kategori_industri_id ? 'selected' : '' }}>
+                                    {{ $kat->kategori_nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select">
-                <option value="1" {{ $mitra->status == 1 ? 'selected' : '' }}>Aktif</option>
-                <option value="0" {{ $mitra->status == 0 ? 'selected' : '' }}>Nonaktif</option>
-            </select>
-        </div>
-
-        <button class="btn btn-success">Update</button>
-        <a href="{{ route('mitra.index') }}" class="btn btn-secondary">Batal</a>
-    </form>
-</div>
+            <button type="submit" class="btn btn-success mt-3">Update</button>
+            <a href="{{ route('industri.index') }}" class="btn btn-secondary mt-3">Kembali</a>
+        </form>
+    </div>
 @endsection
