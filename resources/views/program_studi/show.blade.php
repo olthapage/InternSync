@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.template')
 
 @section('content')
 <div class="container">
@@ -6,15 +6,15 @@
     <table class="table table-striped">
         <tr>
             <th>ID</th>
-            <td>{{ $prodi->id }}</td>
+            <td>{{ $prodi->prodi_id }}</td>
         </tr>
         <tr>
             <th>Kode</th>
-            <td>{{ $prodi->kode }}</td>
+            <td>{{ $prodi->kode_prodi }}</td>
         </tr>
         <tr>
             <th>Nama</th>
-            <td>{{ $prodi->nama }}</td>
+            <td>{{ $prodi->nama_prodi }}</td>
         </tr>
         <tr>
             <th>Dibuat Pada</th>
