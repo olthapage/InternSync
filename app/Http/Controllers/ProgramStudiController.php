@@ -10,7 +10,7 @@ class ProgramStudiController extends Controller
     public function index()
     {
         $data = ProdiModel::all();
-        $activeMenu = 'prodi';
+        $activeMenu = 'Program Studi';
         return view('program_studi.index', compact('data','activeMenu' ));
     }
 
@@ -27,7 +27,7 @@ class ProgramStudiController extends Controller
         ->addColumn('aksi', function ($prodi) {
             $detail = '<a href="' . url('/program-studi/' . $prodi->prodi_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
             $edit = '<a href="' . url('/program-studi/' . $prodi->prodi_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-            $hapus = '<button class="btn btn-danger btn-sm btn-hapus" data-id="' . $prodi->prodi_id . '">Hapus</button>';
+            $hapus = '<a href="' . url('/program-studi/' . $prodi->prodi_id . '/delete') . '"class="btn btn-danger btn-sm btn-hapus">Hapus</a>';
             return $detail . $edit . $hapus;
         })
         ->rawColumns(['aksi']) // kolom 'aksi' berisi HTML
@@ -42,23 +42,28 @@ class ProgramStudiController extends Controller
 
     public function store(Request $request)
     {
-    $request->validate([
-        'nama_prodi' => 'required|string|max:100',
-        'kode_prodi' => 'required|string|max:20|unique:prodi,kode_prodi',
-    ]);
+        $request->validate([
+            'nama_prodi' => 'required|string|max:100',
+            'kode_prodi' => 'required|string|max:20|unique:tabel_prodi,kode_prodi',
+        ]);
 
-    ProdiModel::create([
-        'nama_prodi' => $request->nama_prodi,
-        'kode_prodi' => $request->kode_prodi,
-    ]);
+        ProdiModel::create([
+            'nama_prodi' => $request->nama_prodi,
+            'kode_prodi' => $request->kode_prodi,
+        ]);
 
-    return redirect()->route('program-studi.index')->with('success', 'Program studi berhasil ditambahkan.');
+        if ($request->ajax()) {
+            return response()->json(['success' => 'Program Studi berhasil ditambahkan.']);
+        }
+
+        return redirect()->route('program-studi.index')->with('success', 'Program Studi berhasil ditambahkan.');
     }
 
     public function show($id)
     {
         $prodi = ProdiModel::findOrFail($id);
-        return view('program_studi.show', compact('activeMenu'));
+        $activeMenu = 'prodi';
+        return view('program_studi.show', compact('activeMenu', 'prodi'));
     }
 
     public function edit($id)
@@ -74,7 +79,7 @@ class ProgramStudiController extends Controller
 
     $request->validate([
         'nama_prodi' => 'required|string|max:100',
-        'kode_prodi' => 'required|string|max:20|unique:prodi,kode_prodi,' . $id . ',prodi_id',
+        'kode_prodi' => 'required|string|max:20|unique:tabel_prodi,kode_prodi,' . $id . ',prodi_id',
     ]);
 
     $prodi->update([

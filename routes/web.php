@@ -78,10 +78,10 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
     Route::get('/program-studi/list', [ProgramStudiController::class, 'list'])->name('program-studi.list');
     Route::get('/program-studi/create', [ProgramStudiController::class, 'create'])->name('program-studi.create');
     Route::post('/program-studi', [ProgramStudiController::class, 'store'])->name('program-studi.store');
-    Route::get('/program-studi/{id}', [ProgramStudiController::class, 'show'])->name('program-studi.show');
+    Route::get('/program-studi/{id}/show', [ProgramStudiController::class, 'show'])->name('program-studi.show');
     Route::get('/program-studi/{id}/edit', [ProgramStudiController::class, 'edit'])->name('program-studi.edit');
     Route::put('/program-studi/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
-    Route::delete('/program-studi/{id}', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
+    Route::delete('/program-studi/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
 
 
     Route::get('/industri/', [IndustriController::class, 'index'])->name('industri.index');

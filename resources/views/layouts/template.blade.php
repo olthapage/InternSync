@@ -19,11 +19,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/LogoInternSync.png">
-    <link rel="icon" type="image/png" href="../assets/img/LogoInternSync.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="softTemplate/assets/img/LogoInternSync.png">
+    <link rel="icon" type="image/png" href="softTemplate/assets/img/LogoInternSync.png">
     <title>
         InternSync
     </title>
+    <!-- iziToast CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
     <!-- Nucleo Icons -->
@@ -149,6 +151,8 @@
             </div>
         </div>
     </div>
+    <!-- iziToast CSS & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
     <!-- jQuery -->
     <script src="{{ asset('softTemplate/plugins/jquery/jquery.min.js') }}"></script>
     <!-- Bootstrap 4 -->
