@@ -38,7 +38,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,ma
 
 Route::get('/', [WelcomeController::class, 'index']);
 
-Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
+Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function() {
 
     Route::get('/', [WelcomeController::class, 'dashboard'])->name('home');
 
