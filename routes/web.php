@@ -40,72 +40,86 @@ Route::get('/', [WelcomeController::class, 'index']);
 
 Route::middleware(['auth:web,mahasiswa,dosen'])->group(function() {
 
-    Route::get('/dashboard', [WelcomeController::class, 'dashboard'])->name('home');
+    Route::get('/', [WelcomeController::class, 'dashboard'])->name('home');
 
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/update', [ProfileController::class, 'update'])->name('profile.update');
+    });
 
-    Route::get('/dosen', [DosenController::class, 'index'])->name('dosen.index');
-    Route::post('/dosen/list', [DosenController::class, 'list']);
-    Route::get('/dosen/create', [DosenController::class, 'create'])->name('dosen.create');
-    Route::post('/dosen', [DosenController::class, 'store'])->name('dosen.store');
-    Route::get('/dosen/{id}/show', [DosenController::class, 'show'])->name('dosen.show');
-    Route::get('/dosen/{id}/edit', [DosenController::class, 'edit'])->name('dosen.edit');
-    Route::put('/dosen/{id}', [DosenController::class, 'update'])->name('dosen.update');
-    Route::delete('/dosen/{id}/delete', [DosenController::class, 'destroy'])->name('dosen.destroy');
+    Route::prefix('dosen')->group(function () {
+        Route::get('/', [DosenController::class, 'index'])->name('dosen.index');
+        Route::post('/list', [DosenController::class, 'list']);
+        Route::get('/create', [DosenController::class, 'create'])->name('dosen.create');
+        Route::post('/', [DosenController::class, 'store'])->name('dosen.store');
+        Route::get('/{id}/show', [DosenController::class, 'show'])->name('dosen.show');
+        Route::get('/{id}/edit', [DosenController::class, 'edit'])->name('dosen.edit');
+        Route::put('/{id}', [DosenController::class, 'update'])->name('dosen.update');
+        Route::delete('/{id}/delete', [DosenController::class, 'destroy'])->name('dosen.destroy');
+    });
 
-    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-    Route::post('/mahasiswa/list', [MahasiswaController::class, 'list']);
-    Route::get('/mahasiswa/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
-    Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
-    Route::get('/mahasiswa/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
-    Route::get('/mahasiswa/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
-    Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
-    Route::delete('/mahasiswa/{id}/delete', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+    Route::prefix('mahasiswa')->group(function () {
+        Route::get('/', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+        Route::post('/list', [MahasiswaController::class, 'list']);
+        Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
+        Route::post('/', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
+        Route::get('/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
+        Route::get('/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
+        Route::put('/{id}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
+        Route::delete('/{id}/delete', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+    });
 
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::post('/admin/list', [AdminController::class, 'list']);
-    Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
-    Route::post('/admin', [AdminController::class, 'store'])->name('admin.store');
-    Route::get('/admin/{id}/show', [AdminController::class, 'show'])->name('admin.show');
-    Route::get('/admin/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
-    Route::put('/admin/{id}', [AdminController::class, 'update'])->name('admin.update');
-    Route::delete('/admin/{id}/delete', [AdminController::class, 'destroy'])->name('admin.destroy');
+    Route::prefix('admin')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('admin.index');
+        Route::post('/list', [AdminController::class, 'list']);
+        Route::get('/create', [AdminController::class, 'create'])->name('admin.create');
+        Route::post('/', [AdminController::class, 'store'])->name('admin.store');
+        Route::get('/{id}/show', [AdminController::class, 'show'])->name('admin.show');
+        Route::get('/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
+        Route::put('/{id}', [AdminController::class, 'update'])->name('admin.update');
+        Route::delete('/{id}/delete', [AdminController::class, 'destroy'])->name('admin.destroy');
+    });
 
-    Route::get('/program-studi', [ProgramStudiController::class, 'index'])->name('program-studi.index');
-    Route::get('/program-studi/list', [ProgramStudiController::class, 'list'])->name('program-studi.list');
-    Route::get('/program-studi/create', [ProgramStudiController::class, 'create'])->name('program-studi.create');
-    Route::post('/program-studi', [ProgramStudiController::class, 'store'])->name('program-studi.store');
-    Route::get('/program-studi/{id}/show', [ProgramStudiController::class, 'show'])->name('program-studi.show');
-    Route::get('/program-studi/{id}/edit', [ProgramStudiController::class, 'edit'])->name('program-studi.edit');
-    Route::put('/program-studi/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
-    Route::delete('/program-studi/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
+    Route::prefix('program-studi')->group(function () {
+        Route::get('/', [ProgramStudiController::class, 'index'])->name('program-studi.index');
+        Route::get('/list', [ProgramStudiController::class, 'list'])->name('program-studi.list');
+        Route::get('/create', [ProgramStudiController::class, 'create'])->name('program-studi.create');
+        Route::post('/', [ProgramStudiController::class, 'store'])->name('program-studi.store');
+        Route::get('/{id}/show', [ProgramStudiController::class, 'show'])->name('program-studi.show');
+        Route::get('/{id}/edit', [ProgramStudiController::class, 'edit'])->name('program-studi.edit');
+        Route::put('/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
+        Route::delete('/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
+    });
+    
+    Route::prefix('industri')->group(function () {
+        Route::get('/', [IndustriController::class, 'index'])->name('industri.index');
+        Route::post('/list', [IndustriController::class, 'list'])->name('industri.list');
+        Route::get('/create', [IndustriController::class, 'create'])->name('industri.create');
+        Route::post('/store', [IndustriController::class, 'store'])->name('industri.store');
+        Route::get('/{id}/show', [IndustriController::class, 'show'])->name('industri.show');
+        Route::get('/{id}/edit', [IndustriController::class, 'edit'])->name('industri.edit');
+        Route::put('/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
+        Route::delete('/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
+    });
 
+    Route::prefix('kategori-industri')->group(function () {
+        Route::get('/', [KategoriIndustriController::class, 'index'])->name('kategori-industri.index');
+        Route::post('/list', [KategoriIndustriController::class, 'list'])->name('kategori-industri.list');
+        Route::get('/create', [KategoriIndustriController::class, 'create'])->name('kategori-industri.create');
+        Route::post('/store', [KategoriIndustriController::class, 'store'])->name('kategori-industri.store');
+        Route::get('/{id}/show', [KategoriIndustriController::class, 'show'])->name('kategori-industri.show');
+        Route::get('/{id}/edit', [KategoriIndustriController::class, 'edit'])->name('kategori-industri.edit');
+        Route::put('/{id}/update', [KategoriIndustriController::class, 'update'])->name('kategori-industri.update');
+        Route::delete('/{id}/delete', [KategoriIndustriController::class, 'destroy'])->name('kategori-industri.destroy');
+    });
 
-    Route::get('/industri/', [IndustriController::class, 'index'])->name('industri.index');
-    Route::post('/industri/list', [IndustriController::class, 'list'])->name('industri.list');
-    Route::get('/industri/create', [IndustriController::class, 'create'])->name('industri.create');
-    Route::post('/industri/store', [IndustriController::class, 'store'])->name('industri.store');
-    Route::get('/industri/{id}/show', [IndustriController::class, 'show'])->name('industri.show');
-    Route::get('/industri/{id}/edit', [IndustriController::class, 'edit'])->name('industri.edit');
-    Route::put('/industri/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
-    Route::delete('/industri/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
-
-    Route::get('/kategori-industri/', [KategoriIndustriController::class, 'index'])->name('kategori-industri.index');
-    Route::post('/kategori-industri/list', [KategoriIndustriController::class, 'list'])->name('kategori-industri.list');
-    Route::get('/kategori-industri/create', [KategoriIndustriController::class, 'create'])->name('kategori-industri.create');
-    Route::post('/kategori-industri/store', [KategoriIndustriController::class, 'store'])->name('kategori-industri.store');
-    Route::get('/kategori-industri/{id}/show', [KategoriIndustriController::class, 'show'])->name('kategori-industri.show');
-    Route::get('/kategori-industri/{id}/edit', [KategoriIndustriController::class, 'edit'])->name('kategori-industri.edit');
-    Route::put('/kategori-industri/{id}/update', [KategoriIndustriController::class, 'update'])->name('kategori-industri.update');
-    Route::delete('/kategori-industri/{id}/delete', [KategoriIndustriController::class, 'destroy'])->name('kategori-industri.destroy');
-
-    Route::get('/lowongan', [LowonganController::class, 'index'])->name('lowongan.index');
-    Route::post('/lowongan/list', [LowonganController::class, 'list']);
+    Route::prefix('lowongan')->group(function () {
+        Route::get('/', [LowonganController::class, 'index'])->name('lowongan.index');
+        Route::post('/list', [LowonganController::class, 'list']);
+    });
 });
-
 ?>
 
 
