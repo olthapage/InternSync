@@ -1,25 +1,27 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="mt-4">
-        <h2 class="mb-4">Daftar Mahasiswa</h2>
+    <div class="card card-outline card-primary">
+        <div class="card-body text-sm">
+            <h2 class="mb-4">Daftar Mahasiswa</h2>
 
-        <!-- Container tombol di bawah judul -->
-        <div class="d-flex justify-content-end mb-3">
-            <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">+ Tambah Mahasiswa</a>
+            <!-- Container tombol di bawah judul -->
+            <div class="d-flex justify-content-end mb-3">
+                <a href="{{ route('mahasiswa.create') }}" class="btn btn-primary">+ Tambah Mahasiswa</a>
+            </div>
+            <table class="table table-bordered table-striped table-hover table-sm" id="table_mahasiswa">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Lengkap</th>
+                        <th>Email</th>
+                        <th>Program Studi</th>
+                        <th>Status Magang</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
-        <table class="table table-bordered table-striped table-hover table-sm" id="table_mahasiswa">
-            <thead class="table-dark text-center">
-                <tr>
-                    <th>No</th>
-                    <th>Nama Lengkap</th>
-                    <th>Email</th>
-                    <th>Program Studi</th>
-                    <th>Status Magang</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-        </table>
     </div>
     <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
         data-keyboard="false" data-width="75%" aria-hidden="true"></div>

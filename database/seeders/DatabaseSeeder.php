@@ -205,15 +205,6 @@ class DatabaseSeeder extends Seeder
         DB::table('m_user')->insert($userData);
         // User IDs akan menjadi 1 s/d 10 secara auto-increment
 
-        // m_kategori_kompetensi (Target: 10 data)
-        $kategoriKompetensiData = [
-            ['kategori_kompetensi_id' => 1, 'kategori_kompetensi_kode' => 'KOMP1', 'kategori_nama' => 'Manajerial', 'created_at' => $now],
-        ];
-        for ($i = 2; $i <= 10; $i++) {
-            $kategoriKompetensiData[] = ['kategori_kompetensi_id' => $i, 'kategori_kompetensi_kode' => 'KOMP'.$i, 'kategori_nama' => 'Kategori Kompetensi '.$i, 'created_at' => $now];
-        }
-        DB::table('m_kategori_kompetensi')->insert($kategoriKompetensiData);
-
         // m_kategori_skill (Target: 10 data)
         $kategoriSkillData = [
             ['kategori_skill_kode' => 'SKL1', 'kategori_nama' => 'Programming', 'created_at' => $now],
@@ -223,16 +214,6 @@ class DatabaseSeeder extends Seeder
         }
         DB::table('m_kategori_skill')->insert($kategoriSkillData);
         // Kategori Skill IDs akan menjadi 1 s/d 10 secara auto-increment
-
-        // m_kategori_lowongan (Target: 10 data)
-        $kategoriLowonganData = [
-            ['kategori_lowongan_kode' => 'LOW1', 'kategori_nama' => 'Magang', 'created_at' => $now],
-        ];
-        for ($i = 2; $i <= 10; $i++) {
-            $kategoriLowonganData[] = ['kategori_lowongan_kode' => 'LOW'.$i, 'kategori_nama' => 'Kategori Lowongan '.$i, 'created_at' => $now];
-        }
-        DB::table('m_kategori_lowongan')->insert($kategoriLowonganData);
-        // Kategori Lowongan IDs akan menjadi 1 s/d 10 secara auto-increment
 
         // m_kategori_industri (Target: 10 data)
         $kategoriIndustriData = [
@@ -295,7 +276,7 @@ class DatabaseSeeder extends Seeder
         // Asumsi kota_id merujuk pada m_kota (ID 1-10)
         // Asumsi kategori_industri_id merujuk pada m_kategori_industri (ID 1-10)
         $industriData = [
-            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now], 
+            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now],
             ['industri_nama' => 'PT DES Teknologi Informasi', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
             ['industri_nama' => 'PT Mitra Infosarana', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
             ['industri_nama' => 'PT Datamax Teknologi Indonesia', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now],
@@ -352,72 +333,5 @@ class DatabaseSeeder extends Seeder
             $usedLowonganSkill[$combo] = true;
         }
         DB::table('lowongan_skill')->insert($lowonganSkillData);
-
-        // m_detail_kompetensi (Target: 10 data)
-        // Asumsi kategori_kompetensi_id merujuk pada m_kategori_kompetensi (ID 1-10)
-        // Nama kolom kompetensi_nama dan nama_matkul, saya pilih standardisasi ke 'kompetensi_nama'
-        $detailKompetensiData = [
-            [
-                'kompetensi_id' => 1,
-                'nama_matkul' => 'Bahasa Inggris',
-                'kategori_kompetensi_id' => 1,
-                'created_at' => $now,
-            ],
-            [
-                'kompetensi_id' => 2,
-                'nama_matkul' => 'PBO',
-                'kategori_kompetensi_id' => 1,
-                'created_at' => $now,
-            ],
-        ];
-        for ($i = 3; $i <= 10; $i++) {
-            $detailKompetensiData[] = [
-                'kompetensi_id' => $i,
-                'nama_matkul' => 'Kompetensi Uji '.$i,
-                'kategori_kompetensi_id' => rand(1, 10),
-                'created_at' => $now,
-            ];
-        }
-        DB::table('m_detail_kompetensi')->insert($detailKompetensiData);
-
-        // user_kompetensi (Target: 10 data)
-        // Asumsi mahasiswa_id merujuk pada m_mahasiswa (ID 1-10)
-        // Asumsi kompetensi_id merujuk pada m_detail_kompetensi (kompetensi_id, ID 1-10)
-        $userKompetensiData = [
-            [
-                'mahasiswa_id' => 1, // Andi Nugroho
-                'kompetensi_id' => 1, // Bahasa Inggris
-                'nilai' => 85.50,
-                'created_at' => $now
-            ],
-            [
-                'mahasiswa_id' => 1, // Andi Nugroho
-                'kompetensi_id' => 2, // PBO
-                'nilai' => 86.50,
-                'created_at' => $now
-            ],
-            [
-                'mahasiswa_id' => 2, // Rina Lestari
-                'kompetensi_id' => 2, // PBO
-                'nilai' => 92.00,
-                'created_at' => $now
-            ],
-        ];
-        $usedUserKompetensi = ['1-1' => true, '1-2' => true, '2-2' => true];
-        for ($i = 0; $i < 7; $i++) { // Need 7 more
-            do {
-                $mahasiswaId = rand(1, 10);
-                $kompetensiId = rand(1, 10); // Merujuk ke kompetensi_id di m_detail_kompetensi
-                $combo = $mahasiswaId . '-' . $kompetensiId;
-            } while (isset($usedUserKompetensi[$combo]));
-            $userKompetensiData[] = [
-                'mahasiswa_id' => $mahasiswaId,
-                'kompetensi_id' => $kompetensiId,
-                'nilai' => round(rand(7000, 9950) / 100, 2),
-                'created_at' => $now
-            ];
-            $usedUserKompetensi[$combo] = true;
-        }
-        DB::table('user_kompetensi')->insert($userKompetensiData);
     }
 }

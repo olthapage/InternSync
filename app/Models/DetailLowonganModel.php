@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\IndustriModel;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DetailLowonganModel extends Model
 {
@@ -13,7 +13,7 @@ class DetailLowonganModel extends Model
     protected $primaryKey = 'lowongan_id';
     public $timestamps = false;
 
-    protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id', 'kategori_lowongan_id'];
+    protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id'];
 
     public function industri()
     {
