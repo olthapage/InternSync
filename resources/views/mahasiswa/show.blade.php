@@ -35,14 +35,6 @@
                         <li>Belum memiliki skill.</li>
                     @endforelse
                 </ul>
-                <p class="card-text"><strong>Kompetensi:</strong></p>
-                <ul>
-                    @forelse($mahasiswa->kompetensi as $kompetensi)
-                        <li>{{ $kompetensi->nama_kompetensi ?? '-' }} (Nilai: {{ $kompetensi->pivot->nilai }})</li>
-                    @empty
-                        <li>Belum memiliki kompetensi.</li>
-                    @endforelse
-                </ul>
             </div>
             <div class="card-footer">
                 <a href="{{ route('mahasiswa.edit', $mahasiswa->mahasiswa_id) }}" class="btn btn-warning">Edit</a>

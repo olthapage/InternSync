@@ -51,8 +51,4 @@ class MahasiswaModel extends Authenticatable
     {
         return $this->belongsToMany(DetailSkillModel::class, 'user_skill', 'mahasiswa_id', 'skill_id');
     }
-    public function kompetensi()
-    {
-        return $this->belongsToMany(DetailKompetensiModel::class, 'user_kompetensi', 'mahasiswa_id', 'kompetensi_id')->withPivot('nilai');
-    }
 }

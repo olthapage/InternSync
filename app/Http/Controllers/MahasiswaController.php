@@ -96,7 +96,6 @@ class MahasiswaController extends Controller
             'dosen',
             'preferensiLokasi',
             'skills',
-            'kompetensi'
         ])->findOrFail($id);
 
         $activeMenu = 'mahasiswa';
