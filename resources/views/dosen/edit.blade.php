@@ -1,54 +1,114 @@
-@extends('layouts.template')
-
-@section('content')
-    <div class="container mt-4">
-        <h2>Edit Dosen</h2>
-        <form action="{{ route('dosen.update', $dosen->dosen_id) }}" method="POST">
-            @csrf
-            @method('PUT')
-            <div class="mb-3">
-                <label>Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-control"
-                    value="{{ old('nama_lengkap', $dosen->nama_lengkap ?? '') }}" required>
+<form action="{{ url('/dosen/' . $dosen->dosen_id . '/update') }}" method="POST" id="form-edit">
+    @csrf
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Data Dosen</h5>
             </div>
-            <div class="mb-3">
-                <label>Email</label>
-                <input type="email" name="email" class="form-control" value="{{ old('email', $dosen->email ?? '') }}"
-                    required>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
+                        value="{{ $dosen->nama_lengkap }}" required>
+                    <small id="error-nama_lengkap" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" class="form-control"
+                        value="{{ $dosen->email }}" required>
+                    <small id="error-email" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Password <small>(kosongkan jika tak diganti)</small></label>
+                    <input type="password" name="password" id="password" class="form-control">
+                    <small id="error-password" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>NIP</label>
+                    <input type="text" name="nip" id="nip" class="form-control"
+                        value="{{ $dosen->nip }}" required>
+                    <small id="error-nip" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Level</label>
+                    <select name="level_id" id="level_id" class="form-control" required>
+                        <option value="">-- Pilih Level --</option>
+                        @foreach($level as $lvl)
+                            <option value="{{ $lvl->level_id }}" {{ $dosen->level_id == $lvl->level_id ? 'selected' : '' }}>
+                                {{ $lvl->level_nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small id="error-level_id" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Program Studi</label>
+                    <select name="prodi_id" id="prodi_id" class="form-control" required>
+                        <option value="">-- Pilih Prodi --</option>
+                        @foreach($prodi as $prd)
+                            <option value="{{ $prd->prodi_id }}" {{ $dosen->prodi_id == $prd->prodi_id ? 'selected' : '' }}>
+                                {{ $prd->nama_prodi }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small id="error-prodi_id" class="error-text form-text text-danger"></small>
+                </div>
             </div>
-            <div class="mb-3">
-                <label>Password {{ isset($edit) ? '(Kosongkan jika tidak diganti)' : '' }}</label>
-                <input type="password" name="password" class="form-control" {{ isset($edit) ? '' : 'required' }}>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
+                <button type="submit" class="btn btn-primary">Update</button>
             </div>
-            <div class="mb-3">
-                <label>NIP</label>
-                <input type="text" name="nip" class="form-control" value="{{ old('nip', $dosen->nip ?? '') }}"
-                    required>
-            </div>
-            <div class="mb-3">
-                <label>Level</label>
-                <select name="level_id" class="form-control" required>
-                    <option value="">-- Pilih Level --</option>
-                    @foreach ($level as $lvl)
-                        <option value="{{ $lvl->level_id }}"
-                            {{ old('level_id', $dosen->level_id ?? '') == $lvl->level_id ? 'selected' : '' }}>
-                            {{ $lvl->nama_level }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="mb-3">
-                <label>Program Studi</label>
-                <select name="prodi_id" class="form-control" required>
-                    <option value="">-- Pilih Prodi --</option>
-                    @foreach ($prodi as $prd)
-                        <option value="{{ $prd->prodi_id }}"
-                            {{ old('prodi_id', $dosen->prodi_id ?? '') == $prd->prodi_id ? 'selected' : '' }}>
-                            {{ $prd->nama_prodi }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Update</button>
-        </form>
+        </div>
     </div>
-@endsection
+</form>
+<script>
+    $(document).ready(function () {
+        $("#form-edit").validate({
+            rules: {
+                nama_lengkap: { required: true, minlength: 3 },
+                email: { required: true, email: true },
+                password: { minlength: 6 },
+                nip: { required: true },
+                level_id: { required: true, number: true },
+                prodi_id: { required: true, number: true }
+            },
+            submitHandler: function (form) {
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function (res) {
+                        if (res.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire('Berhasil', res.message, 'success');
+                            dataDosen.ajax.reload();
+                        } else {
+                            $('.error-text').text('');
+                            $.each(res.msgField, function (key, val) {
+                                $('#error-' + key).text(val[0]);
+                            });
+                            Swal.fire('Gagal', res.message, 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                        console.log(xhr.responseText);
+                    }
+                });
+                return false;
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
+</script>
+
