@@ -1,93 +1,171 @@
-@extends('layouts.template')
-
-@section('content')
-    <div class="container mt-4">
-        <h2>Tambah Mahasiswa</h2>
-        <form action="{{ route('mahasiswa.store') }}" method="POST">
-            @csrf
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                        <input type="text" name="nama_lengkap" class="form-control" required
-                            value="{{ old('nama_lengkap', $mahasiswa->nama_lengkap ?? '') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" required
-                            value="{{ old('email', $mahasiswa->email ?? '') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="nim" class="form-label">NIM</label>
-                        <input type="text" name="nim" class="form-control" required
-                            value="{{ old('nim', $mahasiswa->nim ?? '') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="ipk" class="form-label">IPK</label>
-                        <input type="number" step="0.01" name="ipk" class="form-control"
-                            value="{{ old('ipk', $mahasiswa->ipk ?? '') }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            Password @if (isset($mahasiswa))
-                                <small class="text-muted">(Kosongkan jika tidak ingin diubah)</small>
-                            @endif
-                        </label>
-                        <input type="password" name="password" class="form-control"
-                            @if (!isset($mahasiswa)) required @endif>
+@empty($level)
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kesalahan</h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Data level tidak tersedia.</h5>
+                </div>
+                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
+            </div>
+        </div>
+    </div>
+@else
+    <form action="{{ route('mahasiswa.store') }}" method="POST" id="form-create-mahasiswa">
+        @csrf
+        <div id="modal-master" class="modal-dialog modal-lg" role="document" style="max-width:60vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Mahasiswa</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        {{-- Kiri --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Nama Lengkap</label>
+                                <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
+                                       value="{{ old('nama_lengkap') }}" required>
+                                <small id="error-nama_lengkap" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Email</label>
+                                <input type="email" name="email" id="email" class="form-control"
+                                       value="{{ old('email') }}" required>
+                                <small id="error-email" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Password</label>
+                                <input type="password" name="password" id="password" class="form-control" required>
+                                <small id="error-password" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>NIM</label>
+                                <input type="text" name="nim" id="nim" class="form-control"
+                                       value="{{ old('nim') }}" required>
+                                <small id="error-nim" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>IPK</label>
+                                <input type="number" step="0.01" name="ipk" id="ipk" class="form-control"
+                                       value="{{ old('ipk') }}">
+                                <small id="error-ipk" class="error-text text-danger"></small>
+                            </div>
+                        </div>
+                        {{-- Kanan --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Status Magang</label>
+                                <select name="status" id="status" class="form-select" required>
+                                    <option value="">-- Pilih Status --</option>
+                                    <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Sudah Magang</option>
+                                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Belum Magang</option>
+                                </select>
+                                <small id="error-status" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Program Studi</label>
+                                <select name="prodi_id" id="prodi_id" class="form-select" required>
+                                    <option value="">-- Pilih Prodi --</option>
+                                    @foreach($prodi as $p)
+                                        <option value="{{ $p->prodi_id }}"
+                                            {{ old('prodi_id') == $p->prodi_id ? 'selected' : '' }}>
+                                            {{ $p->nama_prodi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small id="error-prodi_id" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Level</label>
+                                <select name="level_id" id="level_id" class="form-select" required>
+                                    <option value="">-- Pilih Level --</option>
+                                    @foreach($level as $l)
+                                        <option value="{{ $l->level_id }}"
+                                            {{ old('level_id') == $l->level_id ? 'selected' : '' }}>
+                                            {{ $l->level_nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small id="error-level_id" class="error-text text-danger"></small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Dosen Pembimbing</label>
+                                <select name="dosen_id" id="dosen_id" class="form-select">
+                                    <option value="">-- Tidak Ada --</option>
+                                    @foreach($dosen as $d)
+                                        <option value="{{ $d->dosen_id }}"
+                                            {{ old('dosen_id') == $d->dosen_id ? 'selected' : '' }}>
+                                            {{ $d->nama_lengkap }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small id="error-dosen_id" class="error-text text-danger"></small>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Status Magang</label>
-                        <select name="status" class="form-select" required>
-                            <option value="1" {{ old('status', $mahasiswa->status ?? '') == 1 ? 'selected' : '' }}>
-                                Sudah Magang</option>
-                            <option value="0" {{ old('status', $mahasiswa->status ?? '') == 0 ? 'selected' : '' }}>
-                                Belum Magang</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="prodi_id" class="form-label">Program Studi</label>
-                        <select name="prodi_id" class="form-select" required>
-                            <option value="">-- Pilih Prodi --</option>
-                            @foreach ($prodi as $p)
-                                <option value="{{ $p->prodi_id }}"
-                                    {{ old('prodi_id', $mahasiswa->prodi_id ?? '') == $p->prodi_id ? 'selected' : '' }}>
-                                    {{ $p->nama_prodi }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="level_id" class="form-label">Level</label>
-                        <select name="level_id" class="form-select" required>
-                            <option value="">-- Pilih Level --</option>
-                            @foreach ($level as $l)
-                                <option value="{{ $l->level_id }}"
-                                    {{ old('level_id', $mahasiswa->level_id ?? '') == $l->level_id ? 'selected' : '' }}>
-                                    {{ $l->level_nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="dosen_id" class="form-label">Dosen Pembimbing</label>
-                        <select name="dosen_id" class="form-select">
-                            <option value="">-- Tidak Ada --</option>
-                            @foreach ($dosen as $d)
-                                <option value="{{ $d->dosen_id }}"
-                                    {{ old('dosen_id', $mahasiswa->dosen_id ?? '') == $d->dosen_id ? 'selected' : '' }}>
-                                    {{ $d->nama_lengkap }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="$('#myModal').modal('hide')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Simpan</button>
-            <a href="{{ route('mahasiswa.index') }}" class="btn btn-secondary mt-3">Kembali</a>
-        </form>
-    </div>
-@endsection
+        </div>
+    </form>
+
+    <script>
+    $(document).ready(function () {
+        $("#form-create-mahasiswa").validate({
+            rules: {
+                nama_lengkap: { required: true, minlength: 3 },
+                email:        { required: true, email: true },
+                password:     { required: true, minlength: 6 },
+                nim:          { required: true },
+                ipk:          { number: true, min: 0, max: 4 },
+                status:       { required: true },
+                prodi_id:     { required: true, number: true },
+                level_id:     { required: true, number: true },
+                dosen_id:     { number: true }
+            },
+            submitHandler: function (form) {
+                $.ajax({
+                    url:    form.action,
+                    type:   form.method,
+                    data:   $(form).serialize(),
+                    success: function (res) {
+                        if (res.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire('Berhasil', res.message, 'success');
+                            dataMhs.ajax.reload();
+                        } else {
+                            $('.error-text').text('');
+                            $.each(res.msgField, function (key, val) {
+                                $('#error-' + key).text(val[0]);
+                            });
+                            Swal.fire('Gagal', res.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                    }
+                });
+                return false;
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
+    </script>
+@endempty

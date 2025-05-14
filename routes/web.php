@@ -66,22 +66,26 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
         Route::post('/list', [MahasiswaController::class, 'list']);
         Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
-        Route::post('/', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
         Route::get('/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
         Route::get('/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
-        Route::put('/{id}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
         Route::delete('/{id}/delete', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+        Route::post('/store', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
+        Route::post('/{id}/update', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
+        Route::get('{id}/delete', [MahasiswaController::class, 'deleteModal'])->name('mahasiswa.deleteModal');
+        Route::delete('{id}/delete', [MahasiswaController::class, 'delete_ajax'])->name('mahasiswa.delete_ajax');
     });
 
     Route::prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index');
         Route::post('/list', [AdminController::class, 'list']);
         Route::get('/create', [AdminController::class, 'create'])->name('admin.create');
-        Route::post('/', [AdminController::class, 'store'])->name('admin.store');
         Route::get('/{id}/show', [AdminController::class, 'show'])->name('admin.show');
         Route::get('/{id}/edit', [AdminController::class, 'edit'])->name('admin.edit');
-        Route::put('/{id}', [AdminController::class, 'update'])->name('admin.update');
         Route::delete('/{id}/delete', [AdminController::class, 'destroy'])->name('admin.destroy');
+        Route::post('/store', [AdminController::class, 'store'])->name('admin.store');
+        Route::post('/{id}/update', [AdminController::class, 'update'])->name('admin.update');
+        Route::get('{id}/delete', [AdminController::class, 'deleteModal'])->name('admin.deleteModal');
+        Route::delete('{id}/delete', [AdminController::class, 'delete_ajax'])->name('admin.delete_ajax');
     });
 
     Route::prefix('program-studi')->group(function () {

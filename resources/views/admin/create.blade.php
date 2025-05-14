@@ -1,28 +1,108 @@
-@extends('layouts.template')
-
-@section('content')
-<div class="container mt-4">
-    <h2 class="mb-4">Tambah Admin</h2>
-    <form action="{{ route('admin.store') }}" method="POST">
+@empty($level)
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kesalahan</h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Data level tidak tersedia.</h5>
+                </div>
+                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
+            </div>
+        </div>
+    </div>
+@else
+    <form action="{{ route('admin.store') }}" method="POST" id="form-create-admin">
         @csrf
-        <div class="mb-3">
-            <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-            <input type="text" class="form-control" name="nama_lengkap" required>
+        <div id="modal-master" class="modal-dialog modal-lg" role="document" style="max-width:60vw;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Admin</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label>Nama Lengkap</label>
+                        <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
+                               value="{{ old('nama_lengkap') }}" required>
+                        <small id="error-nama_lengkap" class="error-text text-danger"></small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" id="email" class="form-control"
+                               value="{{ old('email') }}" required>
+                        <small id="error-email" class="error-text text-danger"></small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" id="password" class="form-control" required>
+                        <small id="error-password" class="error-text text-danger"></small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Level</label>
+                        <select name="level_id" id="level_id" class="form-select" required>
+                            <option value="">-- Pilih Level --</option>
+                            @foreach($level as $lvl)
+                                <option value="{{ $lvl->level_id }}">{{ $lvl->level_nama }}</option>
+                            @endforeach
+                        </select>
+                        <small id="error-level_id" class="error-text text-danger"></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            onclick="$('#myModal').modal('hide')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" required>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" name="password" required>
-        </div>
-        <div class="mb-3">
-            <label for="level_id" class="form-label">Level</label>
-            <input type="number" class="form-control" name="level_id" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Simpan</button>
-        <a href="{{ route('admin.index') }}" class="btn btn-secondary">Batal</a>
     </form>
-</div>
-@endsection
+
+    <script>
+    $(document).ready(function () {
+        $("#form-create-admin").validate({
+            rules: {
+                nama_lengkap: { required: true, minlength: 3 },
+                email:        { required: true, email: true },
+                password:     { required: true, minlength: 6 },
+                level_id:     { required: true, number: true }
+            },
+            submitHandler: function (form) {
+                $.ajax({
+                    url:    form.action,
+                    type:   form.method,
+                    data:   $(form).serialize(),
+                    success: function (res) {
+                        if (res.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire('Berhasil', res.message, 'success');
+                            dataAdmin.ajax.reload();
+                        } else {
+                            $('.error-text').text('');
+                            $.each(res.msgField, function (key, val) {
+                                $('#error-' + key).text(val[0]);
+                            });
+                            Swal.fire('Gagal', res.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                    }
+                });
+                return false; 
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
+    </script>
+@endempty
