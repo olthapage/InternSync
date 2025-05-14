@@ -53,11 +53,13 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/', [DosenController::class, 'index'])->name('dosen.index');
         Route::post('/list', [DosenController::class, 'list']);
         Route::get('/create', [DosenController::class, 'create'])->name('dosen.create');
-        Route::post('/', [DosenController::class, 'store'])->name('dosen.store');
         Route::get('/{id}/show', [DosenController::class, 'show'])->name('dosen.show');
         Route::get('/{id}/edit', [DosenController::class, 'edit'])->name('dosen.edit');
-        Route::put('/{id}', [DosenController::class, 'update'])->name('dosen.update');
         Route::delete('/{id}/delete', [DosenController::class, 'destroy'])->name('dosen.destroy');
+        Route::post('/store', [DosenController::class, 'store'])->name('dosen.store');
+        Route::post('/{id}/update', [DosenController::class, 'update'])->name('dosen.update');
+        Route::get('{id}/delete', [DosenController::class, 'deleteModal'])->name('dosen.deleteModal');
+        Route::delete('{id}/delete', [DosenController::class, 'delete_ajax'])->name('dosen.delete_ajax');
     });
 
     Route::prefix('mahasiswa')->group(function () {

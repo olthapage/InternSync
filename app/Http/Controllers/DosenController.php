@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\DosenModel;
 use App\Models\LevelModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class DosenController extends Controller
@@ -18,13 +20,13 @@ class DosenController extends Controller
     public function list(Request $request)
     {
         $users = DosenModel::select(
-                'dosen_id',
-                'nama_lengkap',
-                'email',
-                'nip',
-                'level_id',
-                'prodi_id',
-            )
+            'dosen_id',
+            'nama_lengkap',
+            'email',
+            'nip',
+            'level_id',
+            'prodi_id',
+        )
             ->with(['level', 'prodi']);
 
         if ($request->level_id) {
@@ -40,86 +42,151 @@ class DosenController extends Controller
                 return $user->prodi->nama_prodi ?? '-';
             })
             ->addColumn('aksi', function ($user) {
-                $btn  = '<a href="' . url('/dosen/' . $user->dosen_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
-                $btn .= '<a href="' . url('/dosen/' . $user->dosen_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                $btn .= '
-                    <form action="' . url('/dosen/' . $user->dosen_id . '/delete') . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('DELETE') . '
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
-                    </form>';
+                $btn  = '<button onclick="modalAction(\'' . url('/dosen/' . $user->dosen_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/dosen/' . $user->dosen_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/dosen/' . $user->dosen_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
-            ->rawColumns(['aksi']) // Beri tahu bahwa kolom 'aksi' berisi HTML
+            ->rawColumns(['aksi'])
             ->make(true);
     }
-    public function create()
+    public function create(Request $request)
     {
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
+        if ($request->ajax()) {
+            return view('dosen.create', compact('prodi', 'level'));
+        }
         $activeMenu = 'dosen';
         return view('dosen.create', compact('prodi', 'level', 'activeMenu'));
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_lengkap' => 'required',
-            'email' => 'required|email|unique:m_dosen,email',
-            'password' => 'required|min:6',
-            'nip' => 'required|unique:m_dosen,nip',
-            'level_id' => 'required',
-            'prodi_id' => 'required'
-        ]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'nama_lengkap' => 'required',
+                'email' => 'required|email|unique:m_dosen,email',
+                'password' => 'required|min:6',
+                'nip' => 'required|unique:m_dosen,nip',
+                'level_id' => 'required',
+                'prodi_id' => 'required'
+            ];
 
-        DosenModel::create([
-            'nama_lengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'password' => $request->password,
-            'nip' => $request->nip,
-            'level_id' => $request->level_id,
-            'prodi_id' => $request->prodi_id
-        ]);
+            $validator = Validator::make($request->all(), $rules);
 
-        return redirect()->route('dosen.index')->with('success', 'Dosen berhasil ditambahkan');
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            DosenModel::create([
+                'nama_lengkap' => $request->nama_lengkap,
+                'email' => $request->email,
+                'password' => $request->password,
+                'nip' => $request->nip,
+                'level_id' => $request->level_id,
+                'prodi_id' => $request->prodi_id
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Dosen berhasil ditambahkan'
+            ]);
+        }
+
+        return redirect('/');
     }
-    public function show($id)
+
+    public function show(Request $request, $id)
     {
-        $dosen = DosenModel::with(['prodi', 'level'])->findOrFail($id);
-        $activeMenu = 'dosen';
-        return view('dosen.show', compact('dosen', 'activeMenu'));
+        $dosen = DosenModel::with(['prodi', 'level'])->find($id);
+
+        if ($request->ajax()) {
+            return view('dosen.show', compact('dosen'));
+        }
     }
-    public function edit($id)
+
+    public function edit(Request $request, $id)
     {
         $dosen = DosenModel::findOrFail($id);
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
+        if ($request->ajax()) {
+            return view('dosen.edit', compact('dosen', 'prodi', 'level'));
+        }
         $activeMenu = 'dosen';
         return view('dosen.edit', compact('dosen', 'prodi', 'level', 'activeMenu'));
     }
     public function update(Request $request, $id)
     {
-        $dosen = DosenModel::findOrFail($id);
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'nama_lengkap' => 'required',
+                'email' => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
+                'nip' => 'required|unique:m_dosen,nip,' . $id . ',dosen_id',
+                'level_id' => 'required',
+                'prodi_id' => 'required'
+            ];
 
-        $request->validate([
-            'nama_lengkap' => 'required',
-            'email' => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
-            'nip' => 'required|unique:m_dosen,nip,' . $id . ',dosen_id',
-            'level_id' => 'required',
-            'prodi_id' => 'required'
-        ]);
+            $validator = Validator::make($request->all(), $rules);
 
-        $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
-        if ($request->filled('password')) {
-            $data['password'] = $request->password;
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal.',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $dosen = DosenModel::find($id);
+            if ($dosen) {
+                $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
+
+                if ($request->filled('password')) {
+                    $data['password'] = $request->password;
+                }
+
+                $dosen->update($data);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Dosen berhasil diperbarui'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data dosen tidak ditemukan'
+                ]);
+            }
         }
 
-        $dosen->update($data);
-
-        return redirect()->route('dosen.index')->with('success', 'Dosen berhasil diperbarui');
+        return redirect('/');
     }
-    public function destroy($id)
+
+    public function deleteModal(Request $request, $id)
     {
-        $dosen = DosenModel::findOrFail($id);
-        $dosen->delete();
-        return redirect()->route('dosen.index')->with('success', 'Dosen berhasil dihapus');
+        $dosen = DosenModel::with(['prodi', 'level'])->find($id);
+        return view('dosen.delete', compact('dosen'));
+    }
+    public function delete_ajax(Request $request, $id)
+    {
+        if (! $request->ajax()) {
+            return redirect()->route('dosen.index');
+        }
+        $dosen = DosenModel::find($id);
+        if ($dosen) {
+            $dosen->delete();
+            return response()->json([
+                'status'  => true,
+                'message' => 'Dosen berhasil dihapus'
+            ]);
+        }
+        return response()->json([
+            'status'  => false,
+            'message' => 'Data dosen tidak ditemukan'
+        ]);
     }
 }
