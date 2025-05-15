@@ -8,13 +8,17 @@
                 <button onclick="modalAction('{{ url('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah Lowongan</button>
             </div>
             <div class="form-group row">
-                <label class="col-2 control-label col-form-label">Filter Lowongan:</label>
+                <label class="col-2 control-label col-form-label">Filter Periode:</label>
                 <div class="col-3">
-                    <select class="form-control" id="filter_lowongan" name="filter_lowongan">
+                    <select class="form-control" id="filter_bulan" name="filter_bulan">
                         <option value="">- Semua -</option>
-                        @foreach ($lowongan as $low)
-                            <option value="{{ $low->lowongan_id }}">{{ $low->judul_lowongan }}</option>
-                        @endforeach 
+                        @for ($i = 1; $i <= 12; $i++)
+                            @php
+                                $monthValue = str_pad($i, 2, '0', STR_PAD_LEFT);
+                                $monthName = \Carbon\Carbon::createFromDate(null, $i, 1)->translatedFormat('F');
+                            @endphp
+                            <option value="{{ $monthValue }}">{{ $monthName }}</option>
+                        @endfor
                     </select>
                 </div>
                 <label class="col-2 control-label col-form-label">Filter Industri:</label>
@@ -68,7 +72,7 @@
                     url: "{{ url('lowongan/list') }}",
                     type: "POST",
                     data: function(d) {
-                        d.filter_lowongan = $('#filter_lowongan').val();
+                        d.filter_bulan = $('#filter_bulan').val();
                         d.filter_industri = $('#filter_industri').val();
                     }
                 },
@@ -92,7 +96,7 @@
                     }
                 ]
             });
-            $('#filter_lowongan, #filter_industri').change(function() {
+            $('#filter_bulan, #filter_industri').change(function() {
                 dataLow.ajax.reload();
             });
         });
