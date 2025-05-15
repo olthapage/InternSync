@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('industri_nama');
             $table->unsignedBigInteger('kota_id');
             $table->unsignedBigInteger('kategori_industri_id')->nullable();
+            $table->string('email')->nullable();
+            $table->string('telepon')->nullable();
+            $table->string('password')->nullable();
             $table->timestamp('created_at')->nullable();
 
 

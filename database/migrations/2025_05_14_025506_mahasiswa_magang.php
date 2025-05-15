@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lowongan_skill', function (Blueprint $table) {
-            $table->id('lowongan_skill_id');
+        Schema::create('mahasiswa_magang', function (Blueprint $table) {
+            $table->id('mahasiswa_magang_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('lowongan_id');
-            $table->unsignedBigInteger('skill_id');
-            $table->integer('bobot')->default(0);
-            $table->timestamp('created_at')->nullable();
+            $table->enum('status', ['belum', 'sedang', 'selesai'])->default('belum'); // status magang mahasiswa
+            $table->text('evaluasi')->nullable(); // evaluasi dari industri 
+            $table->timestamps();
 
+            $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');
             $table->foreign('lowongan_id')->references('lowongan_id')->on('m_detail_lowongan')->onDelete('cascade');
-            $table->foreign('skill_id')->references('skill_id')->on('m_detail_skill')->onDelete('cascade');
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lowongan_skill');
+        //
     }
 };

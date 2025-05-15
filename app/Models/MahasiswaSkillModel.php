@@ -2,13 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MahasiswaModel;
+use App\Models\DetailSkillModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MahasiswaSkillModel extends Model
 {
     use HasFactory;
-    protected $table = 'user_skill';
-    protected $fillable = ['mahasiswa_id', 'skill_id'];
+    protected $table = 'mahasiswa_skill';
+    protected $primaryKey = 'mahasiswa_skill_id';
+    protected $fillable = ['mahasiswa_id', 'skill_id', 'bobot'];
 
+    public function mahasiswa()
+    {
+        return $this->belongsTo(MahasiswaModel::class, 'mahasiswa_id', 'mahasiswa_id');
+    }
+    public function skill()
+    {
+        return $this->belongsTo(DetailSkillModel::class, 'skill_id', 'skill_id');
+    }
 }
