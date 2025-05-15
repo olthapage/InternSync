@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PengajuanModel;
-use App\Models\MahasiswaModel;
-use App\Models\LowonganModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use App\Models\LowonganModel;
+use App\Models\MahasiswaModel;
+use App\Models\PengajuanModel;
+use App\Models\DetailLowonganModel;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class PengajuanController extends Controller
 {
@@ -58,35 +59,55 @@ class PengajuanController extends Controller
     }
 
     public function store(Request $request)
-    {
-        if ($request->ajax() || $request->wantsJson()) {
-            $rules = [
-                'mahasiswa_id' => 'required',
-                'lowongan_id' => 'required',
-                'tanggal_pengajuan' => 'required|date',
-                'status' => 'required'
-            ];
+{
+    if ($request->ajax() || $request->wantsJson()) {
+        $rules = [
+            'mahasiswa_id' => 'required',
+            'lowongan_id' => 'required',
+            'tanggal_pengajuan' => 'required|date',
+            'status' => 'required'
+        ];
 
-            $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi gagal',
-                    'msgField' => $validator->errors()
-                ]);
-            }
-
-            PengajuanModel::create($request->all());
-
+        if ($validator->fails()) {
             return response()->json([
-                'status' => true,
-                'message' => 'Pengajuan berhasil disimpan'
+                'status' => false,
+                'message' => 'Validasi gagal',
+                'msgField' => $validator->errors()
             ]);
         }
 
-        return redirect('/');
+        // Ambil lowongan yang dipilih
+        $lowongan = DetailLowonganModel::find($request->lowongan_id);
+
+        if (!$lowongan) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Lowongan tidak ditemukan'
+            ]);
+        }
+
+        // Validasi apakah tanggal_pengajuan berada di dalam rentang tanggal lowongan
+        $tanggalPengajuan = $request->tanggal_pengajuan;
+        if ($tanggalPengajuan < $lowongan->tanggal_mulai || $tanggalPengajuan > $lowongan->tanggal_selesai) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Tanggal pengajuan harus berada di antara tanggal mulai dan selesai lowongan'
+            ]);
+        }
+
+        PengajuanModel::create($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Pengajuan berhasil disimpan'
+        ]);
     }
+
+    return redirect('/');
+}
+
 
     public function show(Request $request, $id)
     {
