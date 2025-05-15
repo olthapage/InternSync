@@ -32,6 +32,16 @@
                         <small id="error-industri_nama" class="error-text form-text text-danger"></small>
                     </div>
                     <div class="form-group mb-3">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
+                    <small id="error-email" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="telepon">Telepon</label>
+                        <input type="text" name="telepon" id="telepon" class="form-control" value="{{ old('telepon') }}" required>
+                        <small id="error-telepon" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group mb-3">
                         <label for="kota_id">Kota</label>
                         <select name="kota_id"
                                 id="kota_id"
@@ -74,6 +84,8 @@
         $('#form-create-industri').validate({
             rules: {
                 industri_nama: { required: true, minlength: 3 },
+                email: { required: true, email: true },
+                telepon: { required: true, minlength: 6 },
                 kota_id: { required: true, number: true },
                 kategori_industri_id: { required: true, number: true }
             },

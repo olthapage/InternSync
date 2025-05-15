@@ -14,6 +14,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" class="form-control"
+                        value="{{ $industri->email }}" required>
+                    <small id="error-email" class="error-text form-text text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Telepon</label>
+                    <input type="text" name="telepon" id="telepon" class="form-control"
+                        value="{{ $industri->telepon }}" required>
+                    <small id="error-telepon" class="error-text form-text text-danger"></small>
+                </div>
+                
+                <div class="form-group">
                     <label>Kota</label>
                     <select name="kota_id" id="kota_id" class="form-control" required>
                         <option value="">-- Pilih Kota --</option>
@@ -55,6 +69,8 @@
         $("#form-edit").validate({
         rules: {
             industri_nama: { required: true, minlength: 3},
+            email: { required: true, email: true },
+            telepon: { required: true, minlength: 6 },
             kota_id: { required: true},
             kategori_industri_id: { required: true }
         },
