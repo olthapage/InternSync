@@ -6,7 +6,8 @@
 
         <!-- Tombol Tambah Program Studi -->
         <div class="d-flex justify-content-end mb-3">
-            <a href="{{ url('program-studi/create') }}" class="btn btn-primary">+ Tambah Program Studi</a>
+            <button onclick="modalAction('{{ url('program-studi.create') }}')" class="btn btn-sm btn-primary">+ Tambah Program Studi</button>
+    </div>
         </div>
 
         <table class="table table-bordered table-striped table-hover table-sm" id="tabel_prodi">
