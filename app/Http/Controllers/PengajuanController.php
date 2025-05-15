@@ -38,8 +38,6 @@ class PengajuanController extends Controller
             ->addColumn('aksi', function ($row) {
                 $pk = $row->pengajuan_id;    
                 $btn  = '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/show") . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/edit") . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/delete") . '\')" class="btn btn-danger btn-sm">Hapus</button>';
                 return $btn;
             })
 

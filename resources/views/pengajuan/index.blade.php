@@ -4,10 +4,6 @@
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Pengajuan Magang</h2>
-            <div class="d-flex justify-content-end mb-3">
-                <button onclick="modalAction('{{ route('pengajuan.create') }}')" class="btn btn-sm btn-primary">+ Tambah
-                    Pengajuan</button>
-            </div>
             <div class="table-responsive text-sm">
                 <table class="table table-bordered table-striped table-hover align-middle" id="table_pengajuan">
                     <thead class="table-dark text-center">
