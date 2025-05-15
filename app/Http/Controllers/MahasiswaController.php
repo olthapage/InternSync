@@ -163,8 +163,8 @@ class MahasiswaController extends Controller
             $mahasiswa = MahasiswaModel::find($id);
             if ($mahasiswa) {
                 $data = $request->only(['nama_lengkap', 'email', 'ipk', 'nim', 'status', 'level_id', 'prodi_id', 'dosen_id']);
-                if ($request->filled('password')) {
-                    $data['password'] = bcrypt($request->password);
+                if ($request->filled('reset_password') && $request->reset_password == "1") {
+                    $data['password'] = bcrypt($request->nim);
                 }
                 $mahasiswa->update($data);
 

@@ -19,11 +19,6 @@
                     <small id="error-email" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                    <label>Password <small>(kosongkan jika tak diganti)</small></label>
-                    <input type="password" name="password" id="password" class="form-control">
-                    <small id="error-password" class="error-text form-text text-danger"></small>
-                </div>
-                <div class="form-group">
                     <label>NIP</label>
                     <input type="text" name="nip" id="nip" class="form-control"
                         value="{{ $dosen->nip }}" required>
@@ -53,7 +48,19 @@
                     </select>
                     <small id="error-prodi_id" class="error-text form-text text-danger"></small>
                 </div>
-            </div>
+                <div class="form-group">
+    <label>Password</label>
+    <div class="row g-2">
+        <div class="col-9">
+            <input type="password" class="form-control" id="password" value="********" disabled>
+        </div>
+        <div class="col-3">
+            <button type="button" class="btn btn-danger" id="btn-reset-password">Reset Password</button>
+        </div>
+    </div>
+    <input type="hidden" name="reset_password" id="reset_password" value="0">
+    <small id="error-reset_password" class="error-text form-text text-danger"></small>
+</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
                 <button type="submit" class="btn btn-primary">Update</button>
@@ -63,11 +70,11 @@
 </form>
 <script>
     $(document).ready(function () {
+        // Validasi tetap sama
         $("#form-edit").validate({
             rules: {
                 nama_lengkap: { required: true, minlength: 3 },
                 email: { required: true, email: true },
-                password: { minlength: 6 },
                 nip: { required: true },
                 level_id: { required: true, number: true },
                 prodi_id: { required: true, number: true }
@@ -109,6 +116,23 @@
                 $(element).removeClass('is-invalid');
             }
         });
+
+        $('#btn-reset-password').click(function () {
+            Swal.fire({
+                title: 'Reset Password?',
+                text: 'Password akan diset ulang.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#reset_password').val(1);
+                    Swal.fire('Password Diset Ulang', 'Password akan direset saat disimpan.', 'info');
+                }
+            });
+        });
     });
 </script>
+
 
