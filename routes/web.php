@@ -10,6 +10,7 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\EdasMagangController;
 use App\Http\Controllers\ProgramStudiController;
 use App\Http\Controllers\KategoriIndustriController;
@@ -138,18 +139,35 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::delete('{id}/delete', [LowonganController::class, 'delete_ajax'])->name('lowongan.delete');
     });
 
-    Route::prefix('magang')->group(function () {
-        Route::get('/', [MagangController::class, 'index'])->name('magang.index');
-        Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
-        Route::get('/daftar', [MagangController::class, 'daftar'])->name('magang.daftar');
-        Route::post('/hitung', [MagangController::class, 'hitungEdas'])->name('magang.hitung');
+
+    Route::prefix('pengajuan')->group(function () {
+        Route::get('/', [PengajuanController::class, 'index'])->name('pengajuan.index');
+        Route::post('/list', [PengajuanController::class, 'list']);
+        Route::get('/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
+        Route::get('/{id}/show', [PengajuanController::class, 'show'])->name('pengajuan.show');
+        Route::get('/{id}/edit', [PengajuanController::class, 'edit'])->name('pengajuan.edit');
+        Route::delete('/{id}/delete', [PengajuanController::class, 'destroy'])->name('pengajuan.destroy');
+        Route::post('/store', [PengajuanController::class, 'store'])->name('pengajuan.store');
+        Route::post('/{id}/update', [PengajuanController::class, 'update'])->name('pengajuan.update');
+        Route::get('{id}/delete', [PengajuanController::class, 'deleteModal'])->name('pengajuan.deleteModal');
+        Route::delete('{id}/delete', [PengajuanController::class, 'delete_ajax'])->name('pengajuan.delete_ajax');
     });
 
+
+    // ABAIKAN IKI REK PLS SEK PERCOBAAN LOCAL GA KU PUSH MVC NYA ==================================================
+    // (biar ga ilang aja)
+    // Route::prefix('magang')->group(function () {
+    //     Route::get('/', [MagangController::class, 'index'])->name('magang.index');
+    //     Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
+    //     Route::get('/daftar', [MagangController::class, 'daftar'])->name('magang.daftar');
+    //     Route::post('/hitung', [MagangController::class, 'hitungEdas'])->name('magang.hitung');
+    // });
     // Route::prefix('spk')->group(function () {
     //     Route::get('/daftar', [EdasMagangController::class, 'daftar'])->name('spk.daftar');
     //     Route::post('/hitung', [EdasMagangController::class, 'hitungEdas'])->name('spk.hitung');
     // });
 
+    // =======================================================================================================
 
 });
 ?>
