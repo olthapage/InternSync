@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use Illuminate\Support\Facades\DB;
 use App\Models\DetailLowonganModel;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class LowonganController extends Controller
@@ -46,13 +47,9 @@ class LowonganController extends Controller
                     return $row->industri ? $row->industri->industri_nama : '-';
                 })
                 ->addColumn('aksi', function ($row) {
-                    $btn  = '<a href="' . url('/lowongan/' . $row->lowongan_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
-                    $btn .= '<a href="' . url('/lowongan/' . $row->industri_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                    $btn .= '
-                        <form action="' . url('/lowongan/' . $row->industri_id . '/delete') . '" method="POST" style="display:inline;">
-                            ' . csrf_field() . method_field('DELETE') . '
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
-                        </form>';
+                $btn  = '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                     return $btn;
                 })
                 ->rawColumns(['aksi'])
@@ -61,61 +58,113 @@ class LowonganController extends Controller
 
         return response()->json(['message' => 'Invalid request'], 400);
     }
-    public function create()
+    public function create(Request $request)
     {
         $industri = IndustriModel::all();
         $activeMenu = 'lowongan';
-
+        if ($request->ajax()) {
+        return view('lowongan.create', compact('industri', 'activeMenu'));
+    }
+        $activeMenu = 'lowongan';
         return view('lowongan.create', compact('industri', 'activeMenu'));
     }
 
-
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        if ($request->ajax()) {
+        $validator = Validator::make($request->all(), [
             'judul_lowongan' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'industri_id' => 'required|exists:m_industri,industri_id',
         ]);
 
-        DetailLowonganModel::create($validated);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal',
+                'msgField' => $validator->errors()
+            ]);
+        }
 
-        return redirect()->route('lowongan.index')->with('success', 'Lowongan berhasil ditambahkan.');
+        DetailLowonganModel::create($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Lowongan berhasil ditambahkan'
+        ]);
     }
 
-    public function show($id)
+    return redirect()->route('lowongan.index');
+}
+
+    public function show(Request $request, $id)
     {
-        $lowongan = DetailLowonganModel::with(['industri'])->findOrFail($id);
+        $lowongan = DetailLowonganModel::with(['industri'])->find($id);
         $activeMenu = 'lowongan';
         return view('lowongan.show', compact('lowongan', 'activeMenu'));
+
+         if ($request->ajax()) {
+             return view('lowongan.show', compact('lowongan', 'activeMenu'));
+         }
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $lowongan = DetailLowonganModel::findOrFail($id);
+        $lowongan = DetailLowonganModel::find($id);
         $industri = IndustriModel::all();
+        if ($request->ajax()) {
+             return view('lowongan.edit', compact('lowongan', 'industri'));
+         }
         $activeMenu = 'lowongan';
+
         return view('lowongan.edit', compact('lowongan', 'industri', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
     {
-        $lowongan = DetailLowonganModel::findOrFail($id);
-
-        $validated = $request->validate([
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
             'judul_lowongan' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'industri_id' => 'required|exists:m_industri,industri_id',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi gagal',
+                'msgField' => $validator->errors()
+            ]);
+        }
+
+        $lowongan = DetailLowonganModel::find($id);
+
+        $lowongan->update($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Lowongan berhasil diperbarui'
         ]);
-
-        $lowongan->update($validated);
-
-        return redirect()->route('lowongan.index')->with('success', 'Lowongan berhasil diperbarui.');
     }
 
-    public function destroy($id)
+        return redirect()->route('lowongan.index');
+    }
+
+
+    public function delete_ajax(Request $request, $id)
     {
-        DetailLowonganModel::findOrFail($id)->delete();
-        return redirect()->route('lowongan.index')->with('success', 'Lowongan berhasil dihapus.');
+        if (request()->ajax()) {
+            $lowongan = DetailLowonganModel::find($id);
+            $lowongan->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Lowongan berhasil dihapus.'
+        ]);
     }
+
+    return redirect()->route('lowongan.index');
+}
 }

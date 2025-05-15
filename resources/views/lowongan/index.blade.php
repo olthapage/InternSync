@@ -5,7 +5,7 @@
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Lowongan</h2>
             <div class="d-flex justify-content-end mb-3">
-                <a href="{{ route('lowongan.create') }}" class="btn btn-primary">+ Tambah Lowongan</a>
+                <button onclick="modalAction('{{ url('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah Lowongan</button>
             </div>
             <div class="form-group row">
                 <label class="col-2 control-label col-form-label">Filter Lowongan:</label>
@@ -14,7 +14,7 @@
                         <option value="">- Semua -</option>
                         @foreach ($lowongan as $low)
                             <option value="{{ $low->lowongan_id }}">{{ $low->judul_lowongan }}</option>
-                        @endforeach
+                        @endforeach 
                     </select>
                 </div>
                 <label class="col-2 control-label col-form-label">Filter Industri:</label>
