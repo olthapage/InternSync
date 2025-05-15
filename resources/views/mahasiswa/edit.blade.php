@@ -22,11 +22,6 @@
                             <small id="error-email" class="error-text text-danger"></small>
                         </div>
                         <div class="form-group mb-3">
-                            <label>Password <small>(kosongkan jika tidak ingin diubah)</small></label>
-                            <input type="password" name="password" id="password" class="form-control">
-                            <small id="error-password" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
                             <label>NIM</label>
                             <input type="text" name="nim" id="nim" class="form-control"
                                 value="{{ $mahasiswa->nim }}" required>
@@ -38,6 +33,19 @@
                                 value="{{ $mahasiswa->ipk }}">
                             <small id="error-ipk" class="error-text text-danger"></small>
                         </div>
+                        <div class="form-group">
+    <label>Password</label>
+    <div class="row g-2">
+        <div class="col-9">
+            <input type="password" class="form-control" id="password" value="********" disabled>
+        </div>
+        <div class="col-3">
+            <button type="button" class="btn btn-danger" id="btn-reset-password">Reset Password</button>
+        </div>
+    </div>
+    <input type="hidden" name="reset_password" id="reset_password" value="0">
+    <small id="error-reset_password" class="error-text form-text text-danger"></small>
+</div>
                     </div>
 
                     {{-- Kolom Kanan --}}
@@ -153,4 +161,19 @@ $(document).ready(function () {
         }
     });
 });
+$('#btn-reset-password').click(function () {
+            Swal.fire({
+                title: 'Reset Password?',
+                text: 'Password akan diset ulang.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, reset!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#reset_password').val(1);
+                    Swal.fire('Password Diset Ulang', 'Password akan direset saat disimpan.', 'info');
+                }
+            });
+        });
 </script>
