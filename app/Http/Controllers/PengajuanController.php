@@ -10,6 +10,7 @@ use App\Models\DetailLowonganModel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
+
 class PengajuanController extends Controller
 {
     public function index()
@@ -35,11 +36,13 @@ class PengajuanController extends Controller
             ->addColumn('tanggal_pengajuan_selesai', fn($row) => $row->tanggal_selesai ?? '-')
             ->addColumn('status_pengajuan', fn($row) => ucfirst($row->status) ?? '-')
             ->addColumn('aksi', function ($row) {
-                $btn  = '<button onclick="modalAction(\'' . url('/pengajuan/' . $row->id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/pengajuan/' . $row->id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/pengajuan/' . $row->id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+                $pk = $row->pengajuan_id;    
+                $btn  = '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/show") . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/edit") . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/delete") . '\')" class="btn btn-danger btn-sm">Hapus</button>';
                 return $btn;
             })
+
             ->rawColumns(['aksi'])
             ->make(true);
     }
@@ -59,54 +62,54 @@ class PengajuanController extends Controller
     }
 
     public function store(Request $request)
-{
-    if ($request->ajax() || $request->wantsJson()) {
-        $rules = [
-            'mahasiswa_id' => 'required',
-            'lowongan_id' => 'required',
-            'tanggal_pengajuan' => 'required|date',
-            'status' => 'required'
-        ];
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'mahasiswa_id' => 'required',
+                'lowongan_id' => 'required',
+                'tanggal_pengajuan' => 'required|date',
+                'status' => 'required'
+            ];
 
-        $validator = Validator::make($request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            // Ambil lowongan yang dipilih
+            $lowongan = DetailLowonganModel::find($request->lowongan_id);
+
+            if (!$lowongan) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Lowongan tidak ditemukan'
+                ]);
+            }
+
+            // Validasi apakah tanggal_pengajuan berada di dalam rentang tanggal lowongan
+            $tanggalPengajuan = $request->tanggal_pengajuan;
+            if ($tanggalPengajuan < $lowongan->tanggal_mulai || $tanggalPengajuan > $lowongan->tanggal_selesai) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Tanggal pengajuan harus berada di antara tanggal mulai dan selesai lowongan'
+                ]);
+            }
+
+            PengajuanModel::create($request->all());
+
             return response()->json([
-                'status' => false,
-                'message' => 'Validasi gagal',
-                'msgField' => $validator->errors()
+                'status' => true,
+                'message' => 'Pengajuan berhasil disimpan'
             ]);
         }
 
-        // Ambil lowongan yang dipilih
-        $lowongan = DetailLowonganModel::find($request->lowongan_id);
-
-        if (!$lowongan) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Lowongan tidak ditemukan'
-            ]);
-        }
-
-        // Validasi apakah tanggal_pengajuan berada di dalam rentang tanggal lowongan
-        $tanggalPengajuan = $request->tanggal_pengajuan;
-        if ($tanggalPengajuan < $lowongan->tanggal_mulai || $tanggalPengajuan > $lowongan->tanggal_selesai) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Tanggal pengajuan harus berada di antara tanggal mulai dan selesai lowongan'
-            ]);
-        }
-
-        PengajuanModel::create($request->all());
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Pengajuan berhasil disimpan'
-        ]);
+        return redirect('/');
     }
-
-    return redirect('/');
-}
 
 
     public function show(Request $request, $id)
