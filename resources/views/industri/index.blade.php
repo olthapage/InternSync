@@ -4,7 +4,7 @@
 <div class="mt-4">
     <h2 class="mb-4">Daftar Industri</h2>
     <div class="d-flex justify-content-end mb-3">
-        <a href="{{ route('industri.create') }}" class="btn btn-primary">+ Tambah Industri</a>
+        <button onclick="modalAction('{{ url('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah Industri</button>
     </div>
     <div class="table-responsive text-sm">
         <table class="table table-bordered table-striped table-hover align-middle" id="table_industri">
