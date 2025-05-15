@@ -7,110 +7,158 @@ use App\Models\KotaModel;
 use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use App\Models\KategoriIndustriModel;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class IndustriController extends Controller
 {
     public function index()
     {
-        $industri = IndustriModel::with(['kota', 'kategori_industri'])->get();
+        $industri = IndustriModel::with('kota', 'kategori_industri')->get();
         $activeMenu = 'industri';
         return view('industri.index', compact('industri', 'activeMenu'));
     }
 
     public function list(Request $request)
     {
-        $query = IndustriModel::select(
-                'industri_id',
-                'industri_nama',
-                'kota_id',
-                'kategori_industri_id',
-            )
-            ->with(['kota', 'kategori_industri']);
+        if ($request->ajax()) {
+            $query = IndustriModel::with(['kota', 'kategori_industri'])->select('industri_id', 'industri_nama', 'kota_id', 'kategori_industri_id');
 
+            if ($request->filled('kota_id')) {
+                $query->where('kota_id', $request->kota_id);
+            }
 
-        if ($request->kota_id) {
-            $query->where('kota_id', $request->kota_id);
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('kota', function ($item) {
+                    return $item->kota->kota_nama ?? '-';
+                })
+                ->addColumn('kategori', function ($item) {
+                    return $item->kategori_industri->kategori_nama ?? '-';
+                })
+                ->addColumn('aksi', function ($item) {
+                    $btn  = '<button onclick="modalAction(\'' . url('/industri/' . $item->industri_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/industri/' . $item->industri_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                    $btn .= '<button onclick="deleteAction(\'' . url('/industri/' . $item->industri_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                    return $btn;
+                })
+                ->rawColumns(['aksi'])
+                ->make(true);
         }
 
-        return DataTables::of($query)
-            ->addIndexColumn()
-            ->addColumn('kota', function ($item) {
-                return $item->kota->kota_nama ?? '-';
-            })
-            ->addColumn('kategori', function ($item) {
-                return $item->kategori_industri->kategori_nama ?? '-';
-            })
-            ->addColumn('aksi', function ($item) {
-                $btn  = '<a href="' . url('/industri/' . $item->industri_id . '/show') . '" class="btn btn-info btn-sm">Detail</a> ';
-                $btn .= '<a href="' . url('/industri/' . $item->industri_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                $btn .= '
-                    <form action="' . url('/industri/' . $item->industri_id . '/delete') . '" method="POST" style="display:inline;">
-                        ' . csrf_field() . method_field('DELETE') . '
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
-                    </form>';
-                return $btn;
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+        return response()->json(['message' => 'Invalid request'], 400);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $kota = KotaModel::all();
         $kategori = KategoriIndustriModel::all();
         $activeMenu = 'industri';
+
+        if ($request->ajax()) {
+            return view('industri.create', compact('kota', 'kategori'));
+        }
+
         return view('industri.create', compact('kota', 'kategori', 'activeMenu'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'industri_nama' => 'required',
-            'kota_id' => 'required',
-            'kategori_industri_id' => 'required',
-        ]);
+        if ($request->ajax()) {
+            $validator = Validator::make($request->all(), [
+                'industri_nama' => 'required|string|max:255',
+                'kota_id' => 'required|exists:m_kota,kota_id',
+                'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
+            ]);
 
-        IndustriModel::create($request->only(['industri_nama', 'kota_id', 'kategori_industri_id']));
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
 
-        return redirect()->route('industri.index')->with('success', 'Industri berhasil ditambahkan');
+            IndustriModel::create($request->all());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Industri berhasil ditambahkan'
+            ]);
+        }
+
+        return redirect()->route('industri.index');
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $industri = IndustriModel::with(['kota', 'kategori_industri'])->findOrFail($id);
+        $industri = IndustriModel::with(['kota', 'kategori_industri'])->find($id);
         $activeMenu = 'industri';
+
+        if ($request->ajax()) {
+            return view('industri.show', compact('industri', 'activeMenu'));
+        }
+
         return view('industri.show', compact('industri', 'activeMenu'));
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $industri = IndustriModel::findOrFail($id);
+        $industri = IndustriModel::find($id);
         $kota = KotaModel::all();
         $kategori = KategoriIndustriModel::all();
+
+        if ($request->ajax()) {
+            return view('industri.edit', compact('industri', 'kota', 'kategori'));
+        }
+
         $activeMenu = 'industri';
         return view('industri.edit', compact('industri', 'kota', 'kategori', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'industri_nama' => 'required',
-            'kota_id' => 'required',
-            'kategori_industri_id' => 'required',
-        ]);
+        if ($request->ajax()) {
+            $rules = [
+                'industri_nama' => 'required|string|max:255',
+                'kota_id' => 'required|exists:m_kota,kota_id',
+                'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
+            ];
 
-        $industri = IndustriModel::findOrFail($id);
-        $industri->update($request->only(['industri_nama', 'kota_id', 'kategori_industri_id']));
+            $validator = Validator::make($request->all(), $rules);
 
-        return redirect()->route('industri.index')->with('success', 'Industri berhasil diperbarui');
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $industri = IndustriModel::find($id);
+            $industri->update($request->all());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Industri berhasil diperbarui'
+            ]);
+        }
+
+        return redirect()->route('industri.index');
     }
 
-    public function destroy($id)
+    public function delete_ajax(Request $request, $id)
     {
-        $industri = IndustriModel::findOrFail($id);
-        $industri->delete();
+        if ($request->ajax()) {
+            $industri = IndustriModel::find($id);
+            $industri->delete();
 
-        return redirect()->route('industri.index')->with('success', 'Industri berhasil dihapus');
+            return response()->json([
+                'status' => true,
+                'message' => 'Industri berhasil dihapus.'
+            ]);
+        }
+
+        return redirect()->route('industri.index');
     }
 }

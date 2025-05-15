@@ -1,24 +1,41 @@
-@extends('layouts.template')
-
-@section('content')
-    <div class="container mt-4">
-        <h2>Detail Industri</h2>
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ $industri->industri_nama }}</h5>
-                <p class="card-text"><strong>Kota:</strong> {{ $industri->kota->kota_nama ?? '-' }}</p>
-                <p class="card-text"><strong>Kategori Industri:</strong> {{ $industri->kategori_industri->kategori_nama ?? '-' }}</p>
-            </div>
-            <div class="card-footer">
-                <a href="{{ route('industri.edit', $industri->industri_id) }}" class="btn btn-warning">Edit</a>
-                <form action="{{ route('industri.destroy', $industri->industri_id) }}" method="POST" class="d-inline"
-                    onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                    @csrf
-                    @method('DELETE')
-                    <button class="btn btn-danger" type="submit">Hapus</button>
-                </form>
-                <a href="{{ route('industri.index') }}" class="btn btn-secondary">Kembali</a>
-            </div>
+@empty($industri)
+  <div class="modal-dialog modal-xl" style="max-width:60%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Kesalahan</h5>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <h5><i class="icon fas fa-ban"></i> Data Industri tidak ditemukan!</h5>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
+      </div>
     </div>
-@endsection
+  </div>
+@else
+  <div class="modal-dialog modal-xl" style="max-width:60%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detail Industri</h5>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-striped table-hover table-sm">
+          <tr><th>ID</th>                   <td>{{ $industri->industri_id }}</td></tr>
+          <tr><th>Nama Industri</th>        <td>{{ $industri->industri_nama }}</td></tr>
+          <tr><th>Kota</th>                 <td>{{ $industri->kota->kota_nama ?? '-' }}</td></tr>
+          <tr><th>Kategori Industri</th>    <td>{{ $industri->kategori_industri->kategori_nama ?? '-' }}</td></tr>
+          <tr><th>Dibuat pada</th>          <td>{{ $industri->created_at }}</td></tr>
+          <tr><th>Diupdate pada</th>        <td>{{ $industri->updated_at }}</td></tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button onclick="modalAction('{{ url('/industri/' . $industri->industri_id . '/edit') }}')" class="btn btn-warning btn-sm">Edit</button>
+        <button onclick="modalAction('{{ url('/industri/' . $industri->industri_id . '/delete') }}')" class="btn btn-danger btn-sm">Hapus</button>
+        </form>
+        <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
+      </div>
+    </div>
+  </div>
+@endempty
