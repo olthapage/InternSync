@@ -24,6 +24,8 @@
         <table class="table table-bordered table-striped table-hover table-sm">
           <tr><th>ID</th>                   <td>{{ $industri->industri_id }}</td></tr>
           <tr><th>Nama Industri</th>        <td>{{ $industri->industri_nama }}</td></tr>
+          <tr><th>Email</th>                <td>{{ $industri->email ?? '-' }}</td></tr>
+          <tr><th>Telepon</th>              <td>{{ $industri->telepon ?? '-' }}</td></tr>
           <tr><th>Kota</th>                 <td>{{ $industri->kota->kota_nama ?? '-' }}</td></tr>
           <tr><th>Kategori Industri</th>    <td>{{ $industri->kategori_industri->kategori_nama ?? '-' }}</td></tr>
           <tr><th>Dibuat pada</th>          <td>{{ $industri->created_at }}</td></tr>
@@ -33,7 +35,6 @@
       <div class="modal-footer">
         <button onclick="modalAction('{{ url('/industri/' . $industri->industri_id . '/edit') }}')" class="btn btn-warning btn-sm">Edit</button>
         <button onclick="modalAction('{{ url('/industri/' . $industri->industri_id . '/delete') }}')" class="btn btn-danger btn-sm">Hapus</button>
-        </form>
         <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
       </div>
     </div>
