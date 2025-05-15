@@ -145,8 +145,8 @@ class DosenController extends Controller
             if ($dosen) {
                 $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
 
-                if ($request->filled('password')) {
-                    $data['password'] = $request->password;
+                if ($request->filled('reset_password') && $request->reset_password == "1") {
+                    $data['password'] = bcrypt($request->nip);
                 }
 
                 $dosen->update($data);
