@@ -93,6 +93,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/{id}/edit', [ProgramStudiController::class, 'edit'])->name('program-studi.edit');
         Route::put('/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
         Route::delete('/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
+        Route::delete('{id}/delete', [ProgramStudiController::class, 'delete_ajax'])->name('program-studi.delete');
     });
     
     Route::prefix('industri')->group(function () {
@@ -104,6 +105,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/{id}/edit', [IndustriController::class, 'edit'])->name('industri.edit');
         Route::put('/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
         Route::delete('/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
+        Route::delete('{id}/delete', [LowonganController::class, 'delete_ajax'])->name('lowongan.delete');
     });
 
     Route::prefix('kategori-industri')->group(function () {
@@ -127,6 +129,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/{id}/edit', [LowonganController::class, 'edit'])->name('lowongan.edit');
         Route::put('/{id}/update', [LowonganController::class, 'update'])->name('lowongan.update');
         Route::delete('/{id}/delete', [LowonganController::class, 'destroy'])->name('lowongan.destroy');
+        Route::delete('{id}/delete', [LowonganController::class, 'delete_ajax'])->name('lowongan.delete');
     });
 });
 ?>
