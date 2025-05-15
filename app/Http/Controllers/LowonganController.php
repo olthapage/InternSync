@@ -31,10 +31,12 @@ class LowonganController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
-            $data = DetailLowonganModel::with('industri')->select('lowongan_id', 'judul_lowongan', 'industri_id');
+            $data = DetailLowonganModel::with('industri')
+                ->select('lowongan_id', 'judul_lowongan', 'industri_id', 'tanggal_mulai');
 
-            if ($request->filled('filter_lowongan')) {
-                $data->where('lowongan_id', $request->filter_lowongan);
+            // Filter berdasarkan bulan periode
+            if ($request->filled('filter_bulan')) {
+                $data->whereMonth('tanggal_mulai', $request->filter_bulan);
             }
 
             if ($request->filled('filter_industri')) {
@@ -47,9 +49,9 @@ class LowonganController extends Controller
                     return $row->industri ? $row->industri->industri_nama : '-';
                 })
                 ->addColumn('aksi', function ($row) {
-                $btn  = '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                    $btn  = '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/lowongan/' . $row->lowongan_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                     return $btn;
                 })
                 ->rawColumns(['aksi'])
@@ -58,6 +60,7 @@ class LowonganController extends Controller
 
         return response()->json(['message' => 'Invalid request'], 400);
     }
+
     public function create(Request $request)
     {
         $industri = IndustriModel::all();
