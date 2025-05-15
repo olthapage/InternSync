@@ -15,7 +15,7 @@ class IndustriModel extends Model
     protected $primaryKey = 'industri_id';
     public $timestamps = false;
 
-    protected $fillable = ['industri_nama', 'kota_id', 'kategori_industri_id'];
+    protected $fillable = ['industri_nama', 'kota_id', 'kategori_industri_id', 'email', 'telepon', 'password'];
 
     function kategori_industri()
     {

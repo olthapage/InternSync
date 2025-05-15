@@ -45,10 +45,11 @@
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+    @stack('css')
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
-    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3"
+    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3 bg-white"
         id="sidenav-main">
         @include('layouts.sidebar')
     </aside>
@@ -371,6 +372,24 @@
         </script>
     <!-- Soft UI Dashboard script (wajib di bawah jQuery + Bootstrap) -->
     <script src="{{ asset('softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0') }}"></script>
+    <!-- jQuery Validate -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script>
+        var win = navigator.platform.indexOf('Win') > -1;
+            if (win && document.querySelector('#sidenav-scrollbar')) {
+                var options = {
+                damping: '0.5'
+                }
+                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+            }
+        </script>
+    <!-- Soft UI Dashboard script (wajib di bawah jQuery + Bootstrap) -->
+    <script src="{{ asset('softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0') }}"></script>
+
     @stack('js')
 </body>
 </html>

@@ -4,13 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DosenController;
-use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\MagangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\IndustriController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\KategoriIndustriController;
 use App\Http\Controllers\LowonganController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\EdasMagangController;
+use App\Http\Controllers\ProgramStudiController;
+use App\Http\Controllers\KategoriIndustriController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,7 +100,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::put('/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
         Route::delete('/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
     });
-    
+
     Route::prefix('industri')->group(function () {
         Route::get('/', [IndustriController::class, 'index'])->name('industri.index');
         Route::post('/list', [IndustriController::class, 'list'])->name('industri.list');
@@ -132,6 +134,20 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::put('/{id}/update', [LowonganController::class, 'update'])->name('lowongan.update');
         Route::delete('/{id}/delete', [LowonganController::class, 'destroy'])->name('lowongan.destroy');
     });
+
+    Route::prefix('magang')->group(function () {
+        Route::get('/', [MagangController::class, 'index'])->name('magang.index');
+        Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
+        Route::get('/daftar', [MagangController::class, 'daftar'])->name('magang.daftar');
+        Route::post('/hitung', [MagangController::class, 'hitungEdas'])->name('magang.hitung');
+    });
+
+    // Route::prefix('spk')->group(function () {
+    //     Route::get('/daftar', [EdasMagangController::class, 'daftar'])->name('spk.daftar');
+    //     Route::post('/hitung', [EdasMagangController::class, 'hitungEdas'])->name('spk.hitung');
+    // });
+
+
 });
 ?>
 

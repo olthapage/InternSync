@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\DosenModel;
 use App\Models\LevelModel;
+use App\Models\MahasiswaSkillModel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MahasiswaPreferensiLokasiModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -47,8 +48,8 @@ class MahasiswaModel extends Authenticatable
     {
         return $this->hasMany(MahasiswaPreferensiLokasiModel::class, 'mahasiswa_id', 'mahasiswa_id');
     }
-    public function skills()
+    public function skill()
     {
-        return $this->belongsToMany(DetailSkillModel::class, 'user_skill', 'mahasiswa_id', 'skill_id');
+        return $this->hasMany(MahasiswaSkillModel::class, 'mahasiswa_id', 'mahasiswa_id');
     }
 }
