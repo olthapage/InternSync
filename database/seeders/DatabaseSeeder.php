@@ -353,6 +353,36 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
         ]);
+
+        DB::table('t_pengajuan')->insert([
+            [
+                'mahasiswa_id' => 1,
+                'lowongan_id' => 1,
+                'tanggal_mulai' => '2025-07-01',
+                'tanggal_selesai' => '2025-09-30',
+                'status' => 'belum',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'mahasiswa_id' => 2,
+                'lowongan_id' => 2,
+                'tanggal_mulai' => '2025-08-01',
+                'tanggal_selesai' => '2025-10-31',
+                'status' => 'belum',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'mahasiswa_id' => 3,
+                'lowongan_id' => 1,
+                'tanggal_mulai' => '2025-06-15',
+                'tanggal_selesai' => '2025-09-15',
+                'status' => 'belum',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+        ]);
 //         DB::table('kriteria_magang')->insert([
 //     [
 //         'lowongan_id' => 1,

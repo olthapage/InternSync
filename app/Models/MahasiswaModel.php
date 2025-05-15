@@ -19,12 +19,22 @@ class MahasiswaModel extends Authenticatable
         'nama_lengkap',
         'email',
         'password',
-        'ipk',
         'nim',
         'status',
+        'ipk',
         'level_id',
         'prodi_id',
-        'dosen_id'
+        'dosen_id',
+        'sertifikat_kompetensi',
+        'pakta_integritas',
+        'daftar_riwayat_hidup',
+        'khs',
+        'ktp',
+        'ktm',
+        'surat_izin_ortu',
+        'bpjs',
+        'sktm_kip',
+        'proposal',
     ];
 
     protected $hidden = ['password'];

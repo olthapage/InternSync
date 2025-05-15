@@ -28,7 +28,18 @@ return new class extends Migration
 
             $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');;
 
-            $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen')->onDelete('cascade');;
+            $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen')->onDelete('cascade');
+
+            $table->string('sertifikat_kompetensi')->nullable();
+            $table->string('pakta_integritas')->nullable();
+            $table->string('daftar_riwayat_hidup')->nullable();
+            $table->string('khs')->nullable();
+            $table->string('ktp')->nullable();
+            $table->string('ktm')->nullable();
+            $table->string('surat_izin_ortu')->nullable();
+            $table->string('bpjs')->nullable();
+            $table->string('sktm_kip')->nullable();
+            $table->string('proposal')->nullable();
         });
     }
 
