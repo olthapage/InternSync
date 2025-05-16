@@ -1,4 +1,4 @@
-@empty($activeMenu)
+@empty($prodi)
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,12 +8,12 @@
                 <div class="alert alert-danger">
                     <h5><i class="icon fas fa-ban"></i> Data tidak tersedia.</h5>
                 </div>
-                <button class="btn btn-warning" onclick="$('#ajaxModal').modal('hide')">Tutup</button>
+                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
             </div>
         </div>
     </div>
 @else
-    <form id="form-create-prodi" action="{{ url('program-studi') }}" method="POST">
+    <form id="form-create-prodi" action="{{ url('program-studi.store') }}" method="POST">
         @csrf
         <div class="modal-dialog modal-lg" role="document" style="max-width: 50vw;">
             <div class="modal-content">
@@ -45,7 +45,7 @@
                 <div class="modal-footer">
                     <button type="button"
                             class="btn btn-secondary"
-                            onclick="$('#ajaxModal').modal('hide')">Batal</button>
+                            onclick="$('#myModal').modal('hide')">Batal</button>
                     <button type="submit"
                             class="btn btn-primary">Simpan</button>
                 </div>

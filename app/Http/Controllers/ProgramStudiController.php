@@ -39,10 +39,8 @@ class ProgramStudiController extends Controller
     public function create(Request $request)
     {
         $activeMenu = 'prodi';
-        if ($request->ajax()) {
-            return view('program_studi.create');
-        }
-        return view('program_studi.create', compact('activeMenu'));
+        $prodi = ProdiModel::all();
+        return view('program_studi.create', compact('prodi'));
     }
 
     public function store(Request $request)
