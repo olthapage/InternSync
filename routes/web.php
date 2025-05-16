@@ -32,18 +32,18 @@ use App\Http\Controllers\KategoriIndustriController;
 
 Route::pattern('id', '[0-9]+');
 
+Route::get('/', [WelcomeController::class, 'landing'])->name('landing');
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
-Route::get('signup', [AuthController::class, 'signup']);
+Route::get('signup', [AuthController::class, 'signup'])->name('signup');
 Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,mahasiswa,dosen');
 
-Route::get('/', [WelcomeController::class, 'index']);
 
 Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function() {
 
-    Route::get('/', [WelcomeController::class, 'dashboard'])->name('home');
+    Route::get('/dashboard', [WelcomeController::class, 'dashboard'])->name('home');
 
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
