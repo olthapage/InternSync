@@ -6,8 +6,10 @@ use App\Models\DosenModel;
 use App\Models\LevelModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class DosenController extends Controller
 {
@@ -121,50 +123,117 @@ class DosenController extends Controller
         return view('admin_page.dosen.edit', compact('dosen', 'prodi', 'level', 'activeMenu'));
     }
     public function update(Request $request, $id)
-    {
-        if ($request->ajax() || $request->wantsJson()) {
-            $rules = [
-                'nama_lengkap' => 'required',
-                'email' => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
-                'nip' => 'required|unique:m_dosen,nip,' . $id . ',dosen_id',
-                'level_id' => 'required',
-                'prodi_id' => 'required'
-            ];
+{
+    Log::info('Data Dosen diterima untuk update:', $request->all());
 
-            $validator = Validator::make($request->all(), $rules);
+    if ($request->ajax() || $request->wantsJson()) {
+        $rules = [
+            'nama_lengkap' => 'required',
+            'email'        => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
+            'nip'          => 'required|unique:m_dosen,nip,' . $id . ',dosen_id',
+            'level_id'     => 'required',
+            'prodi_id'     => 'required',
+            'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
+        ];
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi gagal.',
-                    'msgField' => $validator->errors()
-                ]);
-            }
-
-            $dosen = DosenModel::find($id);
-            if ($dosen) {
-                $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
-
-                if ($request->filled('reset_password') && $request->reset_password == "1") {
-                    $data['password'] = bcrypt($request->nip);
-                }
-
-                $dosen->update($data);
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Dosen berhasil diperbarui'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data dosen tidak ditemukan'
-                ]);
-            }
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'status'   => false,
+                'message'  => 'Validasi gagal.',
+                'msgField' => $validator->errors()
+            ]);
         }
 
-        return redirect('/');
+        $dosen = DosenModel::find($id);
+        if ($dosen) {
+            $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
+
+            if ($request->filled('reset_password') && $request->reset_password == "1") {
+                $data['password'] = bcrypt($request->nip);
+            }
+
+            if (!Storage::disk('public')->exists('foto')) {
+                Storage::disk('public')->makeDirectory('foto');
+                Log::info('Folder "foto" dibuat di penyimpanan publik');
+            }
+
+            Log::info('Detil File Upload:', [
+                'hasFile' => $request->hasFile('foto'),
+                'fileDetails' => $request->hasFile('foto') ? [
+                    'originalName' => $request->file('foto')->getClientOriginalName(),
+                    'mimeType' => $request->file('foto')->getMimeType(),
+                    'size' => $request->file('foto')->getSize(),
+                ] : null
+            ]);
+
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+
+                if ($file->isValid()) {
+                    try {
+                        if ($dosen->foto && Storage::disk('public')->exists('foto/' . $dosen->foto)) {
+                            Storage::disk('public')->delete('foto/' . $dosen->foto);
+                            Log::info('Foto lama dosen dihapus', ['file' => $dosen->foto]);
+                        }
+
+                        $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $uploadSuccess = $file->move(storage_path('app/public/foto'), $namaFile);
+
+                        if ($uploadSuccess) {
+                            $data['foto'] = $namaFile;
+                            Log::info('Foto dosen berhasil diupload', [
+                                'filename' => $namaFile,
+                                'path' => storage_path('app/public/foto/' . $namaFile),
+                                'exists' => file_exists(storage_path('app/public/foto/' . $namaFile))
+                            ]);
+                        } else {
+                            return response()->json([
+                                'status' => false,
+                                'message' => 'Gagal menyimpan foto (move failed)'
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error('Kesalahan saat upload foto dosen:', [
+                            'message' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Gagal menyimpan foto: ' . $e->getMessage()
+                        ]);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'File foto tidak valid: ' . $file->getErrorMessage()
+                    ]);
+                }
+            }
+
+            $dosen->update($data);
+
+            Log::info('Dosen berhasil diperbarui:', [
+                'dosen_id' => $dosen->dosen_id,
+                'foto' => $dosen->foto,
+                'data' => $data
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data dosen berhasil diperbarui'
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Data dosen tidak ditemukan'
+        ]);
     }
+
+    return redirect('/');
+}
 
     public function deleteModal(Request $request, $id)
     {

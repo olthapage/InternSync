@@ -19,6 +19,7 @@ class MahasiswaModel extends Authenticatable
         'nama_lengkap',
         'email',
         'password',
+        'foto',
         'nim',
         'status',
         'ipk',

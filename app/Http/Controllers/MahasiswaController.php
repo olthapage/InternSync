@@ -7,8 +7,10 @@ use App\Models\LevelModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
 use App\Models\MahasiswaModel;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class MahasiswaController extends Controller
 {
@@ -139,23 +141,25 @@ class MahasiswaController extends Controller
 
     public function update(Request $request, $id)
     {
-        if ($request->ajax()) {
+        Log::info('Data received:', $request->all());
+        if ($request->ajax() || $request->wantsJson()) {
             $rules = [
                 'nama_lengkap' => 'required',
-                'email' => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
-                'ipk' => 'nullable|numeric|min:0|max:4',
-                'nim' => 'required|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
-                'status' => 'required|boolean',
-                'level_id' => 'required',
-                'prodi_id' => 'required',
-                'dosen_id' => 'nullable'
+                'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
+                'ipk'          => 'nullable|numeric|min:0|max:4',
+                'nim'          => 'required|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
+                'status'       => 'required|boolean',
+                'level_id'     => 'required',
+                'prodi_id'     => 'required',
+                'dosen_id'     => 'nullable',
+                'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
             ];
 
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi gagal.',
+                    'status'   => false,
+                    'message'  => 'Validasi gagal.',
                     'msgField' => $validator->errors()
                 ]);
             }
@@ -163,14 +167,118 @@ class MahasiswaController extends Controller
             $mahasiswa = MahasiswaModel::find($id);
             if ($mahasiswa) {
                 $data = $request->only(['nama_lengkap', 'email', 'ipk', 'nim', 'status', 'level_id', 'prodi_id', 'dosen_id']);
-                if ($request->filled('reset_password') && $request->reset_password == "1") {
-                    $data['password'] = bcrypt($request->nim);
+
+                if ($request->filled('password')) {
+                    $data['password'] = bcrypt($request->password);
                 }
+
+                // Create foto directory if it doesn't exist
+                if (!Storage::disk('public')->exists('foto')) {
+                    Storage::disk('public')->makeDirectory('foto');
+                    Log::info('Created foto directory in storage');
+                }
+
+                // Debug storage permissions
+                Log::info('Storage permissions check:', [
+                    'public_writable' => is_writable(storage_path('app/public')),
+                    'foto_writable' => is_writable(storage_path('app/public/foto')),
+                    'storage_path' => storage_path('app/public/foto')
+                ]);
+
+                // Detailed logging of file upload request
+                Log::info('File Upload Request Details:', [
+                    'hasFile' => $request->hasFile('foto'),
+                    'allFiles' => $request->allFiles(),
+                    'fileInput_name' => 'foto',
+                    'request_method' => $request->method(),
+                    'content_type' => $request->header('Content-Type'),
+                    'enctype' => $request->header('Content-Type') ? str_contains($request->header('Content-Type'), 'multipart/form-data') : false
+                ]);
+
+                // Check if there's a file in the request
+                if ($request->hasFile('foto')) {
+                    $file = $request->file('foto');
+
+                    // Log details about the uploaded file
+                    Log::info('Uploaded File Details:', [
+                        'isValid' => $file->isValid(),
+                        'originalName' => $file->getClientOriginalName(),
+                        'extension' => $file->getClientOriginalExtension(),
+                        'mimeType' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                        'error' => $file->getError(),
+                        'error_message' => $file->getErrorMessage()
+                    ]);
+
+                    if ($file->isValid()) {
+                        try {
+                            // Delete old file if exists
+                            if ($mahasiswa->foto && Storage::disk('public')->exists('foto/' . $mahasiswa->foto)) {
+                                Storage::disk('public')->delete('foto/' . $mahasiswa->foto);
+                                Log::info('Old photo deleted', ['old_file' => $mahasiswa->foto]);
+                            }
+
+                            // Generate unique filename
+                            $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                            // Store file with direct file access to avoid issues
+                            $uploadSuccess = $file->move(storage_path('app/public/foto'), $namaFile);
+
+                            if ($uploadSuccess) {
+                                $data['foto'] = $namaFile;
+                                Log::info('File uploaded successfully using move method', [
+                                    'filename' => $namaFile,
+                                    'path' => storage_path('app/public/foto/' . $namaFile),
+                                    'exists' => file_exists(storage_path('app/public/foto/' . $namaFile))
+                                ]);
+                            } else {
+                                Log::error('Failed to move file');
+                                return response()->json([
+                                    'status' => false,
+                                    'message' => 'Gagal menyimpan foto (move failed)'
+                                ]);
+                            }
+                        } catch (\Exception $e) {
+                            Log::error('Exception during file upload:', [
+                                'message' => $e->getMessage(),
+                                'code' => $e->getCode(),
+                                'file' => $e->getFile(),
+                                'line' => $e->getLine(),
+                                'trace' => $e->getTraceAsString()
+                            ]);
+
+                            return response()->json([
+                                'status' => false,
+                                'message' => 'Gagal menyimpan foto: ' . $e->getMessage()
+                            ]);
+                        }
+                    } else {
+                        Log::error('Invalid file upload:', [
+                            'error_code' => $file->getError(),
+                            'error_message' => $file->getErrorMessage()
+                        ]);
+
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'File tidak valid: ' . $file->getErrorMessage()
+                        ]);
+                    }
+                }
+
+                // Update mahasiswa data
                 $mahasiswa->update($data);
+
+                // Log successful update
+                Log::info('Mahasiswa updated successfully:', [
+                    'mahasiswa_id' => $mahasiswa->mahasiswa_id,
+                    'foto' => $mahasiswa->foto,
+                    'foto_path' => $mahasiswa->foto ? asset('storage/foto/' . $mahasiswa->foto) : null,
+                    'raw_data' => $data
+                ]);
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Mahasiswa berhasil diperbarui'
+                    'message' => 'Data mahasiswa berhasil diperbarui'
                 ]);
             }
 
