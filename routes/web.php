@@ -2,18 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\DosenController;
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\DosenController;
 use App\Http\Controllers\MagangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\IndustriController;
-use App\Http\Controllers\LowonganController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\admin\IndustriController;
+use App\Http\Controllers\admin\LowonganController;
+use App\Http\Controllers\admin\MahasiswaController;
+use App\Http\Controllers\admin\PengajuanController;
 use App\Http\Controllers\EdasMagangController;
-use App\Http\Controllers\ProgramStudiController;
-use App\Http\Controllers\KategoriIndustriController;
+use App\Http\Controllers\admin\ProgramStudiController;
+use App\Http\Controllers\admin\KategoriIndustriController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +45,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
 
     Route::get('/dashboard', [WelcomeController::class, 'dashboard'])->name('home');
 
+    /*      --Route admin disini--      */
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
@@ -152,7 +153,15 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('{id}/delete', [PengajuanController::class, 'deleteModal'])->name('pengajuan.deleteModal');
         Route::delete('{id}/delete', [PengajuanController::class, 'delete_ajax'])->name('pengajuan.delete_ajax');
     });
+    /*      --------------      */
+    
+    /*      --Route mahasiswa disini--      */
 
+    /*      --------------      */
+
+    /*      --Route dosen disini--      */
+
+    /*      --------------      */
 
     // ABAIKAN IKI REK PLS SEK PERCOBAAN LOCAL GA KU PUSH MVC NYA ==================================================
     // (biar ga ilang aja)
