@@ -12,7 +12,7 @@ class KategoriIndustriController extends Controller
     {
         $kategori = KategoriIndustriModel::all();
         $activeMenu = 'kategori-industri';
-        return view('kategori_industri.index', compact('kategori', 'activeMenu'));
+        return view('admin_page.kategori_industri.index', compact('kategori', 'activeMenu'));
     }
 
     public function list(Request $request)
@@ -37,7 +37,7 @@ class KategoriIndustriController extends Controller
     public function create()
     {
         $activeMenu = 'kategori-industri';
-        return view('kategori_industri.create', compact('activeMenu'));
+        return view('admin_page.kategori_industri.create', compact('activeMenu'));
     }
 
     public function store(Request $request)
@@ -57,14 +57,14 @@ class KategoriIndustriController extends Controller
     {
         $kategori = KategoriIndustriModel::findOrFail($id);
         $activeMenu = 'kategori-industri';
-        return view('kategori_industri.show', compact('kategori', 'activeMenu'));
+        return view('admin_page.kategori_industri.show', compact('kategori', 'activeMenu'));
     }
 
     public function edit($id)
     {
         $kategori = KategoriIndustriModel::findOrFail($id);
         $activeMenu = 'kategori-industri';
-        return view('kategori_industri.edit', compact('kategori', 'activeMenu'));
+        return view('admin_page.kategori_industri.edit', compact('kategori', 'activeMenu'));
     }
 
     public function update(Request $request, $id)

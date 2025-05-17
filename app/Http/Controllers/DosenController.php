@@ -15,7 +15,7 @@ class DosenController extends Controller
     {
         $dosen = DosenModel::with('prodi')->get();
         $activeMenu = 'dosen';
-        return view('dosen.index', compact('dosen', 'activeMenu'));
+        return view('admin_page.dosen.index', compact('dosen', 'activeMenu'));
     }
     public function list(Request $request)
     {
@@ -55,10 +55,10 @@ class DosenController extends Controller
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('dosen.create', compact('prodi', 'level'));
+            return view('admin_page.dosen.create', compact('prodi', 'level'));
         }
         $activeMenu = 'dosen';
-        return view('dosen.create', compact('prodi', 'level', 'activeMenu'));
+        return view('admin_page.dosen.create', compact('prodi', 'level', 'activeMenu'));
     }
     public function store(Request $request)
     {
@@ -105,7 +105,7 @@ class DosenController extends Controller
         $dosen = DosenModel::with(['prodi', 'level'])->find($id);
 
         if ($request->ajax()) {
-            return view('dosen.show', compact('dosen'));
+            return view('admin_page.dosen.show', compact('dosen'));
         }
     }
 
@@ -115,10 +115,10 @@ class DosenController extends Controller
         $prodi = ProdiModel::all();
         $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('dosen.edit', compact('dosen', 'prodi', 'level'));
+            return view('admin_page.dosen.edit', compact('dosen', 'prodi', 'level'));
         }
         $activeMenu = 'dosen';
-        return view('dosen.edit', compact('dosen', 'prodi', 'level', 'activeMenu'));
+        return view('admin_page.dosen.edit', compact('dosen', 'prodi', 'level', 'activeMenu'));
     }
     public function update(Request $request, $id)
     {

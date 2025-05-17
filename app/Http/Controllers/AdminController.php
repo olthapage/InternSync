@@ -14,7 +14,7 @@ class AdminController extends Controller
     {
         $admin = UserModel::with('level')->get();
         $activeMenu = 'admin';
-        return view('admin.index', compact('admin', 'activeMenu'));
+        return view('admin_page.admin.index', compact('admin', 'activeMenu'));
     }
 
     public function list(Request $request)
@@ -46,7 +46,7 @@ class AdminController extends Controller
             return view('admin.create', compact('level'));
         }
         $activeMenu = 'admin';
-        return view('admin.create', compact('level', 'activeMenu'));
+        return view('admin_page.admin.create', compact('level', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -97,7 +97,7 @@ class AdminController extends Controller
             return view('admin.edit', compact('admin', 'level'));
         }
         $activeMenu = 'admin';
-        return view('admin.edit', compact('admin', 'level', 'activeMenu'));
+        return view('admin_page.admin.edit', compact('admin', 'level', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
@@ -142,7 +142,7 @@ class AdminController extends Controller
     public function deleteModal(Request $request, $id)
     {
         $admin = UserModel::with('level')->findOrFail($id);
-        return view('admin.delete', compact('admin'));
+        return view('admin_page.admin.delete', compact('admin'));
     }
 
     public function delete_ajax(Request $request, $id)
