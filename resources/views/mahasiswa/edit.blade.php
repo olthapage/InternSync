@@ -1,4 +1,5 @@
-<form action="{{ url('/mahasiswa/' . $mahasiswa->mahasiswa_id . '/update') }}" method="POST" id="form-edit-mahasiswa">
+<form action="{{ url('/mahasiswa/' . $mahasiswa->mahasiswa_id . '/update') }}" method="POST" id="form-edit-mahasiswa"
+    enctype="multipart/form-data">
     @csrf
     <div class="modal-dialog modal-lg" role="document" style="max-width: 70%;">
         <div class="modal-content">
@@ -33,19 +34,25 @@
                                 value="{{ $mahasiswa->ipk }}">
                             <small id="error-ipk" class="error-text text-danger"></small>
                         </div>
+                        <div class="form-group mb-3">
+                            <label>Password <small>(Kosongkan jika tidak diganti)</small></label>
+                            <input type="password" name="password" id="password" class="form-control">
+                            <small id="error-password" class="error-text text-danger"></small>
+                        </div>
                         <div class="form-group">
-    <label>Password</label>
-    <div class="row g-2">
-        <div class="col-9">
-            <input type="password" class="form-control" id="password" value="********" disabled>
-        </div>
-        <div class="col-3">
-            <button type="button" class="btn btn-danger" id="btn-reset-password">Reset Password</button>
-        </div>
-    </div>
-    <input type="hidden" name="reset_password" id="reset_password" value="0">
-    <small id="error-reset_password" class="error-text form-text text-danger"></small>
-</div>
+                            <label>Foto (opsional)</label><br>
+                            @if ($mahasiswa->foto)
+                                <img src="{{ asset('storage/foto/' . $mahasiswa->foto) }}" alt="Foto Mahasiswa"
+                                    width="100" class="mb-2 rounded">
+                            @endif
+                            <div class="custom-file">
+                                <input type="file" name="foto" id="foto" class="custom-file-input"
+                                    accept="image/jpeg,image/png,image/jpg">
+                                <label class="custom-file-label" for="foto">Pilih file...</label>
+                                <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
+                                <small id="error-foto" class="error-text form-text text-danger"></small>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Kolom Kanan --}}
@@ -54,8 +61,10 @@
                             <label>Status Magang</label>
                             <select name="status" id="status" class="form-select" required>
                                 <option value="">-- Pilih Status --</option>
-                                <option value="1" {{ $mahasiswa->status == 1 ? 'selected' : '' }}>Sudah Magang</option>
-                                <option value="0" {{ $mahasiswa->status == 0 ? 'selected' : '' }}>Belum Magang</option>
+                                <option value="1" {{ $mahasiswa->status == 1 ? 'selected' : '' }}>Sudah Magang
+                                </option>
+                                <option value="0" {{ $mahasiswa->status == 0 ? 'selected' : '' }}>Belum Magang
+                                </option>
                             </select>
                             <small id="error-status" class="error-text text-danger"></small>
                         </div>
@@ -63,11 +72,10 @@
                             <label>Program Studi</label>
                             <select name="prodi_id" id="prodi_id" class="form-select" required>
                                 <option value="">-- Pilih Prodi --</option>
-                                @foreach($prodi as $p)
+                                @foreach ($prodi as $p)
                                     <option value="{{ $p->prodi_id }}"
                                         {{ $mahasiswa->prodi_id == $p->prodi_id ? 'selected' : '' }}>
-                                        {{ $p->nama_prodi }}
-                                    </option>
+                                        {{ $p->nama_prodi }}</option>
                                 @endforeach
                             </select>
                             <small id="error-prodi_id" class="error-text text-danger"></small>
@@ -76,11 +84,10 @@
                             <label>Level</label>
                             <select name="level_id" id="level_id" class="form-select" required>
                                 <option value="">-- Pilih Level --</option>
-                                @foreach($level as $l)
+                                @foreach ($level as $l)
                                     <option value="{{ $l->level_id }}"
                                         {{ $mahasiswa->level_id == $l->level_id ? 'selected' : '' }}>
-                                        {{ $l->level_nama }}
-                                    </option>
+                                        {{ $l->level_nama }}</option>
                                 @endforeach
                             </select>
                             <small id="error-level_id" class="error-text text-danger"></small>
@@ -89,11 +96,10 @@
                             <label>Dosen Pembimbing</label>
                             <select name="dosen_id" id="dosen_id" class="form-select">
                                 <option value="">-- Tidak Ada --</option>
-                                @foreach($dosen as $d)
+                                @foreach ($dosen as $d)
                                     <option value="{{ $d->dosen_id }}"
                                         {{ $mahasiswa->dosen_id == $d->dosen_id ? 'selected' : '' }}>
-                                        {{ $d->nama_lengkap }}
-                                    </option>
+                                        {{ $d->nama_lengkap }}</option>
                                 @endforeach
                             </select>
                             <small id="error-dosen_id" class="error-text text-danger"></small>
@@ -110,70 +116,100 @@
 </form>
 
 <script>
-$(document).ready(function () {
-    $("#form-edit-mahasiswa").validate({
-        rules: {
-            nama_lengkap: { required: true, minlength: 3 },
-            email:         { required: true, email: true },
-            password:      { minlength: 6 },
-            nim:           { required: true },
-            ipk:           { number: true, min: 0, max: 4 },
-            status:        { required: true },
-            prodi_id:      { required: true, number: true },
-            level_id:      { required: true, number: true },
-            dosen_id:      { number: true }
-        },
-        submitHandler: function (form) {
-            $.ajax({
-                url: form.action,
-                type: form.method,
-                data: $(form).serialize(),
-                success: function (res) {
-                    if (res.status) {
-                        $('#myModal').modal('hide');
-                        Swal.fire('Berhasil', res.message, 'success');
-                        dataMhs.ajax.reload();
-                    } else {
-                        $('.error-text').text('');
-                        $.each(res.msgField, function (key, val) {
-                            $('#error-' + key).text(val[0]);
-                        });
-                        Swal.fire('Gagal', res.message, 'error');
-                    }
-                },
-                error: function (xhr) {
-                    Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
-                    console.error(xhr.responseText);
-                }
-            });
-            return false;
-        },
-        errorElement: 'span',
-        errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-        },
-        highlight: function (element) {
-            $(element).addClass('is-invalid');
-        },
-        unhighlight: function (element) {
-            $(element).removeClass('is-invalid');
-        }
-    });
-});
-$('#btn-reset-password').click(function () {
-            Swal.fire({
-                title: 'Reset Password?',
-                text: 'Password akan diset ulang.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, reset!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $('#reset_password').val(1);
-                    Swal.fire('Password Diset Ulang', 'Password akan direset saat disimpan.', 'info');
-                }
-            });
+    $(document).ready(function() {
+        // Show filename when selected
+        $('#foto').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName || 'Pilih file...');
+
+            // Simple validation for file size
+            if (this.files[0] && this.files[0].size > 2 * 1024 * 1024) {
+                $('#error-foto').text('File terlalu besar (maks. 2MB)');
+                $(this).val('');
+                $(this).next('.custom-file-label').html('Pilih file...');
+            } else {
+                $('#error-foto').text('');
+            }
         });
+
+        // Form validation and submission
+        $('#form-edit-mahasiswa').validate({
+            rules: {
+                nama_lengkap: {
+                    required: true,
+                    minlength: 3
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                nim: {
+                    required: true
+                },
+                ipk: {
+                    number: true
+                },
+                password: {
+                    minlength: 6
+                },
+                level_id: {
+                    required: true
+                },
+                prodi_id: {
+                    required: true
+                },
+                status: {
+                    required: true
+                }
+            },
+            submitHandler: function(form) {
+                let formData = new FormData(form);
+
+                // Debugging the FormData content
+                console.log("Form data being sent:");
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[
+                    1]));
+                }
+
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: formData,
+                    processData: false, // WAJIB: agar FormData tidak diubah jadi string
+                    contentType: false, // WAJIB: agar browser setting header secara otomatis
+                    success: function(res) {
+                        if (res.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire('Berhasil', res.message, 'success');
+                            dataMahasiswa.ajax.reload(null, false);
+                        } else {
+                            $('.error-text').text('');
+                            $.each(res.msgField, function(key, val) {
+                                $('#error-' + key).text(val[0]);
+                            });
+                            Swal.fire('Gagal', res.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                        console.log(xhr.responseText);
+                    }
+                });
+
+                return false;
+            },
+            errorElement: 'span',
+            errorPlacement: function(error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function(element) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
 </script>
