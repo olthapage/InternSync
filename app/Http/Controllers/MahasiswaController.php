@@ -16,7 +16,7 @@ class MahasiswaController extends Controller
     {
         $mahasiswa = MahasiswaModel::with('prodi')->get();
         $activeMenu = 'mahasiswa';
-        return view('mahasiswa.index', compact('mahasiswa', 'activeMenu'));
+        return view('admin_page.mahasiswa.index', compact('mahasiswa', 'activeMenu'));
     }
 
     public function list(Request $request)
@@ -59,11 +59,11 @@ class MahasiswaController extends Controller
         $dosen = DosenModel::all();
 
         if ($request->ajax()) {
-            return view('mahasiswa.create', compact('prodi', 'level', 'dosen'));
+            return view('admin_page.mahasiswa.create', compact('prodi', 'level', 'dosen'));
         }
 
         $activeMenu = 'mahasiswa';
-        return view('mahasiswa.create', compact('prodi', 'level', 'dosen', 'activeMenu'));
+        return view('admin_page.mahasiswa.create', compact('prodi', 'level', 'dosen', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -116,7 +116,7 @@ class MahasiswaController extends Controller
         $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dosen', 'preferensiLokasi', 'skills'])->find($id);
 
         if ($request->ajax()) {
-            return view('mahasiswa.show', compact('mahasiswa'));
+            return view('admin_page.mahasiswa.show', compact('mahasiswa'));
         }
 
         return redirect('/');
@@ -130,11 +130,11 @@ class MahasiswaController extends Controller
         $dosen = DosenModel::all();
 
         if ($request->ajax()) {
-            return view('mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen'));
+            return view('admin_page.mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen'));
         }
 
         $activeMenu = 'mahasiswa';
-        return view('mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen', 'activeMenu'));
+        return view('admin_page.mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
@@ -186,7 +186,7 @@ class MahasiswaController extends Controller
     public function deleteModal(Request $request, $id)
     {
         $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dosen'])->find($id);
-        return view('mahasiswa.delete', compact('mahasiswa'));
+        return view('admin_page.mahasiswa.delete', compact('mahasiswa'));
     }
 
     public function delete_ajax(Request $request, $id)
