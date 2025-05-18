@@ -4,14 +4,16 @@
 @section('title', 'Register Pengguna - Soft UI Style')
 
 @section('overlay-title', 'Selamat Datang')
-@section('overlay-description', 'Buat akun baru untuk memulai perjalanan Anda. Bergabunglah dengan kami dan nikmati pengalaman mencatri tempat magang yang lebih baik!')
+@section('overlay-description', 'Buat akun baru untuk memulai perjalanan Anda. Bergabunglah dengan kami dan nikmati
+    pengalaman mencatri tempat magang yang lebih baik!')
 
-{{-- Form title --}}
+    {{-- Form title --}}
 
 @section('form-title', 'Register with')
 
 @section('form-content')
-    <form action="{{ url('register') }}" method="POST" id="form-register">
+    {{-- MODIFIED: Added action and removed onsubmit --}}
+    <form role="form text-left" id="form-register" method="POST" action="{{ route('post.signup') }}">
         @csrf
         <div class="mb-3">
             <select id="role" name="role" class="form-control form-control-lg">
@@ -39,8 +41,7 @@
         <small id="error-nama_lengkap" class="error-text text-danger d-block mb-2"></small>
 
         <div class="mb-3">
-            <input type="email" id="email" name="email" class="form-control form-control-lg"
-                placeholder="Email">
+            <input type="email" id="email" name="email" class="form-control form-control-lg" placeholder="Email">
         </div>
         <small id="error-email" class="error-text text-danger d-block mb-2"></small>
 
@@ -62,6 +63,7 @@
                 Saya setuju dengan <a href="#" class="text-dark font-weight-bolder">Syarat dan Ketentuan</a>
             </label>
         </div>
+        {{-- Error for terms will be displayed by errorPlacement logic below, or can use a dedicated small tag if preferred --}}
         <small id="error-terms" class="error-text text-danger d-block mb-2"></small>
 
 
@@ -81,20 +83,14 @@
 @endsection
 
 @section('scripts')
-    {{-- Pastikan jQuery dan jquery-validate sudah di-load di authTemplate --}}
-    {{-- Jika ingin menggunakan iziToast, uncomment dan pastikan library-nya ada --}}
-    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css"> --}}
-    {{-- <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script> --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
 
     <style>
-        /* Gaya untuk pesan error dari jquery-validate */
         .error-text,
         label.error {
-            /* label.error untuk jquery-validate default, .error-text untuk custom small tags */
             color: red;
             font-size: 0.8rem;
-            /* Disesuaikan agar tidak terlalu besar */
-            /* margin-top: 0.25rem; */
             display: block;
         }
 
@@ -115,20 +111,22 @@
             $('#role').change(function() {
                 var role = $(this).val();
                 $('.error-text').text(''); // Bersihkan error sebelumnya
+                // Clear values and errors for conditional fields
+                $('#nidn').val('').removeClass('error');
+                $('#error-nidn').text('');
+                $('#nim').val('').removeClass('error');
+                $('#error-nim').text('');
+
 
                 if (role === 'dosen') {
                     $('#nidn-group').show();
                     $('#nim-group').hide();
-                    $('#nim').val(''); // Kosongkan field nim jika tidak dipilih
                 } else if (role === 'mahasiswa') {
                     $('#nidn-group').hide();
-                    $('#nidn').val(''); // Kosongkan field nidn jika tidak dipilih
                     $('#nim-group').show();
                 } else {
                     $('#nidn-group').hide();
                     $('#nim-group').hide();
-                    $('#nidn').val('');
-                    $('#nim').val('');
                 }
             });
             // Trigger pertama kali saat halaman dimuat untuk memastikan state awal benar
@@ -154,7 +152,7 @@
                         },
                         digits: true,
                         minlength: 8,
-                        maxlength: 10 // Sesuaikan jika NIM bisa lebih dari 8
+                        maxlength: 10 // Sesuai deskripsi awal, backend akan memvalidasi lebih ketat jika perlu
                     },
                     nama_lengkap: {
                         required: true,
@@ -191,7 +189,7 @@
                         required: "NIM wajib diisi untuk mahasiswa.",
                         digits: "NIM harus berupa angka.",
                         minlength: "NIM minimal 8 digit.",
-                        maxlength: "NIM maksimal 10 digit." // Sesuaikan
+                        maxlength: "NIM maksimal 10 digit."
                     },
                     nama_lengkap: {
                         required: "Nama lengkap tidak boleh kosong.",
@@ -214,116 +212,114 @@
                         required: "Anda harus menyetujui Syarat dan Ketentuan."
                     }
                 },
-                // Menggunakan errorPlacement bawaan jquery-validate atau custom
                 errorPlacement: function(error, element) {
-                    // Untuk checkbox, letakkan pesan error setelah labelnya
+                    var errorContainerId = '#error-' + element.attr('name');
                     if (element.attr("name") == "terms") {
-                        error.insertAfter(element.next("label"));
+                        // For checkbox, place error in its dedicated small tag or after the label if no small tag
+                        $(errorContainerId).html(error.text()); // Place in <small id="error-terms">
                     } else {
-                        // Untuk input lain, letakkan di <small> tag yang sudah disiapkan
-                        var errorContainerId = '#error-' + element.attr('name');
-                        $(errorContainerId).html(error.text()); // Hanya teks error, tanpa tag label
+                        $(errorContainerId).html(error.text());
                     }
                 },
-                // Fungsi highlight dan unhighlight bisa dikosongkan jika sudah ditangani CSS :invalid atau class .error
                 highlight: function(element, errorClass, validClass) {
                     $(element).addClass('error').removeClass(validClass);
-                    // Juga tambahkan class error ke container error textnya jika ada
-                    $('#error-' + $(element).attr('name')).addClass('error');
                 },
                 unhighlight: function(element, errorClass, validClass) {
                     $(element).removeClass('error').addClass(validClass);
-                    $('#error-' + $(element).attr('name')).removeClass('error').text(
-                    ''); // Bersihkan teks error
+                    $('#error-' + $(element).attr('name')).removeClass('error').text('');
                 },
 
                 submitHandler: function(form) {
-                    $('.error-text').text(
-                    ''); // Bersihkan semua pesan error field spesifik sebelum submit
-                    var formData = new FormData(form); // Menggunakan FormData seperti di Soft UI
+                    $('.error-text').text(''); // Clear previous errors displayed in <small> tags
+                    var formData = new FormData(form);
 
                     $.ajax({
-                        url: form.action, // Diambil dari action form: {{ url('register') }}
-                        method: form.method, // Diambil dari method form: POST
+                        url: $(form).attr('action'), // Use form's action attribute
+                        method: $(form).attr('method'), // Use form's method attribute
                         data: formData,
-                        processData: false, // Penting untuk FormData
-                        contentType: false, // Penting untuk FormData
+                        processData: false,
+                        contentType: false,
                         success: function(response) {
                             if (response.status) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Registrasi Berhasil',
-                                    text: response.message, // Pesan dari backend
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(function() {
+                                // iziToast is optional, ensure it's loaded if you use it
+                                if (typeof iziToast !== 'undefined') {
+                                    iziToast.success({
+                                        title: 'Berhasil',
+                                        message: response.message || 'Registrasi berhasil.',
+                                        position: 'topCenter',
+                                        timeout: 2500,
+                                        onClosed: function() {
+                                            if (response.redirect) {
+                                                window.location.href = response.redirect;
+                                            } else {
+                                                window.location.href = "{{ url('login') }}"; // Default redirect
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    alert(response.message || 'Registrasi berhasil.');
                                     if (response.redirect) {
-                                        window.location.href = response
-                                        .redirect; // Redirect dari backend
+                                        window.location.href = response.redirect;
                                     } else {
-                                        window.location.href =
-                                        "{{ url('login') }}"; // Fallback redirect
+                                        window.location.href = "{{ url('login') }}";
                                     }
-                                });
+                                }
                             } else {
-                                // Menampilkan error umum
-                                let errorMessage = response.message ||
-                                    'Terjadi kesalahan saat registrasi.';
+                                let generalErrorMessage = response.message || 'Terjadi kesalahan saat registrasi.';
+                                let errorFieldsText = "";
 
-                                // Menampilkan error field spesifik jika ada dari backend (response.msgField atau response.errors)
-                                if (response.errors) { // Laravel biasanya mengirim 'errors'
-                                    let errorFieldsText = "";
+                                if (response.errors) { // Check for Laravel validation errors object
                                     $.each(response.errors, function(key, value) {
-                                        $('#error-' + key).text(value[
-                                        0]); // Tampilkan error di bawah field
-                                        errorFieldsText += value[0] +
-                                        "<br>"; // Kumpulkan untuk Swal
+                                        $('#error-' + key).text(value[0]); // Display first error for the field
+                                        // errorFieldsText += value[0] + "<br>"; // Accumulate for general message if needed
                                     });
-                                    if (errorFieldsText) errorMessage += "<br><br>" +
-                                        errorFieldsText;
-                                } else if (response.msgField) { // Jika formatnya msgField
-                                    let errorFieldsText = "";
-                                    $.each(response.msgField, function(prefix, val) {
-                                        $('#error-' + prefix).text(val[0]);
-                                        errorFieldsText += val[0] + "<br>";
-                                    });
-                                    if (errorFieldsText) errorMessage += "<br><br>" +
-                                        errorFieldsText;
+                                    // If specific field errors are shown, a general toast might be less necessary or just simpler
+                                    generalErrorMessage = "Silakan periksa kembali data yang Anda masukkan.";
+                                } else if (response.msgField) { // Fallback for other error structures
+                                     $.each(response.msgField, function(prefix, val) {
+                                         $('#error-' + prefix).text(val[0]);
+                                        // errorFieldsText += val[0] + "<br>";
+                                     });
+                                     generalErrorMessage = "Silakan periksa kembali data yang Anda masukkan.";
                                 }
 
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Registrasi Gagal',
-                                    html: errorMessage // Menampilkan pesan error dari backend
-                                });
+                                if (typeof iziToast !== 'undefined') {
+                                    iziToast.error({
+                                        title: 'Gagal',
+                                        message: generalErrorMessage, // Potentially with errorFieldsText appended
+                                        position: 'topCenter',
+                                        timeout: 5000
+                                    });
+                                } else {
+                                    alert(generalErrorMessage);
+                                }
                             }
                         },
                         error: function(xhr) {
-                            // console.error(xhr.responseText);
-                            let generalErrorMessage =
-                                'Terjadi kesalahan koneksi atau server. Silakan coba lagi.';
+                            // Handle server errors (500, 403, etc.) or network issues
+                            let errorMessage = 'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
                             if (xhr.responseJSON && xhr.responseJSON.message) {
-                                generalErrorMessage = xhr.responseJSON.message;
+                                errorMessage = xhr.responseJSON.message;
                             }
                             if (xhr.responseJSON && xhr.responseJSON.errors) {
-                                let errorFieldsText = "";
                                 $.each(xhr.responseJSON.errors, function(key, value) {
-                                    $('#error-' + key).text(value[0]);
-                                    errorFieldsText += value[0] + "<br>";
+                                     $('#error-' + key).text(value[0]);
                                 });
-                                if (errorFieldsText) generalErrorMessage += "<br><br>" +
-                                    errorFieldsText;
+                                errorMessage = "Data yang dimasukkan tidak valid. Periksa kembali isian Anda.";
                             }
 
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                html: generalErrorMessage,
-                                position: 'top-center' // Mirip iziToast
-                            });
+                            if (typeof iziToast !== 'undefined') {
+                                iziToast.error({
+                                    title: 'Error',
+                                    message: errorMessage,
+                                    position: 'topCenter',
+                                    timeout: 5000
+                                });
+                            } else {
+                                alert(errorMessage);
+                            }
                         }
                     });
-                    return false; // Mencegah submit form standar
                 }
             });
         });
