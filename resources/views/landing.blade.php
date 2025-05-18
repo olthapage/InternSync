@@ -7,12 +7,17 @@
     <title>InternSync - Temukan Magang Impianmu!</title> {{-- Judul disesuaikan --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    {{-- Montserrat Font --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <style>
-        {{-- Style umum, sebagian besar warna dan font sudah disesuaikan untuk light mode --}} body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F1F5F9;
-            {{-- Light mode: Latar belakang utama (Slate 100) --}} color: #1E293B;
-            {{-- Light mode: Warna teks default (Slate 800) --}}
+        body {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400 background-color: #F1F5F9;
+            color: #1E293B;
         }
 
         .glassmorphism-light {
@@ -149,10 +154,10 @@
             </a>
             <div class="hidden md:flex items-center justify-center space-x-6">
                 {{-- Navigasi utama --}}
-                <a href="#hero" class="text-slate-600 hover:text-sky-600 transition duration-300">Beranda</a>
-                <a href="#about" class="text-slate-600 hover:text-sky-600 transition duration-300">Tentang Kami</a>
-                <a href="#features" class="text-slate-600 hover:text-sky-600 transition duration-300">Fitur</a>
-                <a href="#team" class="text-slate-600 hover:text-sky-600 transition duration-300">Tim Kami</a>
+                <a href="#hero" class="text-slate-600 hover:text-blue-600 transition duration-300">Beranda</a>
+                <a href="#about" class="text-slate-600 hover:text-blue-600 transition duration-300">Tentang Kami</a>
+                <a href="#features" class="text-slate-600 hover:text-blue-600 transition duration-300">Fitur</a>
+                <a href="#team" class="text-slate-600 hover:text-blue-600 transition duration-300">Tim Kami</a>
                 {{-- TAMBAHKAN NAVIGASI TIM --}}
                 <a href="#testimonials" class="text-slate-600 hover:text-sky-600 transition duration-300">Testimoni</a>
                 <a href="{{ route('login') }}"
@@ -231,8 +236,19 @@
                 </a>
                 <h1
                     class="text-4xl sm:text-5xl md:text-6xl lg:text-4xl font-extrabold text-slate-900 mb-6 reveal animation-delay-100">
-                    InternSync<br class="hidden md:block">Jembatan Menuju Karir Impian
+                    Intern
+                    <span
+                        style="
+        background: linear-gradient(to right, #3b82f6, #06b6d4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;">
+                        Sync
+                    </span>
+                    <br class="hidden md:block">
+                    Jembatan Menuju Karir Impian
                 </h1>
+
                 <p class="text-sm text-slate-700 max-w-2xl mx-auto mb-10 reveal animation-delay-200">
                     Dapatkan rekomendasi magang atau kerja praktek yang sesuai dengan bidang studi, keterampilan, dan
                     preferensi Anda. Hubungkan diri dengan perusahaan mitra terpercaya.
@@ -604,8 +620,8 @@
                         <div
                             class="glassmorphism-light p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 reveal">
                             <div class="flex items-center mb-4">
-                                <img src="{{ asset('storage/foto/' . ($item->mahasiswa->foto ?? 'default-profile.png')) }}" alt="User Avatar"
-                                    class="w-12 h-12 rounded-full mr-4 bg-slate-200">
+                                <img src="{{ asset('storage/foto/' . ($item->mahasiswa->foto ?? 'default-profile.png')) }}"
+                                    alt="User Avatar" class="w-12 h-12 rounded-full mr-4 bg-slate-200">
                                 <div>
                                     <h4 class="font-semibold text-slate-800">
                                         {{ $item->mahasiswa->nama_lengkap }}
