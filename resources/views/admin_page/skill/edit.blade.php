@@ -1,4 +1,4 @@
-<form action="{{ url('detail-skill/' . $detail->skill_id . '/update') }}" method="POST" id="form-edit">
+<form action="{{ url('skill/' . $detail->skill_id . '/update') }}" method="POST" id="form-edit">
     @csrf
     <div class="modal-dialog modal-md" role="document" style="max-width: 50vw;">
         <div class="modal-content">
@@ -68,7 +68,7 @@
                         $.each(errs, function (key, val) {
                             $('#error-' + key).text(val[0]);
                         });
-                    } else {    
+                    } else {
                         Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
                         console.log(xhr.responseText);
                     }

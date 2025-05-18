@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\DetailSkillModel;
 use App\Models\KategoriSkillModel;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class DaftarSkillController extends Controller
     {
         $detailSkill = DetailSkillModel::all();
         $activeMenu = 'skill';
-        return view('skill.index', compact('detailSkill', 'activeMenu'));
+        return view('admin_page.skill.index', compact('detailSkill', 'activeMenu'));
     }
 
     public function list(Request $request)
@@ -30,7 +31,7 @@ class DaftarSkillController extends Controller
                 ->addColumn('aksi', function ($item) {
                     $btn  = '<button onclick="modalAction(\'' . url('/skill/' . $item->skill_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
                     $btn .= '<button onclick="modalAction(\'' . url('/skill/' . $item->skill_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                    $btn .= '<button onclick="deleteAction(\'' . url('/skill/' . $item->skill_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/skill/' . $item->skill_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                     return $btn;
                 })
                 ->rawColumns(['aksi'])
@@ -45,11 +46,11 @@ class DaftarSkillController extends Controller
         $kategori = KategoriSkillModel::all();
         $activeMenu = 'skill';
 
-        return view('skill.create', compact('kategori'));
+        return view('admin_page.skill.create', compact('kategori'));
     }
 
     public function store(Request $request)
-    {   
+    {
         if ($request->ajax()) {
             $validator = Validator::make($request->all(), [
                 'skill_nama' => 'required|string|max:255',
@@ -94,10 +95,10 @@ class DaftarSkillController extends Controller
         $activeMenu = 'skill';
 
         if ($request->ajax()) {
-            return view('skill.edit', compact('detail', 'kategori'));
+            return view('admin_page.skill.edit', compact('detail', 'kategori'));
         }
 
-        return view('skill.edit', compact('detail', 'kategori', 'activeMenu'));
+        return view('admin_page.skill.edit', compact('detail', 'kategori', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
@@ -128,6 +129,17 @@ class DaftarSkillController extends Controller
         }
 
         return redirect()->route('detail-skill.index');
+    }
+    public function deleteModal(Request $request, $id)
+    {
+        $detail = DetailSkillModel::find($id);
+        $activeMenu = 'skill';
+
+        if ($request->ajax()) {
+            return view('admin_page.skill.delete', compact('detail', 'activeMenu'));
+        }
+
+        return view('admin_page.skill.delete', compact('detail', 'activeMenu'));
     }
 
     public function delete_ajax(Request $request, $id)

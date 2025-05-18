@@ -1,4 +1,4 @@
-@empty($skill)
+@empty($detail)
   <div id="modal-master" class="modal-dialog modal-md" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -14,7 +14,7 @@
     </div>
   </div>
 @else
-  <form action="{{ route('skill.detail.destroy', $skill->skill_id) }}" method="POST" id="form-delete-skill">
+  <form action="{{ url('/skill/' . $detail->skill_id . '/delete') }}" method="POST" id="form-delete-skill">
     @csrf
     @method('DELETE')
     <div id="modal-master" class="modal-dialog modal-md" role="document">
@@ -30,11 +30,11 @@
           <table class="table table-sm table-bordered table-striped">
             <tr>
               <th class="text-right col-4">Nama Skill:</th>
-              <td class="col-8">{{ $skill->skill_nama }}</td>
+              <td class="col-8">{{ $detail->skill_nama }}</td>
             </tr>
             <tr>
               <th class="text-right">Kategori Skill:</th>
-              <td>{{ $skill->kategori_skill->kategori_nama ?? '-' }}</td>
+              <td>{{ $detail->kategori->kategori_nama ?? '-' }}</td>
             </tr>
           </table>
         </div>
