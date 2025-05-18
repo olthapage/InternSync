@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use Log;
 use App\Models\KotaModel;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class IndustriController extends Controller
     {
         $industri = IndustriModel::with('kota', 'kategori_industri')->get();
         $activeMenu = 'industri';
-        return view('industri.index', compact('industri', 'activeMenu'));
+        return view('admin_page.industri.index', compact('industri', 'activeMenu'));
     }
 
     public function list(Request $request)
@@ -56,10 +57,10 @@ class IndustriController extends Controller
         $activeMenu = 'industri';
 
         if ($request->ajax()) {
-            return view('industri.create', compact('kota', 'kategori'));
+            return view('admin_page.industri.create', compact('kota', 'kategori'));
         }
 
-        return view('industri.create', compact('kota', 'kategori', 'activeMenu'));
+        return view('admin_page.industri.create', compact('kota', 'kategori', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -96,10 +97,10 @@ class IndustriController extends Controller
         $activeMenu = 'industri';
 
         if ($request->ajax()) {
-            return view('industri.show', compact('industri', 'activeMenu'));
+            return view('admin_page.industri.show', compact('industri', 'activeMenu'));
         }
 
-        return view('industri.show', compact('industri', 'activeMenu'));
+        return view('admin_page.industri.show', compact('industri', 'activeMenu'));
     }
 
     public function edit(Request $request, $id)
@@ -109,11 +110,11 @@ class IndustriController extends Controller
         $kategori = KategoriIndustriModel::all();
 
         if ($request->ajax()) {
-            return view('industri.edit', compact('industri', 'kota', 'kategori'));
+            return view('admin_page.industri.edit', compact('industri', 'kota', 'kategori'));
         }
 
         $activeMenu = 'industri';
-        return view('industri.edit', compact('industri', 'kota', 'kategori', 'activeMenu'));
+        return view('admin_page.industri.edit', compact('industri', 'kota', 'kategori', 'activeMenu'));
     }
 
     public function update(Request $request, $id)

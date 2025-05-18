@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class LowonganController extends Controller
     {
         $lowongan = DetailLowonganModel::all();
         $industri = IndustriModel::with('detail_lowongan')->get();
-        return view('lowongan.index', [
+        return view('admin_page.lowongan.index', [
             'activeMenu' => 'detail_lowongan',
             'lowongan' => $lowongan,
             'industri' => $industri
@@ -66,10 +67,10 @@ class LowonganController extends Controller
         $industri = IndustriModel::all();
         $activeMenu = 'lowongan';
         if ($request->ajax()) {
-        return view('lowongan.create', compact('industri', 'activeMenu'));
+        return view('admin_page.lowongan.create', compact('industri', 'activeMenu'));
     }
         $activeMenu = 'lowongan';
-        return view('lowongan.create', compact('industri', 'activeMenu'));
+        return view('admin_page.lowongan.create', compact('industri', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -104,7 +105,7 @@ class LowonganController extends Controller
     {
         $lowongan = DetailLowonganModel::with(['industri'])->find($id);
         $activeMenu = 'lowongan';
-        return view('lowongan.show', compact('lowongan', 'activeMenu'));
+        return view('admin_page.lowongan.show', compact('lowongan', 'activeMenu'));
 
          if ($request->ajax()) {
              return view('lowongan.show', compact('lowongan', 'activeMenu'));
@@ -116,11 +117,11 @@ class LowonganController extends Controller
         $lowongan = DetailLowonganModel::find($id);
         $industri = IndustriModel::all();
         if ($request->ajax()) {
-             return view('lowongan.edit', compact('lowongan', 'industri'));
+             return view('admin_page.lowongan.edit', compact('lowongan', 'industri'));
          }
         $activeMenu = 'lowongan';
 
-        return view('lowongan.edit', compact('lowongan', 'industri', 'activeMenu'));
+        return view('admin_page.lowongan.edit', compact('lowongan', 'industri', 'activeMenu'));
     }
 
     public function update(Request $request, $id)

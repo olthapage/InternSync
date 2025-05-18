@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LowonganModel;
 use App\Models\MahasiswaModel;
@@ -16,7 +17,7 @@ class PengajuanController extends Controller
     public function index()
     {
         $activeMenu = 'pengajuan';
-        return view('pengajuan.index', compact('activeMenu'));
+        return view('admin_page.pengajuan.index', compact('activeMenu'));
     }
 
     public function list(Request $request)
@@ -49,14 +50,14 @@ class PengajuanController extends Controller
     public function create(Request $request)
     {
         $mahasiswa = MahasiswaModel::all();
-        $lowongan = LowonganModel::all();
+        $lowongan = DetailLowonganModel::all();
 
         if ($request->ajax()) {
-            return view('pengajuan.create', compact('mahasiswa', 'lowongan'));
+            return view('admin_page.pengajuan.create', compact('mahasiswa', 'lowongan'));
         }
 
         $activeMenu = 'pengajuan';
-        return view('pengajuan.create', compact('mahasiswa', 'lowongan', 'activeMenu'));
+        return view('admin_page.pengajuan.create', compact('mahasiswa', 'lowongan', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -115,7 +116,7 @@ class PengajuanController extends Controller
         $pengajuan = PengajuanModel::with(['mahasiswa', 'lowongan'])->find($id);
 
         if ($request->ajax()) {
-            return view('pengajuan.show', compact('pengajuan'));
+            return view('admin_page.pengajuan.show', compact('pengajuan'));
         }
     }
 
@@ -123,14 +124,14 @@ class PengajuanController extends Controller
     {
         $pengajuan = PengajuanModel::findOrFail($id);
         $mahasiswa = MahasiswaModel::all();
-        $lowongan = LowonganModel::all();
+        $lowongan = DetailLowonganModel::all();
 
         if ($request->ajax()) {
-            return view('pengajuan.edit', compact('pengajuan', 'mahasiswa', 'lowongan'));
+            return view('admin_page.pengajuan.edit', compact('pengajuan', 'mahasiswa', 'lowongan'));
         }
 
         $activeMenu = 'pengajuan';
-        return view('pengajuan.edit', compact('pengajuan', 'mahasiswa', 'lowongan', 'activeMenu'));
+        return view('admin_page.pengajuan.edit', compact('pengajuan', 'mahasiswa', 'lowongan', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
@@ -175,7 +176,7 @@ class PengajuanController extends Controller
     public function deleteModal(Request $request, $id)
     {
         $pengajuan = PengajuanModel::with(['mahasiswa', 'lowongan'])->find($id);
-        return view('pengajuan.delete', compact('pengajuan'));
+        return view('admin_page.pengajuan.delete', compact('pengajuan'));
     }
 
     public function delete_ajax(Request $request, $id)

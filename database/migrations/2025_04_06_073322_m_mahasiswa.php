@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('mahasiswa_id');
             $table->string('nama_lengkap');
             $table->string('email')->unique();
+            $table->string('foto')->nullable();
             $table->string('password');
             $table->string('nim');
             $table->boolean('status')->default(0);

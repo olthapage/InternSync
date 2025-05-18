@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,7 +14,7 @@ class ProgramStudiController extends Controller
     {
         $data = ProdiModel::all();
         $activeMenu = 'Program Studi';
-        return view('program_studi.index', compact('data','activeMenu'));
+        return view('admin_page.program_studi.index', compact('data','activeMenu'));
     }
 
     public function list(Request $request)
@@ -40,7 +41,7 @@ class ProgramStudiController extends Controller
     {
         $activeMenu = 'prodi';
         $prodi = ProdiModel::all();
-        return view('program_studi.create', compact('prodi'));
+        return view('admin_page.program_studi.create', compact('prodi'));
     }
 
     public function store(Request $request)
@@ -76,10 +77,10 @@ class ProgramStudiController extends Controller
         $activeMenu = 'prodi';
 
         if ($request->ajax()) {
-            return view('program_studi.show', compact('prodi'));
+            return view('admin_page.program_studi.show', compact('prodi'));
         }
 
-        return view('program_studi.show', compact('prodi', 'activeMenu'));
+        return view('admin_page.program_studi.show', compact('prodi', 'activeMenu'));
     }
 
     public function edit(Request $request, $id)
@@ -88,10 +89,10 @@ class ProgramStudiController extends Controller
         $activeMenu = 'prodi';
 
         if ($request->ajax()) {
-            return view('program_studi.edit', compact('prodi'));
+            return view('admin_page.program_studi.edit', compact('prodi'));
         }
 
-        return view('program_studi.edit', compact('prodi', 'activeMenu'));
+        return view('admin_page.program_studi.edit', compact('prodi', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
