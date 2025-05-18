@@ -8,11 +8,7 @@ use App\Http\Controllers\MagangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 
-use App\Http\Controllers\IndustriController;
-use App\Http\Controllers\DaftarSkillController;
-use App\Http\Controllers\LowonganController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\admin\DaftarSkillController;
 
 use App\Http\Controllers\admin\IndustriController;
 use App\Http\Controllers\admin\LowonganController;
@@ -143,7 +139,8 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('{id}/show', [DaftarSkillController::class, 'show'])->name('detail-skill.show');
         Route::get('{id}/edit', [DaftarSkillController::class, 'edit'])->name('detail-skill.edit');
         Route::post('{id}/update', [DaftarSkillController::class, 'update'])->name('detail-skill.update');
-        Route::delete('{id}/delete', [DaftarSkillController::class, 'delete_ajax'])->name('detail-skill.delete');
+        Route::get('{id}/delete', [DaftarSkillController::class, 'deleteModal'])->name('detail-skill.deleteModal');
+        Route::delete('{id}/delete', [DaftarSkillController::class, 'delete_ajax'])->name('detail-skill.delete_ajax');
     });
 
     Route::prefix('lowongan')->group(function () {
@@ -173,7 +170,7 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::delete('{id}/delete', [PengajuanController::class, 'delete_ajax'])->name('pengajuan.delete_ajax');
     });
     /*      --------------      */
-    
+
     /*      --Route mahasiswa disini--      */
 
     /*      --------------      */
