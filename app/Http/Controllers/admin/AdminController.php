@@ -104,7 +104,7 @@ class AdminController extends Controller
         $admin = UserModel::findOrFail($id);
         $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('admin.edit', compact('admin', 'level'));
+            return view('admin_page.admin.edit', compact('admin', 'level'));
         }
         $activeMenu = 'admin';
         return view('admin_page.admin.edit', compact('admin', 'level', 'activeMenu'));
