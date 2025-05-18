@@ -198,18 +198,9 @@
                 </a>
                 <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill','daftar_skill']) ? 'show' : '' }}" id="dropdownMenuSkill">
                     <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill','daftar_skill']) ? 'show' : '' }}" id="dropdownMenuSkill">
-                        <li class="nav-item">
-                            <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu=='kategori_skill' ? 'active fw-bold' : '' }}"
-                               href="{{ route('mahasiswa.index') }}">
-                               <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='kategori_skill' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
-                                <i class="fas fa-layer-group text-dark"></i>
-                              </div>
-                              <span>Kategori Skill</span>
-                            </a>
-                          </li>
                           <li class="nav-item">
                             <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu=='daftar_skill' ? 'active fw-bold' : '' }}"
-                               href="{{ route('mahasiswa.index') }}">
+                               href="{{ route('detail-skill.index') }}">
                                <div class="icon icon-shape icon-sm shadow border-radius-md {{ $activeMenu=='daftar_skill' ? 'bg-gradient-warning text-white' : 'bg-white text-dark' }}text-center me-2 bg-white d-flex align-items-center justify-content-center">
                                 <i class="fas fa-list-alt text-dark"></i>
                               </div>
