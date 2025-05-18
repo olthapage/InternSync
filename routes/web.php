@@ -8,6 +8,7 @@ use App\Http\Controllers\MagangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\IndustriController;
+use App\Http\Controllers\DaftarSkillController;
 use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PengajuanController;
@@ -124,6 +125,17 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/{id}/edit', [KategoriIndustriController::class, 'edit'])->name('kategori-industri.edit');
         Route::put('/{id}/update', [KategoriIndustriController::class, 'update'])->name('kategori-industri.update');
         Route::delete('/{id}/delete', [KategoriIndustriController::class, 'destroy'])->name('kategori-industri.destroy');
+    });
+
+    Route::prefix('skill')->group(function () {
+        Route::get('/', [DaftarSkillController::class, 'index'])->name('detail-skill.index');
+        Route::get('/list', [DaftarSkillController::class, 'list'])->name('detail-skill.list');
+        Route::get('/create', [DaftarSkillController::class, 'create'])->name('detail-skill.create');
+        Route::post('/store', [DaftarSkillController::class, 'store'])->name('detail-skill.store');
+        Route::get('{id}/show', [DaftarSkillController::class, 'show'])->name('detail-skill.show');
+        Route::get('{id}/edit', [DaftarSkillController::class, 'edit'])->name('detail-skill.edit');
+        Route::post('{id}/update', [DaftarSkillController::class, 'update'])->name('detail-skill.update');
+        Route::delete('{id}/delete', [DaftarSkillController::class, 'delete_ajax'])->name('detail-skill.delete');
     });
 
     Route::prefix('lowongan')->group(function () {

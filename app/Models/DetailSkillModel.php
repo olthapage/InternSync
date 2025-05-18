@@ -13,4 +13,9 @@ class DetailSkillModel extends Model
     public $timestamps = false;
 
     protected $fillable = ['skill_nama', 'kategori_skill_id'];
+
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriSkillModel::class, 'kategori_skill_id', 'kategori_skill_id');
+    }
 }
