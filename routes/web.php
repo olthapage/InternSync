@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\DosenController;
 use App\Http\Controllers\MagangController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\InternController;
 
 use App\Http\Controllers\admin\DaftarSkillController;
 
@@ -48,6 +49,11 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,ma
 Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackHistory::class])->group(function() {
 
     Route::get('/dashboard', [WelcomeController::class, 'dashboard'])->name('home');
+    Route::get  ('academic-profile', [InternController::class, 'showAcademicProfile'])->name('intern.academicProfile');
+    Route::post ('academic-profile', [InternController::class, 'storeAcademicProfile'])->name('intern.storeAcademicProfile');
+
+    Route::get  ('preferences', [InternController::class, 'showPreferences'])->name('intern.preferences');
+    Route::post ('preferences', [InternController::class, 'updatePreferences'])->name('intern.updatePreferences');
 
     /*      --Route admin disini--      */
     Route::prefix('profile')->group(function () {
