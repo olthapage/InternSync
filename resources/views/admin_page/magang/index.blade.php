@@ -5,10 +5,21 @@
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Mahasiswa Magang</h2>
 
-            <!-- Container tombol di bawah judul -->
-            <div class="d-flex justify-content-end mb-3">
+            <div class="d-flex justify-content-between align-items-end mb-3 flex-wrap">
+                <div class="form-group mb-0">
+                    <label for="industri_id">Filter Industri</label>
+                    <select id="industri_id" class="form-control form-control-sm">
+                        <option value="">-- Semua Industri --</option>
+                        @foreach ($industri as $industri)
+                            <option value="{{ $industri->industri_id }}">{{ $industri->industri_nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <a href="#" class="btn btn-primary">+ Tambah Mahasiswa Magang</a>
             </div>
+
+
             <table class="table table-bordered table-striped table-hover table-sm" id="table_mahasiswa">
                 <thead class="table-dark text-center">
                     <tr>
@@ -34,7 +45,7 @@
             });
         }
 
-        var dataMagang;
+        var dataMhs;
 
         $(document).ready(function() {
             $.ajaxSetup({
@@ -46,11 +57,11 @@
             dataMhs = $('#table_mahasiswa').DataTable({
                 serverSide: true,
                 ajax: {
-                    "url": "{{ url('magang/list') }}",
-                    "dataType": "json",
-                    "type": "POST",
-                    "data": function(d) {
-                        d.level_id = $('#level_id').val();
+                    url: "{{ url('magang/list') }}",
+                    dataType: "json",
+                    type: "POST",
+                    data: function(d) {
+                        d.industri_id = $('#industri_id').val();
                     }
                 },
                 columns: [{
@@ -84,10 +95,10 @@
                         searchable: false
                     }
                 ]
-
             });
-            $('#lowongan_id').on('change', function() {
-                dataMagang.ajax.reload();
+
+            $('#industri_id').on('change', function() {
+                dataMhs.ajax.reload();
             });
         });
     </script>

@@ -2,21 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\admin\AdminController;
-use App\Http\Controllers\admin\DosenController;
-use App\Http\Controllers\MagangController;
+use App\Http\Controllers\InternController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\InternController;
+use App\Http\Controllers\EdasMagangController;
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\DosenController;
 
-use App\Http\Controllers\admin\DaftarSkillController;
+use App\Http\Controllers\admin\MagangController;
 
 use App\Http\Controllers\admin\IndustriController;
 use App\Http\Controllers\admin\LowonganController;
 use App\Http\Controllers\admin\MahasiswaController;
 use App\Http\Controllers\admin\PengajuanController;
 
-use App\Http\Controllers\EdasMagangController;
+use App\Http\Controllers\admin\DaftarSkillController;
 use App\Http\Controllers\admin\ProgramStudiController;
 use App\Http\Controllers\admin\KategoriIndustriController;
 
@@ -175,31 +175,11 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('{id}/delete', [PengajuanController::class, 'deleteModal'])->name('pengajuan.deleteModal');
         Route::delete('{id}/delete', [PengajuanController::class, 'delete_ajax'])->name('pengajuan.delete_ajax');
     });
-    /*      --------------      */
 
-    /*      --Route mahasiswa disini--      */
-
-    /*      --------------      */
-
-    /*      --Route dosen disini--      */
-
-    /*      --------------      */
-
-    // ABAIKAN IKI REK PLS SEK PERCOBAAN LOCAL GA KU PUSH MVC NYA ==================================================
-    // (biar ga ilang aja)
-    // Route::prefix('magang')->group(function () {
-    //     Route::get('/', [MagangController::class, 'index'])->name('magang.index');
-    //     Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
-    //     Route::get('/daftar', [MagangController::class, 'daftar'])->name('magang.daftar');
-    //     Route::post('/hitung', [MagangController::class, 'hitungEdas'])->name('magang.hitung');
-    // });
-    // Route::prefix('spk')->group(function () {
-    //     Route::get('/daftar', [EdasMagangController::class, 'daftar'])->name('spk.daftar');
-    //     Route::post('/hitung', [EdasMagangController::class, 'hitungEdas'])->name('spk.hitung');
-    // });
-
-    // =======================================================================================================
-
+    Route::prefix('magang')->group(function () {
+        Route::get('/', [MagangController::class, 'index'])->name('magang.index');
+        Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
+    });
 });
 ?>
 
