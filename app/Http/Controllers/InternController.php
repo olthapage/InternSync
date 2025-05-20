@@ -27,12 +27,7 @@ class InternController extends Controller
             return view('intern.academic-form', $data);  // langsung return form full
         }
 
-        return view('intern.academic-form', $data + ['activeMenu' => 'academicProfile']);
-
-        // Full page render dengan layout
-        return view('intern.academic-form', array_merge($data, [
-            'activeMenu' => 'academicProfile',
-        ]));
+        return view('intern.academic', $data + ['activeMenu' => 'academicProfile']);
     }
 
     /**
