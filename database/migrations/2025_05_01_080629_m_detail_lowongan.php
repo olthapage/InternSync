@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('judul_lowongan');
             $table->text('deskripsi');
             $table->unsignedBigInteger('industri_id')->nullable();
-            $table->unsignedBigInteger('kategori_lowongan_id')->nullable();
+            $table->unsignedBigInteger('kategori_skill_id')->nullable();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
 
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('industri_id')->references('industri_id')->on('m_industri')->onDelete('cascade');
+            $table->foreign('kategori_skill_id')->references('kategori_skill_id')->on('m_kategori_skill')->onDelete('cascade');
         });
 
     }

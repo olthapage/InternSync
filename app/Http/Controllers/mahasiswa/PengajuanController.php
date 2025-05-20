@@ -1,11 +1,15 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
-use App\Http\Controllers\Controller;
-use App\Models\DetailLowonganModel;
+use Illuminate\Http\Request;
+use App\Models\IndustriModel;
 use App\Models\MahasiswaModel;
 use App\Models\PengajuanModel;
-use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Models\KategoriSkillModel;
+use App\Models\DetailLowonganModel;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class PengajuanController extends Controller
@@ -30,36 +34,27 @@ class PengajuanController extends Controller
 
         $lowonganList = DetailLowonganModel::with('industri')->get();
         $industriList = IndustriModel::all();
+        $kategoriSkillList = KategoriSkillModel::all();
 
-        return view('mahasiswa_page.pengajuan.create', compact('activeMenu', 'lowonganList', 'industriList'));
+        return view('mahasiswa_page.pengajuan.create', compact('activeMenu', 'lowonganList', 'industriList', 'kategoriSkillList'));
     }
 
     public function store(Request $request)
     {
-        $user = auth()->user();
+        // Log awal proses
+        Log::info('Memulai proses pengajuan dengan data: ', $request->all());
 
-        // Pastikan user memiliki relasi mahasiswa
-        if (! $user->mahasiswa) {
-            return redirect()->back()->with('error', 'Akun ini tidak terhubung ke data mahasiswa.');
+        // Karena MahasiswaModel adalah Authenticatable, langsung gunakan auth()->user()
+        $mahasiswa = auth()->user();
+
+        if (!$mahasiswa) {
+            Log::error('Pengajuan gagal: User tidak terautentikasi');
+            return redirect()->back()->with('error', 'Anda harus login terlebih dahulu.');
         }
 
-        $mahasiswa = $user->mahasiswa;
+        Log::info('Proses pengajuan dimulai oleh mahasiswa_id: ' . $mahasiswa->mahasiswa_id);
 
-        // Daftar kolom yang WAJIB terisi untuk bisa mengajukan
-        $requiredFields = [
-            'nama_lengkap', 'email', 'nim', 'status', 'ipk',
-            'level_id', 'prodi_id', 'dosen_id',
-            'sertifikat_kompetensi', 'pakta_integritas', 'daftar_riwayat_hidup',
-            'khs', 'ktp', 'ktm', 'surat_izin_ortu', 'proposal',
-        ];
-
-        foreach ($requiredFields as $field) {
-            if (empty($mahasiswa->$field)) {
-                return redirect()->back()->with('error', 'Gagal mengajukan. Data profil belum lengkap. Silakan lengkapi semua informasi yang diperlukan.');
-            }
-        }
-
-        // Validasi form input
+        // Validasi form input terlebih dahulu
         $validator = Validator::make($request->all(), [
             'lowongan_id'     => 'required|exists:m_detail_lowongan,lowongan_id',
             'tanggal_mulai'   => 'required|date',
@@ -67,19 +62,37 @@ class PengajuanController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Validasi form gagal: ' . json_encode($validator->errors()));
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
         // Simpan pengajuan
-        PengajuanModel::create([
-            'mahasiswa_id'    => $mahasiswa->mahasiswa_id,
-            'lowongan_id'     => $request->lowongan_id,
-            'tanggal_mulai'   => Carbon::parse($request->tanggal_mulai),
-            'tanggal_selesai' => Carbon::parse($request->tanggal_selesai),
-            'status'          => 'pending',
-        ]);
+        try {
+            $pengajuan = new PengajuanModel();
+            $pengajuan->mahasiswa_id = $mahasiswa->mahasiswa_id;
+            $pengajuan->lowongan_id = $request->lowongan_id;
+            $pengajuan->tanggal_mulai = Carbon::parse($request->tanggal_mulai);
+            $pengajuan->tanggal_selesai = Carbon::parse($request->tanggal_selesai);
+            $pengajuan->status = 'belum'; // default sesuai enum
 
-        return redirect()->route('mahasiswa.pengajuan.index')->with('success', 'Pengajuan berhasil dikirim.');
+            // Log data sebelum disimpan
+            Log::info('Data yang akan disimpan: ', $pengajuan->toArray());
+
+            $saved = $pengajuan->save();
+
+            if (!$saved) {
+                Log::error('Gagal menyimpan pengajuan: Save method returned false');
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan pengajuan.')->withInput();
+            }
+
+            Log::info('Pengajuan berhasil disimpan dengan ID: ' . $pengajuan->id);
+            return redirect()->route('mahasiswa.pengajuan.index')->with('success', 'Pengajuan berhasil dikirim.');
+
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan pengajuan: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan pengajuan: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function show(Request $request, $id)
@@ -171,4 +184,5 @@ class PengajuanController extends Controller
             'message' => 'Data tidak ditemukan',
         ]);
     }
+
 }

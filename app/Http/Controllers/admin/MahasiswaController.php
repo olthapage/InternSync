@@ -1,23 +1,22 @@
 <?php
-
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DosenModel;
 use App\Models\LevelModel;
+use App\Models\MahasiswaModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
-use App\Models\MahasiswaModel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class MahasiswaController extends Controller
 {
     public function index()
     {
-        $mahasiswa = MahasiswaModel::with('prodi')->get();
+        $mahasiswa  = MahasiswaModel::with('prodi')->get();
         $activeMenu = 'mahasiswa';
         return view('admin_page.mahasiswa.index', compact('mahasiswa', 'activeMenu'));
     }
@@ -46,7 +45,7 @@ class MahasiswaController extends Controller
             ->addColumn('prodi', fn($user) => $user->prodi->nama_prodi ?? '-')
             ->addColumn('dosen', fn($user) => $user->dosen->nama_lengkap ?? '-')
             ->addColumn('aksi', function ($user) {
-                $btn  = '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn = '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/verifikasi') . '\')" class="btn btn-info btn-sm">Validasi</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
                 return $btn;
@@ -74,40 +73,40 @@ class MahasiswaController extends Controller
         if ($request->ajax()) {
             $rules = [
                 'nama_lengkap' => 'required',
-                'email' => 'required|email|unique:m_mahasiswa,email',
-                'password' => 'required|min:6',
-                'ipk' => 'nullable|numeric|min:0|max:4',
-                'nim' => 'required|unique:m_mahasiswa,nim',
-                'status' => 'required|boolean',
-                'level_id' => 'required',
-                'prodi_id' => 'required',
-                'dosen_id' => 'nullable'
+                'email'        => 'required|email|unique:m_mahasiswa,email',
+                'password'     => 'required|min:6',
+                'ipk'          => 'nullable|numeric|min:0|max:4',
+                'nim'          => 'required|unique:m_mahasiswa,nim',
+                'status'       => 'required|boolean',
+                'level_id'     => 'required',
+                'prodi_id'     => 'required',
+                'dosen_id'     => 'nullable',
             ];
 
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors()
+                    'status'   => false,
+                    'message'  => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
             MahasiswaModel::create([
                 'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-                'ipk' => $request->ipk,
-                'nim' => $request->nim,
-                'status' => $request->status,
-                'level_id' => $request->level_id,
-                'prodi_id' => $request->prodi_id,
-                'dosen_id' => $request->dosen_id
+                'email'        => $request->email,
+                'password'     => bcrypt($request->password),
+                'ipk'          => $request->ipk,
+                'nim'          => $request->nim,
+                'status'       => $request->status,
+                'level_id'     => $request->level_id,
+                'prodi_id'     => $request->prodi_id,
+                'dosen_id'     => $request->dosen_id,
             ]);
 
             return response()->json([
-                'status' => true,
-                'message' => 'Mahasiswa berhasil ditambahkan'
+                'status'  => true,
+                'message' => 'Mahasiswa berhasil ditambahkan',
             ]);
         }
 
@@ -128,9 +127,9 @@ class MahasiswaController extends Controller
     public function edit(Request $request, $id)
     {
         $mahasiswa = MahasiswaModel::findOrFail($id);
-        $prodi = ProdiModel::all();
-        $level = LevelModel::all();
-        $dosen = DosenModel::all();
+        $prodi     = ProdiModel::all();
+        $level     = LevelModel::all();
+        $dosen     = DosenModel::all();
 
         if ($request->ajax()) {
             return view('admin_page.mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen'));
@@ -161,7 +160,7 @@ class MahasiswaController extends Controller
                 return response()->json([
                     'status'   => false,
                     'message'  => 'Validasi gagal.',
-                    'msgField' => $validator->errors()
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
@@ -174,7 +173,7 @@ class MahasiswaController extends Controller
                 }
 
                 // Create foto directory if it doesn't exist
-                if (!Storage::disk('public')->exists('foto')) {
+                if (! Storage::disk('public')->exists('foto')) {
                     Storage::disk('public')->makeDirectory('foto');
                     Log::info('Created foto directory in storage');
                 }
@@ -182,18 +181,18 @@ class MahasiswaController extends Controller
                 // Debug storage permissions
                 Log::info('Storage permissions check:', [
                     'public_writable' => is_writable(storage_path('app/public')),
-                    'foto_writable' => is_writable(storage_path('app/public/foto')),
-                    'storage_path' => storage_path('app/public/foto')
+                    'foto_writable'   => is_writable(storage_path('app/public/foto')),
+                    'storage_path'    => storage_path('app/public/foto'),
                 ]);
 
                 // Detailed logging of file upload request
                 Log::info('File Upload Request Details:', [
-                    'hasFile' => $request->hasFile('foto'),
-                    'allFiles' => $request->allFiles(),
+                    'hasFile'        => $request->hasFile('foto'),
+                    'allFiles'       => $request->allFiles(),
                     'fileInput_name' => 'foto',
                     'request_method' => $request->method(),
-                    'content_type' => $request->header('Content-Type'),
-                    'enctype' => $request->header('Content-Type') ? str_contains($request->header('Content-Type'), 'multipart/form-data') : false
+                    'content_type'   => $request->header('Content-Type'),
+                    'enctype'        => $request->header('Content-Type') ? str_contains($request->header('Content-Type'), 'multipart/form-data') : false,
                 ]);
 
                 // Check if there's a file in the request
@@ -202,13 +201,13 @@ class MahasiswaController extends Controller
 
                     // Log details about the uploaded file
                     Log::info('Uploaded File Details:', [
-                        'isValid' => $file->isValid(),
-                        'originalName' => $file->getClientOriginalName(),
-                        'extension' => $file->getClientOriginalExtension(),
-                        'mimeType' => $file->getMimeType(),
-                        'size' => $file->getSize(),
-                        'error' => $file->getError(),
-                        'error_message' => $file->getErrorMessage()
+                        'isValid'       => $file->isValid(),
+                        'originalName'  => $file->getClientOriginalName(),
+                        'extension'     => $file->getClientOriginalExtension(),
+                        'mimeType'      => $file->getMimeType(),
+                        'size'          => $file->getSize(),
+                        'error'         => $file->getError(),
+                        'error_message' => $file->getErrorMessage(),
                     ]);
 
                     if ($file->isValid()) {
@@ -229,39 +228,39 @@ class MahasiswaController extends Controller
                                 $data['foto'] = $namaFile;
                                 Log::info('File uploaded successfully using move method', [
                                     'filename' => $namaFile,
-                                    'path' => storage_path('app/public/foto/' . $namaFile),
-                                    'exists' => file_exists(storage_path('app/public/foto/' . $namaFile))
+                                    'path'     => storage_path('app/public/foto/' . $namaFile),
+                                    'exists'   => file_exists(storage_path('app/public/foto/' . $namaFile)),
                                 ]);
                             } else {
                                 Log::error('Failed to move file');
                                 return response()->json([
-                                    'status' => false,
-                                    'message' => 'Gagal menyimpan foto (move failed)'
+                                    'status'  => false,
+                                    'message' => 'Gagal menyimpan foto (move failed)',
                                 ]);
                             }
                         } catch (\Exception $e) {
                             Log::error('Exception during file upload:', [
                                 'message' => $e->getMessage(),
-                                'code' => $e->getCode(),
-                                'file' => $e->getFile(),
-                                'line' => $e->getLine(),
-                                'trace' => $e->getTraceAsString()
+                                'code'    => $e->getCode(),
+                                'file'    => $e->getFile(),
+                                'line'    => $e->getLine(),
+                                'trace'   => $e->getTraceAsString(),
                             ]);
 
                             return response()->json([
-                                'status' => false,
-                                'message' => 'Gagal menyimpan foto: ' . $e->getMessage()
+                                'status'  => false,
+                                'message' => 'Gagal menyimpan foto: ' . $e->getMessage(),
                             ]);
                         }
                     } else {
                         Log::error('Invalid file upload:', [
-                            'error_code' => $file->getError(),
-                            'error_message' => $file->getErrorMessage()
+                            'error_code'    => $file->getError(),
+                            'error_message' => $file->getErrorMessage(),
                         ]);
 
                         return response()->json([
-                            'status' => false,
-                            'message' => 'File tidak valid: ' . $file->getErrorMessage()
+                            'status'  => false,
+                            'message' => 'File tidak valid: ' . $file->getErrorMessage(),
                         ]);
                     }
                 }
@@ -272,20 +271,20 @@ class MahasiswaController extends Controller
                 // Log successful update
                 Log::info('Mahasiswa updated successfully:', [
                     'mahasiswa_id' => $mahasiswa->mahasiswa_id,
-                    'foto' => $mahasiswa->foto,
-                    'foto_path' => $mahasiswa->foto ? asset('storage/foto/' . $mahasiswa->foto) : null,
-                    'raw_data' => $data
+                    'foto'         => $mahasiswa->foto,
+                    'foto_path'    => $mahasiswa->foto ? asset('storage/foto/' . $mahasiswa->foto) : null,
+                    'raw_data'     => $data,
                 ]);
 
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Data mahasiswa berhasil diperbarui'
+                    'status'  => true,
+                    'message' => 'Data mahasiswa berhasil diperbarui',
                 ]);
             }
 
             return response()->json([
-                'status' => false,
-                'message' => 'Data mahasiswa tidak ditemukan'
+                'status'  => false,
+                'message' => 'Data mahasiswa tidak ditemukan',
             ]);
         }
 
@@ -300,7 +299,7 @@ class MahasiswaController extends Controller
 
     public function delete_ajax(Request $request, $id)
     {
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             return redirect()->route('mahasiswa.index');
         }
 
@@ -308,14 +307,42 @@ class MahasiswaController extends Controller
         if ($mahasiswa) {
             $mahasiswa->delete();
             return response()->json([
-                'status' => true,
-                'message' => 'Mahasiswa berhasil dihapus'
+                'status'  => true,
+                'message' => 'Mahasiswa berhasil dihapus',
             ]);
         }
 
         return response()->json([
-            'status' => false,
-            'message' => 'Data mahasiswa tidak ditemukan'
+            'status'  => false,
+            'message' => 'Data mahasiswa tidak ditemukan',
         ]);
+    }
+    public function verifikasi(Request $request, $id)
+    {
+        $mahasiswa = MahasiswaModel::findOrFail($id);
+        $prodi     = ProdiModel::all();
+        $level     = LevelModel::all();
+        $dosen     = DosenModel::all();
+
+        if ($request->ajax()) {
+            return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodi', 'level', 'dosen'));
+        }
+
+        $activeMenu = 'mahasiswa';
+        return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodi', 'level', 'dosen', 'activeMenu'));
+    }
+    public function updateVerifikasi(Request $request, $id)
+    {
+        $request->validate([
+            'status_verifikasi' => 'required|in:valid,invalid',
+            'alasan'            => 'required_if:status_verifikasi,invalid',
+        ]);
+
+        $mahasiswa                    = MahasiswaModel::findOrFail($id);
+        $mahasiswa->status_verifikasi = $request->status_verifikasi;
+        $mahasiswa->alasan            = $request->status_verifikasi === 'invalid' ? $request->alasan : null;
+        $mahasiswa->save();
+
+        return response()->json(['success' => true, 'message' => 'Status verifikasi berhasil diperbarui.']);
     }
 }

@@ -294,7 +294,6 @@ class DatabaseSeeder extends Seeder
 
         // m_detail_lowongan (Target: 10 data)
         // Asumsi industri_id merujuk pada m_industri (ID 1-10)
-        // Asumsi kategori_lowongan_id merujuk pada m_kategori_lowongan (ID 1-10)
         $detailLowonganData = [
             [
                 'judul_lowongan' => 'Magang Web Developer',
@@ -302,7 +301,7 @@ class DatabaseSeeder extends Seeder
                 'industri_id' => 1,
                 'tanggal_mulai' => '2025-08-01',
                 'tanggal_selesai' => '2025-12-31',
-                'kategori_lowongan_id' => 1,
+                'kategori_skill_id' => 1,
                 'created_at' => $now
             ],
         ];
@@ -313,7 +312,7 @@ class DatabaseSeeder extends Seeder
                 'industri_id' => rand(1, 10),
                 'tanggal_mulai' => '2025-08-01',
                 'tanggal_selesai' => '2025-12-31',
-                'kategori_lowongan_id' => rand(1, 10),
+                'kategori_skill_id' => rand(1, 10),
                 'created_at' => $now
             ];
         }
