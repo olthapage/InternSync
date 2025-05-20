@@ -395,8 +395,9 @@
         </li>
     </ul>
 </div>
-<div class="sidenav-footer mx-3">
-    @auth('mahasiswa')
+
+@auth('mahasiswa')
+    <div class="sidenav-footer mx-3">
         <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
             <div class="full-background"
                 style="background-image: url('{{ asset('softTemplate/assets/img/curved-images/white-curved.jpg') }}')">
@@ -415,8 +416,11 @@
                 </div>
             </div>
         </div>
-    @endauth
-    @auth('dosen')
+        <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+    </div>
+@endauth
+@auth('dosen')
+    <div class="sidenav-footer mx-3">
         <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
             <div class="full-background"
                 style="background-image: url('{{ asset('softTemplate/assets/img/curved-images/white-curved.jpg') }}')">
@@ -435,6 +439,7 @@
                 </div>
             </div>
         </div>
-    @endauth
-    <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
-</div>
+        <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+    </div>
+@endauth
+

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('kategori_nama');
             $table->timestamp('created_at')->nullable();
         });
-
     }
 
     /**

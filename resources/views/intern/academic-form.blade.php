@@ -1,84 +1,278 @@
-<form id="form-academic" enctype="multipart/form-data">
-  @csrf
+@php
+    $mahasiswa = auth()->user();
+@endphp
 
-  <!-- Jenjang Pendidikan -->
-  <div class="mb-3">
-    <label for="pendidikan" class="form-label">Jenjang Pendidikan</label>
-    <input type="text" name="pendidikan" id="pendidikan" class="form-control"
-      value="{{ old('pendidikan', $user->pendidikan ?? '') }}" required>
-    <small id="error-pendidikan" class="text-danger"></small>
-  </div>
-  <!-- Bidang Keahlian -->
-  <div class="mb-3">
-    <label for="bidang_keahlian" class="form-label">Bidang Keahlian</label>
-    <textarea name="bidang_keahlian" id="bidang_keahlian" class="form-control" rows="3" required>{{ old('bidang_keahlian', $user->bidang_keahlian ?? '') }}</textarea>
-    <small id="error-bidang_keahlian" class="text-danger"></small>
-  </div>
- <!-- Sertifikasi -->
-  <div class="mb-3">
-    <label for="sertifikasi" class="form-label">Sertifikasi (pisahkan koma)</label>
-    <input type="text" name="sertifikasi" id="sertifikasi" class="form-control"
-      value="{{ old('sertifikasi', $user->sertifikasi ?? '') }}">
-    <small id="error-sertifikasi" class="text-danger"></small>
-  </div>
-  <!-- Pengalaman -->
-  <div class="mb-3">
-    <label for="pengalaman" class="form-label">Pengalaman Kerja / Proyek</label>
-    <textarea name="pengalaman" id="pengalaman" class="form-control" rows="4">{{ old('pengalaman', $user->pengalaman ?? '') }}</textarea>
-    <small id="error-pengalaman" class="text-danger"></small>
-  </div>
-  <!-- IPK -->
-  <div class="mb-3">
-    <label for="ipk" class="form-label">IPK (opsional)</label>
-    <input type="number" step="0.01" name="ipk" id="ipk" class="form-control"
-      value="{{ old('ipk', $user->ipk ?? '') }}">
-    <small id="error-ipk" class="text-danger"></small>
-  </div>
-<hr>
-  <h5>Unggah Dokumen (PDF)</h5>
-  <!-- CV -->
-  <div class="mb-3">
-    <label for="cv" class="form-label">CV <span class="text-muted">(PDF max 2MB)</span></label>
-    <input type="file" name="cv" id="cv" class="form-control" accept="application/pdf">
-    <small id="error-cv" class="text-danger"></small>
-    @if(!empty($user->cv_path))
-      <a href="{{ Storage::url($user->cv_path) }}" target="_blank">Lihat CV saat ini</a>
-    @endif
-  </div>
-<!-- Surat Pengantar -->
-  <div class="mb-3">
-    <label for="cover_letter" class="form-label">Surat Pengantar <span class="text-muted">(PDF max 2MB)</span></label>
-    <input type="file" name="cover_letter" id="cover_letter" class="form-control" accept="application/pdf">
-    <small id="error-cover_letter" class="text-danger"></small>
-    @if(!empty($user->cover_letter_path))
-      <a href="{{ Storage::url($user->cover_letter_path) }}" target="_blank">Lihat Surat Pengantar</a>
-    @endif
-  </div>
-  <!-- Sertifikat -->
-  <div class="mb-3">
-    <label for="certificates" class="form-label">Sertifikat <span class="text-muted">(PDF max 2MB tiap file)</span></label>
-    <input type="file" name="certificates[]" id="certificates" class="form-control" accept="application/pdf" multiple>
-    <small id="error-certificates" class="text-danger"></small>
-    @if(!empty($user->certificate_paths))
-      <ul class="mt-2">
-        @foreach(json_decode($user->certificate_paths) as $path)
-          <li><a href="{{ Storage::url($path) }}" target="_blank">Lihat {{ basename($path) }}</a></li>
-        @endforeach
-      </ul>
-    @endif
-  </div>
-<div class="d-flex justify-content-between">
-      <button type="submit" class="btn btn-primary">Simpan Semua</button>
-      <button type="button" class="btn btn-secondary" id="btn-close-academic">Tutup</button>
-  </div>
+<form action="{{ route('mahasiswa.verifikasi.store') }}" id="form-academic" method="POST" enctype="multipart/form-data">
+    @csrf
+
+    {{-- Program Studi --}}
+    <div class="mb-3">
+        @if ($mahasiswa->status_verifikasi == 'invalid')
+            <div class="alert alert-light">
+                <strong>Status:</strong> Ditolak <br>
+                <strong>Alasan Penolakan:</strong> {{ $mahasiswa->alasan_penolakan }}
+            </div>
+        @elseif ($mahasiswa->status_verifikasi == 'valid')
+            <div class="alert alert-light">
+                <strong>Status:</strong> Diterima <br>
+                Data telah diverifikasi dan diterima.
+            </div>
+        @else
+            <div class="alert alert-light">
+                <strong>Status:</strong> Menunggu Verifikasi <br>
+                Data sedang dalam proses pemeriksaan.
+            </div>
+        @endif
+    </div>
+
+    <div class="mb-3">
+        <label for="prodi_id" class="form-label">Program Studi</label>
+        <select name="prodi_id" id="prodi_id" class="form-control" required>
+            <option value="">-- pilih prodi --</option>
+            @foreach ($prodis as $prodi)
+                <option value="{{ $prodi->prodi_id }}"
+                    {{ old('prodi_id', $mahasiswa->prodi_id ?? '') == $prodi->prodi_id ? 'selected' : '' }}>
+                    {{ $prodi->nama_prodi }}
+                </option>
+            @endforeach
+        </select>
+        <small class="text-danger">
+            @error('prodi_id')
+                {{ $message }}
+            @enderror
+        </small>
+    </div>
+
+    {{-- Dosen Pembimbing --}}
+    <div class="mb-3">
+        <label for="dosen_id" class="form-label">Dosen Pembimbing</label>
+        <select name="dosen_id" id="dosen_id" class="form-control">
+            <option value="">-- pilih dosen --</option>
+            @foreach ($dosens as $dosen)
+                <option value="{{ $dosen->dosen_id }}"
+                    {{ old('dosen_id', $mahasiswa->dosen_id ?? '') == $dosen->dosen_id ? 'selected' : '' }}>
+                    {{ $dosen->nama_lengkap }}
+                </option>
+            @endforeach
+        </select>
+        <small class="text-danger">
+            @error('dosen_id')
+                {{ $message }}
+            @enderror
+        </small>
+    </div>
+
+    {{-- IPK --}}
+    <div class="mb-3">
+        <label for="ipk" class="form-label">IPK</label>
+        <input type="number" step="0.01" name="ipk" id="ipk" class="form-control"
+            value="{{ old('ipk', $mahasiswa->ipk ?? '') }}">
+        <small id="error-ipk" class="text-danger"></small>
+    </div>
+    <hr>
+    <h5>Unggah Dokumen (PDF / Foto max 2MB)</h5>
+
+    {{-- Sertifikat Kompetensi --}}
+    <div class="mb-3">
+        <label for="sertifikat_kompetensi" class="form-label">
+            Sertifikat Kompetensi <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="sertifikat_kompetensi" id="sertifikat_kompetensi" class="form-control"
+            accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('sertifikat_kompetensi')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->sertifikat_kompetensi))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->sertifikat_kompetensi) }}" target="_blank">
+                    Lihat Sertifikat Kompetensi
+                </a>
+            </div>
+        @endif
+    </div>
+
+    {{-- Pakta Integritas --}}
+    <div class="mb-3">
+        <label for="pakta_integritas" class="form-label">
+            Pakta Integritas <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="pakta_integritas" id="pakta_integritas" class="form-control"
+            accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('pakta_integritas')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->pakta_integritas))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->pakta_integritas) }}" target="_blank">
+                    Lihat Pakta Integritas
+                </a>
+            </div>
+        @endif
+    </div>
+
+    {{-- Daftar Riwayat Hidup --}}
+    <div class="mb-3">
+        <label for="daftar_riwayat_hidup" class="form-label">
+            Daftar Riwayat Hidup <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="daftar_riwayat_hidup" id="daftar_riwayat_hidup" class="form-control"
+            accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('daftar_riwayat_hidup')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->daftar_riwayat_hidup))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->daftar_riwayat_hidup) }}" target="_blank">
+                    Lihat Daftar Riwayat Hidup
+                </a>
+            </div>
+        @endif
+    </div>
+
+    {{-- KHS --}}
+    <div class="mb-3">
+        <label for="khs" class="form-label">
+            KHS <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="khs" id="khs" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('khs')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->khs))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->khs) }}" target="_blank">Lihat KHS</a>
+            </div>
+        @endif
+    </div>
+
+    {{-- KTP --}}
+    <div class="mb-3">
+        <label for="ktp" class="form-label">
+            KTP <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="ktp" id="ktp" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('ktp')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->ktp))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->ktp) }}" target="_blank">Lihat KTP</a>
+            </div>
+        @endif
+    </div>
+
+    {{-- KTM --}}
+    <div class="mb-3">
+        <label for="ktm" class="form-label">
+            KTM <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="ktm" id="ktm" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('ktm')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->ktm))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->ktm) }}" target="_blank">Lihat KTM</a>
+            </div>
+        @endif
+    </div>
+
+    {{-- Surat Izin Orang Tua --}}
+    <div class="mb-3">
+        <label for="surat_izin_ortu" class="form-label">
+            Surat Izin Orang Tua <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="surat_izin_ortu" id="surat_izin_ortu" class="form-control"
+            accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('surat_izin_ortu')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->surat_izin_ortu))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->surat_izin_ortu) }}" target="_blank">
+                    Lihat Surat Izin Orang Tua
+                </a>
+            </div>
+        @endif
+    </div>
+
+    {{-- BPJS --}}
+    <div class="mb-3">
+        <label for="bpjs" class="form-label">
+            BPJS <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="bpjs" id="bpjs" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('bpjs')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->bpjs))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->bpjs) }}" target="_blank">Lihat BPJS</a>
+            </div>
+        @endif
+    </div>
+
+    {{-- SKTM/KIP --}}
+    <div class="mb-3">
+        <label for="sktm_kip" class="form-label">
+            SKTM / KIP <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="sktm_kip" id="sktm_kip" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('sktm_kip')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->sktm_kip))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->sktm_kip) }}" target="_blank">Lihat SKTM/KIP</a>
+            </div>
+        @endif
+    </div>
+
+    {{-- Proposal --}}
+    <div class="mb-3">
+        <label for="proposal" class="form-label">
+            Proposal <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
+        </label>
+        <input type="file" name="proposal" id="proposal" class="form-control" accept="application/pdf,image/*">
+        <small class="text-danger">
+            @error('proposal')
+                {{ $message }}
+            @enderror
+        </small>
+        @if (!empty($mahasiswa->proposal))
+            <div class="mt-1">
+                <a href="{{ Storage::url($mahasiswa->proposal) }}" target="_blank">Lihat Proposal</a>
+            </div>
+        @endif
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Simpan Semua</button>
+        <button type="button" class="btn btn-secondary" id="btn-close-academic">Tutup</button>
+        <script>
+            $('#btn-close-academic').on('click', function() {
+                $('#academic-form-container').slideUp();
+            });
+        </script>
+    </div>
 </form>
-<script>
-$(function(){
-  $('#btn-close-academic').on('click', function() {
-    console.log('Tombol Tutup Form Akademik diklik');
-    $('#form-academic').hide(); 
-  });
-});
-</script>
 
 <div id="alertMessage" class="alert mt-3" style="display:none;"></div>

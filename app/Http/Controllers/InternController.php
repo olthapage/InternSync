@@ -5,18 +5,29 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Models\ProdiModel;
+use App\Models\DosenModel;
 
 class InternController extends Controller
 {
     /**
      * Tampilkan halaman/form Profil Akademik & Keterampilan
      */
-    public function showAcademicProfile()
+    public function showAcademicProfile(Request $request)
     {
-        $user = Auth::user();
-        return view('intern.academic-form', [
-            'user' => $user,
-        ]);
+        $data = [
+            'user'      => Auth::user(),
+            'prodis'    => ProdiModel::all(),
+            'dosens'    => DosenModel::all(),
+            'mahasiswa' => Auth::user()->mahasiswa ?? null,
+        ];
+
+        // Jika request AJAX, kembalikan partial form saja
+        if ($request->ajax()) {
+            return view('intern.academic-form', $data);  // langsung return form full
+        }
+
+        return view('intern.academic', $data + ['activeMenu' => 'academicProfile']);
     }
 
     /**
@@ -59,12 +70,19 @@ class InternController extends Controller
     /**
      * Tampilkan halaman/form Preferences
      */
-    public function showPreferences()
+    public function showPreferences(Request $request)
     {
-        $user = Auth::user();
-        return view('intern.preferences', [
+        $data = [
+            'user'       => Auth::user(),
             'activeMenu' => 'preferences',
-        ]);
+        ];
+
+        // Jika AJAX, kembalikan partial preferences (jika tersedia)
+        if ($request->ajax()) {
+            return view('intern.preferences', $data);
+        }
+
+        return view('intern.preferences', $data);
     }
 
     /**

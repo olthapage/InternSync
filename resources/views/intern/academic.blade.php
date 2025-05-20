@@ -3,49 +3,48 @@
 @section('content')
 <div class="container py-4">
   <h3>Profil Akademik & Keterampilan</h3>
-
-  @include('intern.partials.academic-form')
+  <div id="academic-form-container">
+    @include('intern.academic-form')
+  </div>
 </div>
 @endsection
+
 @push('js')
 <script>
 $(function(){
   $('#form-academic').on('submit', function(e){
     e.preventDefault();
-    let form = document.getElementById('form-academic');
-    let data = new FormData(form);
-
+    let data = new FormData(this);
     $('.text-danger').text('');
     $('#alertMessage').hide();
 
     $.ajax({
-      url:   "{{ url('/intern/academic-profile') }}",
-      type:  "POST",
-      data:  data,
+      url: "{{ route('intern.storeAcademicProfile') }}",
+      type: "POST",
+      data: data,
       processData: false,
       contentType: false,
-      success: function(res){
-        $('#alertMessage').removeClass('alert-danger').addClass('alert-success')
+      success(res) {
+        $('#alertMessage')
+          .removeClass('alert-danger').addClass('alert-success')
           .text(res.message).show();
       },
-      error: function(xhr){
+      error(xhr) {
         if (xhr.status === 422) {
-          let errors = xhr.responseJSON.errors;
-          $.each(errors, function(field, msgs){
+          let errs = xhr.responseJSON.msgField;
+          $.each(errs, function(field, msgs){
             let key = field.replace(/\.\d+$/, '');
             $('#error-' + key).text(msgs[0]);
           });
         } else {
-          $('#alertMessage').removeClass('alert-success').addClass('alert-danger')
+          $('#alertMessage')
+            .removeClass('alert-success').addClass('alert-danger')
             .text('Terjadi kesalahan pada server.').show();
         }
       }
     });
   });
-  $('#btn-close-academic').on('click', function() {
-    console.log('Tombol Tutup Form Akademik diklik');
-    $('#form-academic').hide(); 
-  });
+ // fungsi untuk load via AJAX dipindah ke partial atau script global
 });
 </script>
 @endpush

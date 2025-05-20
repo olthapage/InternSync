@@ -22,6 +22,8 @@ class MahasiswaModel extends Authenticatable
         'foto',
         'nim',
         'status',
+        'status_verifikasi',
+        'alasan',
         'ipk',
         'level_id',
         'prodi_id',
