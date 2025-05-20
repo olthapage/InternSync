@@ -20,6 +20,8 @@ use App\Http\Controllers\admin\DaftarSkillController;
 use App\Http\Controllers\admin\ProgramStudiController;
 use App\Http\Controllers\admin\KategoriIndustriController;
 
+use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -179,6 +181,17 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
     Route::prefix('magang')->group(function () {
         Route::get('/', [MagangController::class, 'index'])->name('magang.index');
         Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
+    });
+
+    // Halaman Mahasiswa
+    Route::prefix('mahasiswa/pengajuan')->group(function () {
+        Route::get('/', [MahasiswaPengajuanController::class, 'index'])->name('mahasiswa.pengajuan.index');
+        Route::get('/create', [MahasiswaPengajuanController::class, 'create'])->name('mahasiswa.pengajuan.create');
+        Route::post('/store', [MahasiswaPengajuanController::class, 'store'])->name('mahasiswa.pengajuan.store');
+        Route::get('/{id}/show', [MahasiswaPengajuanController::class, 'show'])->name('mahasiswa.pengajuan.show');
+        Route::get('/{id}/edit', [MahasiswaPengajuanController::class, 'edit'])->name('mahasiswa.pengajuan.edit');
+        Route::put('/{id}/update', [MahasiswaPengajuanController::class, 'update'])->name('mahasiswa.pengajuan.update');
+        Route::delete('/{id}/delete', [MahasiswaPengajuanController::class, 'destroy'])->name('mahasiswa.pengajuan.destroy');
     });
 });
 ?>

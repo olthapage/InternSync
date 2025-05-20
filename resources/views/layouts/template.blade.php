@@ -24,7 +24,7 @@
     <title>
         InternSync
     </title>
-     <!-- iziToast CSS & JS -->
+    <!-- iziToast CSS & JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,800" rel="stylesheet" />
@@ -37,7 +37,8 @@
     <link id="pagestyle" href="{{ asset('softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0') }}" rel="stylesheet" />
     {{-- DataTables --}}
     <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('softTemplate/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('softTemplate/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
 
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
@@ -49,7 +50,8 @@
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
-    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3 bg-white"
+    <aside
+        class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3 bg-white"
         id="sidenav-main">
         @include('layouts.sidebar')
     </aside>
@@ -57,17 +59,17 @@
         <!-- Navbar -->
         <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur"
             navbar-scroll="true">
-        @include('layouts.nav')
+            @include('layouts.nav')
         </nav>
         <!-- End Navbar -->
         {{-- Main Content --}}
         <div class="container-fluid py-4">
             @yield('content')
         </div>
-
+        {{-- 
             <footer class="footer pt-3  ">
                 @include('layouts.footer')
-            </footer>
+            </footer> --}}
         </div>
     </main>
     <div class="fixed-plugin">
@@ -130,8 +132,8 @@
                         onclick="navbarFixed(this)">
                 </div>
                 <hr class="horizontal dark my-sm-4">
-                <a class="btn bg-gradient-dark w-100"
-                    href="https://www.creative-tim.com/product/soft-ui-dashboard">Free Download</a>
+                <a class="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/soft-ui-dashboard">Free
+                    Download</a>
                 <a class="btn btn-outline-dark w-100"
                     href="https://www.creative-tim.com/learning-lab/bootstrap/license/soft-ui-dashboard">View
                     documentation</a>
@@ -363,13 +365,13 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
-            if (win && document.querySelector('#sidenav-scrollbar')) {
-                var options = {
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
                 damping: '0.5'
-                }
-                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
             }
-        </script>
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+    </script>
     <!-- Soft UI Dashboard script (wajib di bawah jQuery + Bootstrap) -->
     <script src="{{ asset('softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0') }}"></script>
     <!-- jQuery Validate -->
@@ -380,16 +382,17 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
-            if (win && document.querySelector('#sidenav-scrollbar')) {
-                var options = {
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
                 damping: '0.5'
-                }
-                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
             }
-        </script>
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+    </script>
     <!-- Soft UI Dashboard script (wajib di bawah jQuery + Bootstrap) -->
     <script src="{{ asset('softTemplate/assets/js/soft-ui-dashboard.min.js?v=1.1.0') }}"></script>
 
     @stack('js')
 </body>
+
 </html>
