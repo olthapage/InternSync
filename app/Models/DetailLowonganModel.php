@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\IndustriModel;
+use App\Models\KategoriSkillModel;
 use App\Models\LowonganSkillModel;
 use App\Models\KriteriaMagangModel;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ class DetailLowonganModel extends Model
     protected $primaryKey = 'lowongan_id';
     public $timestamps = false;
 
-    protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai'];
+    protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai', 'kategori_skill_id'];
 
     public function industri()
     {
@@ -24,6 +25,10 @@ class DetailLowonganModel extends Model
     public function kriteriaMagang()
     {
         return $this->hasOne(KriteriaMagangModel::class, 'lowongan_id', 'lowongan_id');
+    }
+    public function kategoriSkill()
+    {
+        return $this->belongsTo(KategoriSkillModel::class, 'kategori_skill_id', 'kategori_skill_id');
     }
     public function lowonganSkill()
     {

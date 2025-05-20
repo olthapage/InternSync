@@ -21,6 +21,7 @@ use App\Http\Controllers\admin\ProgramStudiController;
 use App\Http\Controllers\admin\KategoriIndustriController;
 
 use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
+use App\Http\Controllers\mahasiswa\VerifikasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,8 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::post('/list', [MahasiswaController::class, 'list']);
         Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
         Route::get('/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
+        Route::get('{id}/verifikasi', [MahasiswaController::class, 'verifikasi'])->name('mahasiswa.verifikasi');
+        Route::put('{id}/verifikasi', [MahasiswaController::class, 'updateVerifikasi'])->name('mahasiswa.updateVerifikasi');
         Route::get('/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
         Route::delete('/{id}/delete', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
         Route::post('/store', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
@@ -194,6 +197,10 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
         Route::get('/{id}/edit', [MahasiswaPengajuanController::class, 'edit'])->name('mahasiswa.pengajuan.edit');
         Route::put('/{id}/update', [MahasiswaPengajuanController::class, 'update'])->name('mahasiswa.pengajuan.update');
         Route::delete('/{id}/delete', [MahasiswaPengajuanController::class, 'destroy'])->name('mahasiswa.pengajuan.destroy');
+    });
+
+    Route::prefix('mahasiswa/verifikasi')->group(function () {
+       Route::post('/store', [VerifikasiController::class, 'store'])->name('mahasiswa.verifikasi.store');
     });
 });
 ?>

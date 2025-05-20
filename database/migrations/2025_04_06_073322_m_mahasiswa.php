@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('nim');
             $table->boolean('status')->default(0);
+            $table->enum('status_verifikasi', ['pending', 'valid', 'invalid'])->nullable();
+            $table->text('alasan')->nullable(); // Alasan jika status_verifikasi invalid
             $table->decimal('ipk', 3, 2)->nullable();
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
