@@ -20,6 +20,7 @@ use App\Http\Controllers\admin\DaftarSkillController;
 use App\Http\Controllers\admin\ProgramStudiController;
 use App\Http\Controllers\admin\KategoriIndustriController;
 
+use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
 use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
 use App\Http\Controllers\mahasiswa\VerifikasiController;
 
@@ -189,6 +190,16 @@ Route::middleware(['auth:web,mahasiswa,dosen', \App\Http\Middleware\PreventBackH
     });
 
     // Halaman Mahasiswa
+    Route::prefix('mahasiswa/lowongan')->group(function () {
+        Route::get('/', [MahasiswaLowonganController::class, 'index'])->name('mahasiswa.lowongan.index');
+        Route::get('/create', [MahasiswaLowonganController::class, 'create'])->name('mahasiswa.lowongan.create');
+        Route::post('/store', [MahasiswaLowonganController::class, 'store'])->name('mahasiswa.lowongan.store');
+        Route::get('/{id}/show', [MahasiswaLowonganController::class, 'show'])->name('mahasiswa.lowongan.show');
+        Route::get('/{id}/edit', [MahasiswaLowonganController::class, 'edit'])->name('mahasiswa.lowongan.edit');
+        Route::put('/{id}/update', [MahasiswaLowonganController::class, 'update'])->name('mahasiswa.lowongan.update');
+        Route::delete('/{id}/delete', [MahasiswaLowonganController::class, 'destroy'])->name('mahasiswa.lowongan.destroy');
+    });
+    
     Route::prefix('mahasiswa/pengajuan')->group(function () {
         Route::get('/', [MahasiswaPengajuanController::class, 'index'])->name('mahasiswa.pengajuan.index');
         Route::get('/create', [MahasiswaPengajuanController::class, 'create'])->name('mahasiswa.pengajuan.create');
