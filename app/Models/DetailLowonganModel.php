@@ -15,7 +15,7 @@ class DetailLowonganModel extends Model
     protected $primaryKey = 'lowongan_id';
     public $timestamps = false;
 
-    protected $fillable = ['judul_lowongan', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai'];
+    protected $fillable = ['judul_lowongan', 'slot', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai'];
 
     public function industri()
     {
