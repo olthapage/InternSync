@@ -6,7 +6,9 @@ use App\Models\IndustriModel;
 use App\Models\KategoriIndustriModel;
 use App\Models\KotaModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class IndustriController extends Controller
@@ -62,13 +64,14 @@ class IndustriController extends Controller
     }
 
     public function store(Request $request)
-    {
+{
+    try {
         if ($request->ajax()) {
             $validator = Validator::make($request->all(), [
                 'industri_nama'        => 'required|string|max:255',
                 'kota_id'              => 'required|exists:m_kota,kota_id',
                 'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
-                'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048', // Validasi logo
+                'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
             ]);
 
             if ($validator->fails()) {
@@ -81,11 +84,10 @@ class IndustriController extends Controller
 
             $data = $request->all();
 
-            // Handle upload logo jika ada
             if ($request->hasFile('logo')) {
-                $file         = $request->file('logo');
-                $path         = $file->store('public/logo_industri');
-                $filename     = basename($path);
+                $file     = $request->file('logo');
+                $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/logo_industri', $filename);
                 $data['logo'] = $filename;
             }
 
@@ -98,7 +100,14 @@ class IndustriController extends Controller
         }
 
         return redirect()->route('industri.index');
+    } catch (\Throwable $th) {
+        Log::error('Error Store Industri: ' . $th->getMessage());
+        return response()->json([
+            'status'  => false,
+            'message' => 'Terjadi kesalahan pada server: ' . $th->getMessage(),
+        ], 500);
     }
+}
 
     public function show(Request $request, $id)
     {
@@ -133,6 +142,7 @@ class IndustriController extends Controller
                 'industri_nama'        => 'required|string|max:255',
                 'kota_id'              => 'required|exists:m_kota,kota_id',
                 'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
+                'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -146,7 +156,23 @@ class IndustriController extends Controller
             }
 
             $industri = IndustriModel::find($id);
-            $industri->update($request->all());
+            $data     = $request->all();
+
+            // Jika upload logo baru
+            if ($request->hasFile('logo')) {
+                // Hapus file logo lama jika ada
+                if ($industri->logo && Storage::exists('public/logo_industri/' . $industri->logo)) {
+                    Storage::delete('public/logo_industri/' . $industri->logo);
+                }
+
+                // Simpan file logo baru
+                $file         = $request->file('logo');
+                $path         = $file->store('public/logo_industri');
+                $filename     = basename($path);
+                $data['logo'] = $filename;
+            }
+
+            $industri->update($data);
 
             return response()->json([
                 'status'  => true,

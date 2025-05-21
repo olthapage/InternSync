@@ -9,142 +9,133 @@
             <div class="mb-3">
                 <a href="#" class="btn btn-sm btn-outline-info">Lihat Hasil Rekomendasi!</a>
             </div>
+            {{-- Form Pengajuan --}}
+            <form action="{{ route('mahasiswa.pengajuan.store') }}" method="POST">
+                @csrf
 
-            {{-- Cek kelengkapan profil mahasiswa --}}
-            @php
-                $mahasiswa = auth()->user();
-                $profilLengkap =
-                    $mahasiswa &&
-                    $mahasiswa->ktp &&
-                    $mahasiswa->khs &&
-                    $mahasiswa->daftar_riwayat_hidup &&
-                    $mahasiswa->surat_izin_ortu;
-            @endphp
-
-            @unless ($profilLengkap)
-                <div class="border p-3 mb-3 rounded text-danger">
-                    <strong>Profil belum lengkap!</strong> Silakan lengkapi data verifikasi seperti KTP, KHS, Surat Izin Orang
-                    Tua, dan CV sebelum mengajukan magang.
-                </div>
-            @else
-                {{-- Form Pengajuan --}}
-                <form action="{{ route('mahasiswa.pengajuan.store') }}" method="POST">
-                    @csrf
-
-                    {{-- Filter Section --}}
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="industri_id" class="form-label">Filter Industri</label>
-                            <select id="industri_id" name="industri_id" class="form-select" onchange="filterLowongan()">
-                                <option value="">-- Semua Industri --</option>
-                                @foreach ($industriList as $industri)
-                                    <option value="{{ $industri->industri_id }}">{{ $industri->industri_nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="kategori_skill_id" class="form-label">Filter Kategori Skill</label>
-                            <select id="kategori_skill_id" name="kategori_skill_id" class="form-select" onchange="filterLowongan()">
-                                <option value="">-- Semua Kategori --</option>
-                                @foreach ($kategoriSkillList as $kategori)
-                                    <option value="{{ $kategori->kategori_skill_id }}">{{ $kategori->kategori_nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                {{-- Filter Section --}}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="industri_id" class="form-label">Filter Industri</label>
+                        <select id="industri_id" name="industri_id" class="form-select" onchange="filterLowongan()">
+                            <option value="">-- Semua Industri --</option>
+                            @foreach ($industriList as $industri)
+                                <option value="{{ $industri->industri_id }}">{{ $industri->industri_nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    <div class="col-md-6">
+                        <label for="kategori_skill_id" class="form-label">Filter Kategori Skill</label>
+                        <select id="kategori_skill_id" name="kategori_skill_id" class="form-select"
+                            onchange="filterLowongan()">
+                            <option value="">-- Semua Kategori --</option>
+                            @foreach ($kategoriSkillList as $kategori)
+                                <option value="{{ $kategori->kategori_skill_id }}">{{ $kategori->kategori_nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-                    {{-- Container untuk menampilkan daftar lowongan --}}
-                    <div id="lowongan-container" class="row mt-4 mb-4">
-                        @foreach ($lowonganList as $index => $lowongan)
-                            <div class="col-xl-3 col-md-6 mb-4 lowongan-card" data-industri="{{ $lowongan->industri_id }}"
-                                 data-kategori="{{ $lowongan->kategori_skill_id }}" data-index="{{ $index }}" style="{{ $index >= 5 ? 'display: none;' : '' }}">
-                                <div class="card card-blog card-plain border rounded">
-                                    <div class="position-relative">
-                                        <div class="image-container">
-                                            <img src="{{ asset('softTemplate/assets/img/home-decor-3.jpg') }}" alt="Lowongan Image"
-                                                class="img-fluid border-radius-lg px-3 pt-4 rounded">
-                                        </div>
+                {{-- Container untuk menampilkan daftar lowongan --}}
+                <div id="lowongan-container" class="row mt-4 mb-4">
+                    @foreach ($lowonganList as $index => $lowongan)
+                        <div class="col-xl-3 col-md-6 mb-4 lowongan-card" data-industri="{{ $lowongan->industri_id }}"
+                            data-kategori="{{ $lowongan->kategori_skill_id }}" data-index="{{ $index }}"
+                            style="{{ $index >= 5 ? 'display: none;' : '' }}">
+                            <div class="card card-blog card-plain border rounded">
+                                <div class="position-relative">
+                                    <div class="image-container">
+                                        <img src="{{ $lowongan->industri->logo ? asset('storage/logo_industri/' . $lowongan->industri->logo) : asset('assets/default-industri.png') }}"
+                                            alt="Lowongan Image" class="img-fluid border-radius-lg px-3 pt-4 rounded"
+                                            style="max-height: 120px; width: auto; display: block; margin: 0 auto;">
                                     </div>
-                                    <div class="card-body px-3 pb-2">
-                                        <p class="text-gradient text-primary mb-1 text-sm">{{ $lowongan->industri->industri_nama ?? '-' }}</p>
-                                        <h5 class="font-weight-bold mb-2">
-                                            {{ $lowongan->judul_lowongan }}
-                                        </h5>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                            <span class="text-sm">{{ \Carbon\Carbon::parse($lowongan->tanggal_mulai)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($lowongan->tanggal_selesai)->format('d/m/Y') }}</span>
-                                        </div>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <i class="fas fa-tag text-primary me-2"></i>
-                                            <span class="text-sm">{{ $lowongan->kategoriSkill->kategori_skill_nama ?? 'Umum' }}</span>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p class="text-sm mb-2">
-                                                <i class="fas fa-info-circle text-primary me-2"></i>
-                                                <span>{{ \Illuminate\Support\Str::limit($lowongan->deskripsi, 100) }}</span>
-                                            </p>
-                                        </div>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <button type="button" class="btn btn-outline-primary btn-sm mb-0"
-                                                onclick="selectLowongan('{{ $lowongan->lowongan_id }}', '{{ $lowongan->judul_lowongan }}')">
-                                                <i class="fas fa-check me-1"></i> Pilih
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info btn-sm mb-0"
-                                                onclick="showDetail('{{ $lowongan->lowongan_id }}')">
-                                                <i class="fas fa-eye me-1"></i> Detail
-                                            </button>
-                                        </div>
+                                </div>
+                                <div class="card-body px-3 pb-2">
+                                    <p class="text-gradient text-primary mb-1 text-sm">
+                                        {{ $lowongan->industri->industri_nama ?? '-' }}</p>
+                                    <h5 class="font-weight-bold mb-2">
+                                        {{ $lowongan->judul_lowongan }}
+                                    </h5>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                        <span
+                                            class="text-sm">{{ \Carbon\Carbon::parse($lowongan->tanggal_mulai)->format('d/m/Y') }}
+                                            -
+                                            {{ \Carbon\Carbon::parse($lowongan->tanggal_selesai)->format('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-tag text-primary me-2"></i>
+                                        <span
+                                            class="text-sm">{{ $lowongan->kategoriSkill->kategori_skill_nama ?? 'Umum' }}</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-sm mb-2 d-flex">
+                                            <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                            <span class="deskripsi-terbatas">{{ $lowongan->deskripsi }}</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <button type="button" class="btn btn-primary btn-sm mb-0"
+                                            onclick="selectLowongan('{{ $lowongan->lowongan_id }}', '{{ $lowongan->judul_lowongan }}')">
+                                            <i class="fas fa-check me-1"></i> Pilih
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm mb-0"
+                                            onclick="showDetail('{{ $lowongan->lowongan_id }}')">
+                                            <i class="fas fa-eye me-1"></i> Detail
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
+                </div>
 
-                    {{-- Tombol Lihat Semua Lowongan --}}
-                    <div id="view-all-container" class="text-center mb-4" style="display: {{ count($lowonganList) > 5 ? 'block' : 'none' }};">
-                        <button type="button" id="view-all-btn" class="btn btn-outline-primary" onclick="toggleViewAll()">
-                            <i class="fas fa-th-list me-1"></i> Lihat Semua Lowongan
+                {{-- Tombol Lihat Semua Lowongan --}}
+                <div id="view-all-container" class="text-center mb-4"
+                    style="display: {{ count($lowonganList) > 5 ? 'block' : 'none' }};">
+                    <button type="button" id="view-all-btn" class="btn btn-outline-primary" onclick="toggleViewAll()">
+                        <i class="fas fa-th-list me-1"></i> Lihat Semua Lowongan
+                    </button>
+                </div>
+
+                {{-- Hidden field untuk menyimpan ID lowongan yang dipilih --}}
+                <input type="hidden" id="lowongan_id" name="lowongan_id" required>
+                <div id="selected-lowongan" class="mb-3 p-3 border rounded" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Lowongan Terpilih:</strong>
+                            <span id="selected-lowongan-title"></span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelection()">
+                            <i class="fas fa-times"></i> Batal
                         </button>
                     </div>
+                </div>
 
-                    {{-- Hidden field untuk menyimpan ID lowongan yang dipilih --}}
-                    <input type="hidden" id="lowongan_id" name="lowongan_id" required>
-                    <div id="selected-lowongan" class="mb-3 p-3 border rounded" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Lowongan Terpilih:</strong>
-                                <span id="selected-lowongan-title"></span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelection()">
-                                <i class="fas fa-times"></i> Batal
-                            </button>
-                        </div>
-                    </div>
+                {{-- Date Range Info --}}
+                <div id="date-range-info" class="alert alert-info mb-3" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <span>Periode magang Anda harus dalam rentang waktu lowongan:</span>
+                    <strong id="lowongan-date-range"></strong>
+                </div>
 
-                    {{-- Date Range Info --}}
-                    <div id="date-range-info" class="alert alert-info mb-3" style="display: none;">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <span>Periode magang Anda harus dalam rentang waktu lowongan:</span>
-                        <strong id="lowongan-date-range"></strong>
-                    </div>
+                {{-- Tanggal Mulai & Selesai --}}
+                <div class="mb-3">
+                    <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
+                    <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="form-control" required>
+                    <small class="text-muted">Tanggal mulai magang Anda</small>
+                </div>
 
-                    {{-- Tanggal Mulai & Selesai --}}
-                    <div class="mb-3">
-                        <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="form-control" required>
-                        <small class="text-muted">Tanggal mulai magang Anda</small>
-                    </div>
+                <div class="mb-3">
+                    <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
+                    <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="form-control" required>
+                    <small class="text-muted">Tanggal selesai magang Anda</small>
+                </div>
 
-                    <div class="mb-3">
-                        <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
-                        <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="form-control" required>
-                        <small class="text-muted">Tanggal selesai magang Anda</small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Ajukan</button>
-                    <a href="{{ route('mahasiswa.pengajuan.index') }}" class="btn btn-dark">Kembali</a>
-                </form>
-            @endunless
+                <button type="submit" class="btn btn-primary">Ajukan</button>
+                <a href="{{ route('mahasiswa.pengajuan.index') }}" class="btn btn-dark">Kembali</a>
+            </form>
         </div>
     </div>
 
@@ -210,7 +201,7 @@
 
                 if (matchesIndustri && matchesKategori) {
                     visibleCount++;
-                    
+
                     if (showAllLowongan || visibleCount <= 4) {
                         card.style.display = 'block';
                     } else {
@@ -267,7 +258,8 @@
 
                     if (dates && dates.length === 2) {
                         // Tampilkan informasi rentang tanggal
-                        document.getElementById('lowongan-date-range').textContent = ` ${dates[0]} sampai ${dates[1]}`;
+                        document.getElementById('lowongan-date-range').textContent =
+                            ` ${dates[0]} sampai ${dates[1]}`;
                         document.getElementById('date-range-info').style.display = 'block';
 
                         // Konversi format tanggal DD/MM/YYYY ke YYYY-MM-DD untuk input date
@@ -438,5 +430,43 @@
                 }
             });
         });
+        @if (isset($selectedLowongan))
+            // Auto-pilih lowongan dari controller
+            document.addEventListener('DOMContentLoaded', function() {
+                selectLowongan('{{ $selectedLowongan->lowongan_id }}', '{{ $selectedLowongan->judul_lowongan }}');
+            });
+        @endif
     </script>
 @endsection
+
+@push('css')
+    <style>
+        /* CSS untuk konsistensi tinggi card */
+        .lowongan-card .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Card body mengisi ruang kosong */
+        .lowongan-card .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Deskripsi terpotong dengan "..." */
+        .lowongan-card .card-body .deskripsi-terbatas {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            /* Jumlah baris maksimal */
+            -webkit-box-orient: vertical;
+            line-height: 1.4em;
+            max-height: 4.2em;
+            /* 1.4em * 3 lines */
+        }
+    </style>
+@endpush

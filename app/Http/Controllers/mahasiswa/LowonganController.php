@@ -6,7 +6,7 @@ use App\Models\DetailLowonganModel;
 use App\Models\KategoriSkillModel;
 use App\Models\KotaModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class LowonganController extends Controller
 {
@@ -16,111 +16,83 @@ class LowonganController extends Controller
         $listKategori = KategoriSkillModel::all();
         $activeMenu   = 'lowongan';
 
-        // Query dasar dengan eager loading
-        $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill']);
-
-        // Filter berdasarkan lokasi (kota)
-        if (request('lokasi')) {
-            $query->whereHas('industri.kota', function ($q) {
-                $q->where('kota_id', request('lokasi'));
-            });
-        }
-
-        // Filter berdasarkan jenis (kategori skill)
-        if (request('jenis')) {
-            $query->where('kategori_skill_id', request('jenis'));
-        }
-
-        // Ambil data lowongan yang sudah difilter dan urutkan terbaru
-        $lowongan = $query->latest()->get();
-
         return view('mahasiswa_page.lowongan.index', compact(
             'activeMenu',
-            'lowongan',
             'listKota',
             'listKategori'
         ));
     }
 
-    public function create()
+    public function list(Request $request)
     {
-        $activeMenu = 'lowongan';
-        return view('mahasiswa_page.lowongan.create', compact('activeMenu'));
-    }
+        $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill'])
+            ->select('m_detail_lowongan.*'); // Perhatikan perubahan di sini
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'judul_lowongan'  => 'required|string|max:255',
-            'slot'            => 'required|integer|min:1',
-            'deskripsi'       => 'required|string',
-            'tanggal_mulai'   => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Filter berdasarkan lokasi (kota)
+        if ($request->has('lokasi') && $request->lokasi != '') {
+            $query->whereHas('industri.kota', function ($q) use ($request) {
+                $q->where('kota_id', $request->lokasi);
+            });
         }
 
-        DetailLowonganModel::create($request->all());
-
-        return redirect()->route('mahasiswa.lowongan.index')->with('success', 'Lowongan berhasil ditambahkan.');
-    }
-
-    public function edit(Request $request, $id)
-    {
-        $lowongan = DetailLowonganModel::findOrFail($id);
-
-        if ($request->ajax()) {
-            return view('mahasiswa_page.lowongan.edit', compact('lowongan'));
+        // Filter berdasarkan jenis (kategori skill)
+        if ($request->has('jenis') && $request->jenis != '') {
+            $query->where('kategori_skill_id', $request->jenis);
         }
 
-        $activeMenu = 'lowongan';
-        return view('mahasiswa_page.lowongan.edit', compact('lowongan', 'activeMenu'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $lowongan = DetailLowonganModel::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
-            'judul_lowongan'  => 'required|string|max:255',
-            'slot'            => 'required|integer|min:1',
-            'deskripsi'       => 'required|string',
-            'tanggal_mulai'   => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Pencarian global
+        if ($request->has('search') && ! empty($request->search['value'])) {
+            $search = $request->search['value'];
+            $query->where(function ($q) use ($search) {
+                $q->where('judul_lowongan', 'like', "%{$search}%")
+                    ->orWhereHas('industri', function ($q) use ($search) {
+                        $q->where('industri_nama', 'like', "%{$search}%");
+                    });
+            });
         }
 
-        $lowongan->update($request->all());
+        return DataTables::of($query)
+            ->addColumn('industri', function ($row) {
+                $logo = $row->industri->logo
+                ? asset('storage/logo_industri/' . $row->industri->logo)
+                : asset('assets/default-industri.png');
 
-        return redirect()->route('mahasiswa.lowongan.index')->with('success', 'Lowongan berhasil diperbarui.');
+                $nama = $row->industri->industri_nama ?? '-';
+                $kota = $row->industri->kota->kota_nama ?? '-';
+
+                return '
+            <div class="d-flex px-2 py-1">
+                <div>
+                    <img src="' . $logo . '" class="avatar avatar-sm me-3" alt="logo industri">
+                </div>
+                <div class="d-flex flex-column justify-content-center text-start">
+                    <h6 class="mb-0 text-sm">' . $nama . '</h6>
+                    <p class="text-xs text-secondary mb-0">' . $kota . '</p>
+                </div>
+            </div>';
+            })
+            ->addColumn('jenis', fn($row) => $row->kategoriSkill->kategori_nama ?? '-')
+            ->addColumn('judul', fn($row) => $row->judul_lowongan ?? '-')
+            ->addColumn('slot', fn($row) => $row->slotTersedia())
+            ->addColumn('periode', function ($row) {
+                return \Carbon\Carbon::parse($row->tanggal_mulai)->format('d/m/Y') . ' - ' .
+                \Carbon\Carbon::parse($row->tanggal_selesai)->format('d/m/Y');
+            })
+            ->addColumn('aksi', function ($row) {
+                return '<button onclick="modalAction(\'' . url('/mahasiswa/lowongan/' . $row->lowongan_id . '/show') . '\')" class="fw-bold text-success bg-transparent border-0 p-0">Detail</button>';
+            })
+            ->rawColumns(['industri', 'aksi'])
+            ->make(true);
     }
-
-    public function destroy($id)
+    public function show($id)
     {
-        $lowongan = DetailLowonganModel::find($id);
-        if (! $lowongan) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Lowongan tidak ditemukan.',
-            ]);
-        }
+        $lowongan = DetailLowonganModel::with([
+            'industri.kota',       // Untuk akses kota
+            'kategoriSkill',       // Untuk akses kategori skill
+            'lowonganSkill.skill', // Untuk akses nama skill
+        ])->findOrFail($id);
 
-        $lowongan->delete();
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Lowongan berhasil dihapus.',
-        ]);
+        return view('mahasiswa_page.lowongan.show', compact('lowongan'));
     }
 
-    public function deleteModal($id)
-    {
-        $lowongan = DetailLowonganModel::findOrFail($id);
-        return view('mahasiswa_page.lowongan.delete', compact('lowongan'));
-    }
 }

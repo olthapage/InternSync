@@ -1,13 +1,13 @@
 <?php
 namespace App\Models;
 
-use App\Models\MagangModel;
 use App\Models\IndustriModel;
 use App\Models\KategoriSkillModel;
-use App\Models\LowonganSkillModel;
 use App\Models\KriteriaMagangModel;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\LowonganSkillModel;
+use App\Models\MagangModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class DetailLowonganModel extends Model
 {
