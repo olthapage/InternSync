@@ -1,23 +1,22 @@
 <?php
-
 namespace App\Models;
 
 use App\Models\IndustriModel;
 use App\Models\KategoriSkillModel;
-use App\Models\LowonganSkillModel;
 use App\Models\KriteriaMagangModel;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\LowonganSkillModel;
+use App\Models\MagangModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class DetailLowonganModel extends Model
 {
     use HasFactory;
-    protected $table = 'm_detail_lowongan';
+    protected $table      = 'm_detail_lowongan';
     protected $primaryKey = 'lowongan_id';
-    public $timestamps = false;
+    public $timestamps    = false;
 
     protected $fillable = ['judul_lowongan', 'slot', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai', 'kategori_skill_id'];
-
 
     public function industri()
     {
@@ -34,5 +33,15 @@ class DetailLowonganModel extends Model
     public function lowonganSkill()
     {
         return $this->hasMany(LowonganSkillModel::class, 'lowongan_id', 'lowongan_id');
+    }
+    public function slotTerisi(): int
+    {
+        return $this->hasMany(MagangModel::class, 'lowongan_id', 'lowongan_id')
+            ->where('status', 'diterima')
+            ->count();
+    }
+    public function slotTersedia(): int
+    {
+        return max(0, $this->slot - $this->slotTerisi());
     }
 }

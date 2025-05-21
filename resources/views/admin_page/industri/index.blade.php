@@ -5,7 +5,7 @@
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Industri</h2>
             <div class="d-flex justify-content-end mb-3">
-                <button onclick="modalAction('{{ url('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah
+                <button onclick="modalAction('{{ route('industri.create') }}')" class="btn btn-sm btn-primary">+ Tambah
                     Industri</button>
             </div>
             <div class="table-responsive text-sm">

@@ -620,8 +620,9 @@
                         <div
                             class="glassmorphism-light p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 reveal">
                             <div class="flex items-center mb-4">
-                                <img src="{{ asset('storage/foto/' . ($item->mahasiswa->foto ?? 'default-profile.png')) }}"
+                                <img src="{{ $item->mahasiswa->foto ? asset('storage/foto/' . $item->mahasiswa->foto) : asset('assets/default-profile.png') }}"
                                     alt="User Avatar" class="w-12 h-12 rounded-full mr-4 bg-slate-200">
+
                                 <div>
                                     <h4 class="font-semibold text-slate-800">
                                         {{ $item->mahasiswa->nama_lengkap }}

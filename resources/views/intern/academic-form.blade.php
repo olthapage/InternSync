@@ -77,6 +77,7 @@
         <label for="sertifikat_kompetensi" class="form-label">
             Sertifikat Kompetensi <span class="text-muted">(PDF/JPG/PNG max 2MB)</span>
         </label>
+        {{-- JIKA LEBIH DARI 1 JADIKAN PDF --}}
         <input type="file" name="sertifikat_kompetensi" id="sertifikat_kompetensi" class="form-control"
             accept="application/pdf,image/*">
         <small class="text-danger">

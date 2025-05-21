@@ -41,7 +41,8 @@
         {{-- Menu khusus mahasiswa taruh sini --}}
         @auth('mahasiswa')
             <li class="nav-item ">
-                <a class="nav-link {{ $activeMenu == 'lowongan' ? 'active' : '' }}" href="{{ route('mahasiswa.lowongan.index') }} ">
+                <a class="nav-link {{ $activeMenu == 'lowongan' ? 'active' : '' }}"
+                    href="{{ route('mahasiswa.lowongan.index') }} ">
                     <div
                         class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1"
@@ -412,7 +413,11 @@
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
                     <p class="text-xs font-weight-bold">Hubungi Admin</p>
                     <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
-                        class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
+                        class="btn btn-white btn-sm w-100 mb-0 d-flex align-items-center justify-content-center gap-2">
+                        <img src="{{ asset('assets/wa.svg') }}" alt="WhatsApp Logo" style="width: 16px; height: 16px;">
+                        Whatsapp
+                    </a>
+
                 </div>
             </div>
         </div>
@@ -442,4 +447,3 @@
         <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
     </div>
 @endauth
-

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('deskripsi');
             $table->unsignedBigInteger('industri_id')->nullable();
             $table->unsignedBigInteger('kategori_skill_id')->nullable();
+            $table->integer('slot')->nullable();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
 

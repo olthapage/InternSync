@@ -1,15 +1,15 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\DetailLowonganModel;
 use App\Models\IndustriModel;
+use App\Models\KategoriSkillModel;
 use App\Models\MahasiswaModel;
 use App\Models\PengajuanModel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use App\Models\KategoriSkillModel;
-use App\Models\DetailLowonganModel;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class PengajuanController extends Controller
@@ -28,15 +28,19 @@ class PengajuanController extends Controller
         return view('mahasiswa_page.pengajuan.index', compact('activeMenu', 'pengajuan'));
     }
 
-    public function create()
+    public function create($id = null)
     {
+        $lowonganList      = DetailLowonganModel::with(['industri', 'kategoriSkill'])->get();
+        $industriList      = IndustriModel::all();
+        $kategoriSkillList = KategoriSkillModel::all();
         $activeMenu = 'pengajuan';
 
-        $lowonganList = DetailLowonganModel::with('industri')->get();
-        $industriList = IndustriModel::all();
-        $kategoriSkillList = KategoriSkillModel::all();
+        $selectedLowongan = null;
+        if ($id) {
+            $selectedLowongan = DetailLowonganModel::with(['industri', 'kategoriSkill'])->find($id);
+        }
 
-        return view('mahasiswa_page.pengajuan.create', compact('activeMenu', 'lowonganList', 'industriList', 'kategoriSkillList'));
+        return view('mahasiswa_page.pengajuan.create', compact('lowonganList', 'industriList', 'kategoriSkillList', 'selectedLowongan', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -47,7 +51,7 @@ class PengajuanController extends Controller
         // Karena MahasiswaModel adalah Authenticatable, langsung gunakan auth()->user()
         $mahasiswa = auth()->user();
 
-        if (!$mahasiswa) {
+        if (! $mahasiswa) {
             Log::error('Pengajuan gagal: User tidak terautentikasi');
             return redirect()->back()->with('error', 'Anda harus login terlebih dahulu.');
         }
@@ -68,19 +72,19 @@ class PengajuanController extends Controller
 
         // Simpan pengajuan
         try {
-            $pengajuan = new PengajuanModel();
-            $pengajuan->mahasiswa_id = $mahasiswa->mahasiswa_id;
-            $pengajuan->lowongan_id = $request->lowongan_id;
-            $pengajuan->tanggal_mulai = Carbon::parse($request->tanggal_mulai);
+            $pengajuan                  = new PengajuanModel();
+            $pengajuan->mahasiswa_id    = $mahasiswa->mahasiswa_id;
+            $pengajuan->lowongan_id     = $request->lowongan_id;
+            $pengajuan->tanggal_mulai   = Carbon::parse($request->tanggal_mulai);
             $pengajuan->tanggal_selesai = Carbon::parse($request->tanggal_selesai);
-            $pengajuan->status = 'belum'; // default sesuai enum
+            $pengajuan->status          = 'belum'; // default sesuai enum
 
             // Log data sebelum disimpan
             Log::info('Data yang akan disimpan: ', $pengajuan->toArray());
 
             $saved = $pengajuan->save();
 
-            if (!$saved) {
+            if (! $saved) {
                 Log::error('Gagal menyimpan pengajuan: Save method returned false');
                 return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan pengajuan.')->withInput();
             }
@@ -98,9 +102,15 @@ class PengajuanController extends Controller
     public function show(Request $request, $id)
     {
         $pengajuan = PengajuanModel::with(['mahasiswa', 'lowongan'])->find($id);
+        $lowongan = DetailLowonganModel::with([
+            'industri.kota',
+            'kategoriSkill',
+            'lowonganSkill.skill',
+        ])->findOrFail($id);
+
 
         if ($request->ajax()) {
-            return view('admin_page.pengajuan.show', compact('pengajuan'));
+            return view('mahasiswa_page.pengajuan.show', compact('pengajuan', 'lowongan'));
         }
     }
 
