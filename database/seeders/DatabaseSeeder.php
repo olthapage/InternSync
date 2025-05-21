@@ -302,6 +302,7 @@ class DatabaseSeeder extends Seeder
                 'tanggal_mulai' => '2025-08-01',
                 'tanggal_selesai' => '2025-12-31',
                 'kategori_skill_id' => 1,
+                'slot' => 3,
                 'created_at' => $now
             ],
         ];
@@ -313,6 +314,7 @@ class DatabaseSeeder extends Seeder
                 'tanggal_mulai' => '2025-08-01',
                 'tanggal_selesai' => '2025-12-31',
                 'kategori_skill_id' => rand(1, 10),
+                'slot' => rand(5, 10),
                 'created_at' => $now
             ];
         }

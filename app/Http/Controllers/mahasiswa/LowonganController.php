@@ -1,46 +1,45 @@
 <?php
-
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\DetailLowonganModel;
+use App\Models\KategoriSkillModel;
+use App\Models\KotaModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Yajra\DataTables\Facades\DataTables;
 
 class LowonganController extends Controller
 {
     public function index()
     {
-        $activeMenu = 'lowongan';
-        $lowongan = DetailLowonganModel::latest()->get();
+        $listKota     = KotaModel::all();
+        $listKategori = KategoriSkillModel::all();
+        $activeMenu   = 'lowongan';
 
-        return view('mahasiswa_page.lowongan.index', compact('activeMenu', 'lowongan'));
-    }
+        // Query dasar dengan eager loading
+        $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill']);
 
-    public function list(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = DetailLowonganModel::select('lowongan_id', 'judul_lowongan', 'slot', 'tanggal_mulai', 'tanggal_selesai');
-
-            if ($request->filled('filter_bulan')) {
-                $data->whereMonth('tanggal_mulai', $request->filter_bulan);
-            }
-
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('periode', function ($row) {
-                    return date('d/m/Y', strtotime($row->tanggal_mulai)) . ' - ' . date('d/m/Y', strtotime($row->tanggal_selesai));
-                })
-                ->addColumn('aksi', function ($row) {
-                    $btn  = '<button onclick="modalAction(\'' . url('/mahasiswa/lowongan/' . $row->lowongan_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button>';
-                    return $btn;
-                })
-                ->rawColumns(['aksi'])
-                ->make(true);
+        // Filter berdasarkan lokasi (kota)
+        if (request('lokasi')) {
+            $query->whereHas('industri.kota', function ($q) {
+                $q->where('kota_id', request('lokasi'));
+            });
         }
 
-        return response()->json(['message' => 'Invalid request'], 400);
+        // Filter berdasarkan jenis (kategori skill)
+        if (request('jenis')) {
+            $query->where('kategori_skill_id', request('jenis'));
+        }
+
+        // Ambil data lowongan yang sudah difilter dan urutkan terbaru
+        $lowongan = $query->latest()->get();
+
+        return view('mahasiswa_page.lowongan.index', compact(
+            'activeMenu',
+            'lowongan',
+            'listKota',
+            'listKategori'
+        ));
     }
 
     public function create()
@@ -52,11 +51,11 @@ class LowonganController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'judul_lowongan'   => 'required|string|max:255',
-            'slot'             => 'required|integer|min:1',
-            'deskripsi'        => 'required|string',
-            'tanggal_mulai'    => 'required|date',
-            'tanggal_selesai'  => 'required|date|after_or_equal:tanggal_mulai',
+            'judul_lowongan'  => 'required|string|max:255',
+            'slot'            => 'required|integer|min:1',
+            'deskripsi'       => 'required|string',
+            'tanggal_mulai'   => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
         if ($validator->fails()) {
@@ -85,11 +84,11 @@ class LowonganController extends Controller
         $lowongan = DetailLowonganModel::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'judul_lowongan'   => 'required|string|max:255',
-            'slot'             => 'required|integer|min:1',
-            'deskripsi'        => 'required|string',
-            'tanggal_mulai'    => 'required|date',
-            'tanggal_selesai'  => 'required|date|after_or_equal:tanggal_mulai',
+            'judul_lowongan'  => 'required|string|max:255',
+            'slot'            => 'required|integer|min:1',
+            'deskripsi'       => 'required|string',
+            'tanggal_mulai'   => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
         if ($validator->fails()) {
