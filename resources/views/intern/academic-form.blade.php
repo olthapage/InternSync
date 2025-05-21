@@ -10,7 +10,7 @@
         @if ($mahasiswa->status_verifikasi == 'invalid')
             <div class="alert alert-light">
                 <strong>Status:</strong> Ditolak <br>
-                <strong>Alasan Penolakan:</strong> {{ $mahasiswa->alasan_penolakan }}
+                <strong>Alasan Penolakan:</strong> {{ $mahasiswa->alasan }}
             </div>
         @elseif ($mahasiswa->status_verifikasi == 'valid')
             <div class="alert alert-light">
