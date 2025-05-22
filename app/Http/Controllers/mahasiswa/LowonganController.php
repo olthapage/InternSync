@@ -59,6 +59,7 @@ class LowonganController extends Controller
 
                 $nama = $row->industri->industri_nama ?? '-';
                 $kota = $row->industri->kota->kota_nama ?? '-';
+                $provinsi = $row->industri->kota->provinsi->provinsi_nama ?? '-';
 
                 return '
             <div class="d-flex px-2 py-1">
@@ -67,7 +68,7 @@ class LowonganController extends Controller
                 </div>
                 <div class="d-flex flex-column justify-content-center text-start">
                     <h6 class="mb-0 text-sm">' . $nama . '</h6>
-                    <p class="text-xs text-secondary mb-0">' . $kota . '</p>
+                    <p class="text-xs text-secondary mb-0">' . $kota . ', ' . $provinsi .'</p>
                 </div>
             </div>';
             })

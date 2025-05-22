@@ -6,9 +6,9 @@ use App\Models\IndustriModel;
 use App\Models\KategoriIndustriModel;
 use App\Models\KotaModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class IndustriController extends Controller
@@ -64,50 +64,50 @@ class IndustriController extends Controller
     }
 
     public function store(Request $request)
-{
-    try {
-        if ($request->ajax()) {
-            $validator = Validator::make($request->all(), [
-                'industri_nama'        => 'required|string|max:255',
-                'kota_id'              => 'required|exists:m_kota,kota_id',
-                'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
-                'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
-            ]);
+    {
+        try {
+            if ($request->ajax()) {
+                $validator = Validator::make($request->all(), [
+                    'industri_nama'        => 'required|string|max:255',
+                    'kota_id'              => 'required|exists:m_kota,kota_id',
+                    'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
+                    'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
+                ]);
 
-            if ($validator->fails()) {
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status'   => false,
+                        'message'  => 'Validasi gagal',
+                        'msgField' => $validator->errors(),
+                    ]);
+                }
+
+                $data = $request->all();
+
+                if ($request->hasFile('logo')) {
+                    $file     = $request->file('logo');
+                    $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('public/logo_industri', $filename);
+                    $data['logo'] = $filename;
+                }
+
+                IndustriModel::create($data);
+
                 return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi gagal',
-                    'msgField' => $validator->errors(),
+                    'status'  => true,
+                    'message' => 'Industri berhasil ditambahkan',
                 ]);
             }
 
-            $data = $request->all();
-
-            if ($request->hasFile('logo')) {
-                $file     = $request->file('logo');
-                $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('public/logo_industri', $filename);
-                $data['logo'] = $filename;
-            }
-
-            IndustriModel::create($data);
-
+            return redirect()->route('industri.index');
+        } catch (\Throwable $th) {
+            Log::error('Error Store Industri: ' . $th->getMessage());
             return response()->json([
-                'status'  => true,
-                'message' => 'Industri berhasil ditambahkan',
-            ]);
+                'status'  => false,
+                'message' => 'Terjadi kesalahan pada server: ' . $th->getMessage(),
+            ], 500);
         }
-
-        return redirect()->route('industri.index');
-    } catch (\Throwable $th) {
-        Log::error('Error Store Industri: ' . $th->getMessage());
-        return response()->json([
-            'status'  => false,
-            'message' => 'Terjadi kesalahan pada server: ' . $th->getMessage(),
-        ], 500);
     }
-}
 
     public function show(Request $request, $id)
     {
@@ -143,6 +143,8 @@ class IndustriController extends Controller
                 'kota_id'              => 'required|exists:m_kota,kota_id',
                 'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
                 'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
+                'email'                => 'required|email|max:255',
+                'telepon'              => 'required|string|max:20',
             ];
 
             $validator = Validator::make($request->all(), $rules);

@@ -19,7 +19,7 @@
             <!-- Logo Centered -->
             <div class="text-center mb-4 pt-1">
                 <div class="border rounded-3 d-inline-block p-3 mb-2" style="width: 120px; height: 120px;">
-                    <img src="{{ $lowongan->logo ? asset('storage/logo_industri/' . $lowongan->logo) : asset('assets/default-industri.png') }}"
+                    <img src="{{ $lowongan->industri->logo ? asset('storage/logo_industri/' . $lowongan->industri->logo) : asset('assets/default-industri.png') }}"
                         alt="Logo Industri" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
             </div>
@@ -32,17 +32,17 @@
                 <!-- Kolom Kiri -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <p class="text-muted mb-1 small">Industri</p>
+                        <p class="text-muted mb-1 small text-bold">Industri</p>
                         <p class="fw-medium mb-0">{{ $lowongan->industri->industri_nama ?? '-' }}</p>
                     </div>
 
                     <div class="mb-3">
-                        <p class="text-muted mb-1 small">Start time</p>
+                        <p class="text-muted mb-1 small text-bold">Start time</p>
                         <p class="fw-medium mb-0">{{ date('d M Y', strtotime($lowongan->tanggal_mulai)) }}</p>
                     </div>
 
                     <div class="mb-3">
-                        <p class="text-muted mb-1 small">Kategori</p>
+                        <p class="text-muted mb-1 small text-bold text-bold">Kategori</p>
                         <p class="fw-medium mb-0">{{ $lowongan->kategoriSkill->kategori_nama ?? '-' }}</p>
                     </div>
                 </div>
@@ -50,15 +50,13 @@
                 <!-- Kolom Kanan -->
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <p class="text-muted mb-1 small">Lokasi</p>
-                        <p class="fw-medium mb-0">{{ $lowongan->industri->kota->kota_nama ?? '-' }}</p>
+                        <p class="text-muted mb-1 small text-bold">Lokasi</p>
+                        <p class="fw-medium mb-0">{{ $lowongan->industri->kota->kota_nama ?? '-' }}, {{ $lowongan->industri->kota->provinsi->provinsi_nama ?? '-' }}</p>
                     </div>
-
                     <div class="mb-3">
-                        <p class="text-muted mb-1 small">End time</p>
+                        <p class="text-muted mb-1 small text-bold">End time</p>
                         <p class="fw-medium mb-0">{{ date('d M Y', strtotime($lowongan->tanggal_selesai)) }}</p>
                     </div>
-
                     <div class="mb-3">
                         <p class="text-muted mb-1 small">Slot Tersedia</p>
                         <p class="fw-medium mb-0">{{ $lowongan->slotTersedia() }}</p>
