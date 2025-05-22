@@ -123,7 +123,7 @@
             Route::post('/store', [IndustriController::class, 'store'])->name('industri.store');
             Route::get('/{id}/show', [IndustriController::class, 'show'])->name('industri.show');
             Route::get('/{id}/edit', [IndustriController::class, 'edit'])->name('industri.edit');
-            Route::put('/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
+            Route::post('/{id}/update', [IndustriController::class, 'update'])->name('industri.update');
             Route::delete('/{id}/delete', [IndustriController::class, 'destroy'])->name('industri.destroy');
             Route::delete('{id}/delete', [LowonganController::class, 'delete_ajax'])->name('lowongan.delete');
         });

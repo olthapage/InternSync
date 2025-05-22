@@ -2,8 +2,9 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Pengajuan Magang</h2>
+            <div class="mb-4 d-flex flex-column align-items-start gap-4">
+                <h2>Pengajuan Magang</h2>
+
                 {{-- Cek kelengkapan profil mahasiswa --}}
                 @php
                     $mahasiswa = auth()->user();
@@ -11,14 +12,15 @@
                 @endphp
 
                 @if ($profilLengkap)
-                    <a href="{{ route('mahasiswa.pengajuan.create') }}" class="btn btn-primary btn-lg">
+                    <a href="{{ route('mahasiswa.pengajuan.create') }}" class="btn btn-success btn-lg">
                         <i class="fas fa-plus me-2"></i>Tambah Pengajuan
                     </a>
                 @endif
             </div>
 
+
             @unless ($profilLengkap)
-                <div class="border p-3 mb-3 rounded text-danger">
+                <div class="border p-3 mb-3 rounded-xl text-danger">
                     <strong>Profil belum lengkap atau invalid!</strong> Silakan lengkapi data verifikasi seperti KTP, KHS, Surat
                     Izin Orang
                     Tua, dan CV sebelum mengajukan magang.
@@ -32,7 +34,7 @@
                     <div class="row mt-4 mb-4">
                         @foreach ($pengajuan as $item)
                             <div class="col-xl-3 col-md-6 mb-4 d-flex">
-                                <div class="card card-blog card-plain border rounded pengajuan-card w-100">
+                                <div class="card card-blog card-plain border pengajuan-card rounded-xl py-3 w-100">
                                     <div class="position-relative">
                                         <div class="image-container py-3 pt-6">
                                             {{-- Gambar industri --}}
@@ -75,7 +77,7 @@
                                         <div class="d-flex justify-content-between mt-3">
                                             <button
                                                 onclick="modalAction('{{ url('/mahasiswa/pengajuan/' . $item->pengajuan_id . '/show') }}')"
-                                                class="btn btn-primary btn-sm mb-0 w-100">
+                                                class="btn btn-primary btn-sm mb-0 px-3 w-100 text-lg">
                                                 Lihat Detail
                                             </button>
 
