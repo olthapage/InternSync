@@ -1,8 +1,15 @@
+@php
+    $mahasiswa = auth()->user();
+    $profilLengkap = $mahasiswa && $mahasiswa->status_verifikasi == 'valid';
+@endphp
+
+
 <div class="modal-dialog" role="document" style="max-width: 650px;">
     <div class="modal-content border-0 rounded-3 shadow-lg">
         <!-- HEADER dengan Status -->
         <div class="modal-header bg-white border-bottom-0 pt-3 pb-0 position-relative">
-            <span class="badge bg-success bg-opacity-25 text-warning position-absolute text-white" style="right: 30px; top: 15px; z-index: 50;">
+            <span class="badge bg-success bg-opacity-25 text-warning position-absolute text-white"
+                style="right: 30px; top: 15px; z-index: 50;">
                 Sedang Dibuka
             </span>
         </div>
@@ -13,9 +20,7 @@
             <div class="text-center mb-4 pt-1">
                 <div class="border rounded-3 d-inline-block p-3 mb-2" style="width: 120px; height: 120px;">
                     <img src="{{ $lowongan->logo ? asset('storage/logo_industri/' . $lowongan->logo) : asset('assets/default-industri.png') }}"
-                         alt="Logo Industri"
-                         class="img-fluid"
-                         style="width: 100%; height: 100%; object-fit: contain;">
+                        alt="Logo Industri" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
             </div>
 
@@ -92,9 +97,25 @@
         </div>
 
         <!-- FOOTER -->
-        <div class="modal-footer bg-white border-top-0 pt-0 px-4 pb-4">
-            <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
-            <a href="{{ url('pengajuan/' . $lowongan->lowongan_id . '/create') }}" class="btn btn-primary px-4">Lamar Sekarang</a>
+        <div
+            class="modal-footer bg-white border-top-0 pt-0 px-4 pb-4 d-flex justify-content-between align-items-center">
+            @if (!$profilLengkap)
+                <small class="text-danger">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Belum bisa mengajukan magang karena profil belum lengkap
+                </small>
+            @endif
+
+            <div class="ms-auto">
+                <button type="button" class="btn btn-secondary me-2"
+                    onclick="$('#myModal').modal('hide')">Tutup</button>
+
+                @if ($profilLengkap)
+                    <a href="{{ url('pengajuan/' . $lowongan->lowongan_id . '/create') }}"
+                        class="btn btn-primary px-4">Lamar Sekarang</a>
+                @endif
+            </div>
         </div>
+
     </div>
 </div>
