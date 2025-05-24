@@ -32,7 +32,9 @@
     <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0') }}" rel="stylesheet" />
     {{-- DataTables --}}
@@ -43,6 +45,19 @@
 
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
+
+    <style>
+        .primary {
+            background-color: #fafafa;
+        }
+        .bg-primary {
+            background-color: #fafafa;
+        }
+        .btn-primary {
+            background-color: #fafafa;
+            color: #0f0f0f;
+        }
+    </style>
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
     <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
@@ -52,7 +67,7 @@
 <body class="g-sidenav-show  bg-gray-100">
     <aside
         class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3 bg-white"
-        id="sidenav-main">
+        id="sidenav-main" style="overflow-y: hidden;">
         @include('layouts.sidebar')
     </aside>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -66,7 +81,7 @@
         <div class="container-fluid py-4">
             @yield('content')
         </div>
-        {{-- 
+        {{--
             <footer class="footer pt-3  ">
                 @include('layouts.footer')
             </footer> --}}
