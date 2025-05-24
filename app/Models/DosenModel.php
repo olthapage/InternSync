@@ -17,6 +17,7 @@ class DosenModel extends Authenticatable
         'email',
         'password',
         'foto',
+        'telepon',
         'nip',
         'level_id',
         'prodi_id'
