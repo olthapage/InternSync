@@ -4,37 +4,27 @@
         <div class="col-lg-6 col-12">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-12">
-                    <div class="card">
+                    <div class="card text-dark">
                         <span class="mask opacity-10 border-radius-lg"
-                            style="background: linear-gradient(135deg, #FFA500, #FFA500, #ffd966, #FFA500); opacity: 0.9;">
+                            style="background: white">
                         </span>
-
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
                                     <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
                                         style="height: 50px; width: 50px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
-                                            xml:space="preserve">
-                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
-                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
-                                                <path
-                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
-                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
-                                            </g>
-                                        </svg>
+                                        <i class="fa fa-user-check text-success" style="height: 30px; width: 30px;"></i>
                                     </div>
-                                    <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                    <h5 class=" font-weight-bolder mb-0 mt-3">
                                         {{ $mhsMagang }}
                                     </h5>
-                                    <span class="text-white text-sm">Mahasiswa Magang</span>
+                                    <span class=" text-sm">Mahasiswa Magang</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropdown text-end mb-6">
                                         <a href="javascript:;" class="cursor-pointer" id="dropdownUsers1"
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h text-white"></i>
+                                            <i class="fa fa-ellipsis-h "></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3" aria-labelledby="dropdownUsers1">
                                             <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a>
@@ -45,44 +35,34 @@
                                                     here</a></li>
                                         </ul>
                                     </div>
-                                    <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">+55%</p>
+                                    <p class=" text-sm text-end font-weight-bolder mt-auto mb-0">+55%</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-12 mt-4 mt-md-0">
-                    <div class="card">
+                    <div class="card text-dark">
                         <span class="mask opacity-10 border-radius-lg"
-                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                            style="background: white">
                         </span>
-
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
                                     <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
                                         style="height: 50px; width: 50px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
-                                            xml:space="preserve">
-                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
-                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
-                                                <path
-                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
-                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
-                                            </g>
-                                        </svg>
+                                        <i class="fa-solid fa-briefcase text-success" style="height: 30px; width: 30px;"></i>
                                     </div>
-                                    <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                    <h5 class="font-weight-bolder mb-0 mt-3">
                                         {{ $lowongan }}
                                     </h5>
-                                    <span class="text-white text-sm">Lowongan</span>
+                                    <span class="text-sm">Lowongan</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropstart text-end mb-6">
                                         <a href="javascript:;" class="cursor-pointer" id="dropdownUsers2"
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h text-white"></i>
+                                            <i class="fa fa-ellipsis-h"></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3" aria-labelledby="dropdownUsers2">
                                             <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a>
@@ -93,7 +73,7 @@
                                                     here</a></li>
                                         </ul>
                                     </div>
-                                    <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">+124%</p>
+                                    <p class="text-sm text-end font-weight-bolder mt-auto mb-0">+124%</p>
                                 </div>
                             </div>
                         </div>
@@ -102,36 +82,27 @@
             </div>
             <div class="row mt-4">
                 <div class="col-lg-6 col-md-6 col-12">
-                    <div class="card">
+                    <div class="card text-dark">
                         <span class="mask opacity-10 border-radius-lg"
-                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                            style="background: white">
                         </span>
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
                                     <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
                                         style="height: 50px; width: 50px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
-                                            xml:space="preserve">
-                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
-                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
-                                                <path
-                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
-                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
-                                            </g>
-                                        </svg>
+                                        <i class="fas fa-user text-info" style="height: 30px; width: 30px;"></i>
                                     </div>
-                                    <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                    <h5 class=" font-weight-bolder mb-0 mt-3">
                                         {{ $mhsCount }}
                                     </h5>
-                                    <span class="text-white text-sm">Mahasiswa Terdaftar</span>
+                                    <span class=" text-sm">Mahasiswa Terdaftar</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropdown text-end mb-6">
                                         <a href="javascript:;" class="cursor-pointer" id="dropdownUsers3"
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h text-white"></i>
+                                            <i class="fa fa-ellipsis-h "></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3" aria-labelledby="dropdownUsers3">
                                             <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a>
@@ -142,43 +113,34 @@
                                                     here</a></li>
                                         </ul>
                                     </div>
-                                    <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">+15%</p>
+                                    <p class=" text-sm text-end font-weight-bolder mt-auto mb-0">+15%</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-12 mt-4 mt-md-0">
-                    <div class="card">
+                    <div class="card text-dark">
                         <span class="mask opacity-10 border-radius-lg"
-                            style="background: linear-gradient(135deg, #000000, #181717, #373636, #000000); opacity: 0.9;">
+                            style="background: white">
                         </span>
                         <div class="card-body p-3 position-relative">
                             <div class="row">
                                 <div class="col-8 text-start">
                                     <div class="icon icon-shape text-center border-radius-2xl d-flex justify-content-center align-items-center"
                                         style="height: 50px; width: 50px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                            version="1.1" width="70%" height="70%" viewBox="0 0 256 256"
-                                            xml:space="preserve">
-                                            <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;"
-                                                transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
-                                                <path
-                                                    d="M 88 0 H 2 C 0.896 0 0 0.896 0 2 v 71 c 0 1.104 0.896 2 2 2 h 71 c 1.104 0 2 -0.896 2 -2 V 17 c 0 -1.104 -0.896 -2 -2 -2 H 17 c -1.104 0 -2 0.896 -2 2 v 41 c 0 1.104 0.896 2 2 2 h 41 c 1.104 0 2 -0.896 2 -2 V 32 c 0 -1.104 -0.896 -2 -2 -2 H 32 c -1.104 0 -2 0.896 -2 2 v 13 c 0 1.104 0.896 2 2 2 s 2 -0.896 2 -2 V 34 h 22 v 22 H 19 V 19 h 52 v 52 H 4 V 4 h 82 v 82 H 2 c -1.104 0 -2 0.896 -2 2 s 0.896 2 2 2 h 86 c 1.104 0 2 -0.896 2 -2 V 2 C 90 0.896 89.104 0 88 0 z"
-                                                    style="fill: rgb(255,255,255);" stroke-linecap="round" />
-                                            </g>
-                                        </svg>
+                                        <i class="fa-solid fa-building text-info" style="height: 30px; width: 30px;"></i>
                                     </div>
-                                    <h5 class="text-white font-weight-bolder mb-0 mt-3">
+                                    <h5 class=" font-weight-bolder mb-0 mt-3">
                                         {{ $industri }}
                                     </h5>
-                                    <span class="text-white text-sm">Industri Terdaftar</span>
+                                    <span class=" text-sm">Industri Terdaftar</span>
                                 </div>
                                 <div class="col-4">
                                     <div class="dropstart text-end mb-6">
                                         <a href="javascript:;" class="cursor-pointer" id="dropdownUsers4"
                                             data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fa fa-ellipsis-h text-white"></i>
+                                            <i class="fa fa-ellipsis-h "></i>
                                         </a>
                                         <ul class="dropdown-menu px-2 py-3" aria-labelledby="dropdownUsers4">
                                             <li><a class="dropdown-item border-radius-md" href="javascript:;">Action</a>
@@ -189,7 +151,7 @@
                                                     else here</a></li>
                                         </ul>
                                     </div>
-                                    <p class="text-white text-sm text-end font-weight-bolder mt-auto mb-0">+90%</p>
+                                    <p class=" text-sm text-end font-weight-bolder mt-auto mb-0">+90%</p>
                                 </div>
                             </div>
                         </div>
@@ -212,7 +174,7 @@
                                 </div>
                                 <div>
                                     <div class="progress progress-md">
-                                        <div class="progress-bar bg-primary w-80" role="progressbar" aria-valuenow="60"
+                                        <div class="progress-bar bg-success w-80" role="progressbar" aria-valuenow="60"
                                             aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
@@ -226,7 +188,7 @@
                                 </div>
                                 <div>
                                     <div class="progress progress-md">
-                                        <div class="progress-bar bg-primary w-10" role="progressbar" aria-valuenow="10"
+                                        <div class="progress-bar bg-info w-10" role="progressbar" aria-valuenow="10"
                                             aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
@@ -264,7 +226,7 @@
     </div>
     <div class="row my-4">
         <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
-            <div class="card">
+            <div class="card text-dark">
                 <div class="card-header pb-0">
                     <div class="row">
                         <div class="col-lg-6 col-7">
@@ -683,10 +645,10 @@
                     style="background-image: url('softTemplate/assets/img/ivancik.jpg');">
                     <span class="mask bg-gradient-dark"></span>
                     <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                        <h5 class="text-white font-weight-bolder mb-4 pt-2">Work with the rockets</h5>
-                        <p class="text-white">Wealth creation is an evolutionarily recent positive-sum game. It is all
+                        <h5 class=" font-weight-bolder mb-4 pt-2">Work with the rockets</h5>
+                        <p class="">Wealth creation is an evolutionarily recent positive-sum game. It is all
                             about who take the opportunity first.</p>
-                        <a class="text-white text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
+                        <a class=" text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
                             Read More
                             <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
                         </a>

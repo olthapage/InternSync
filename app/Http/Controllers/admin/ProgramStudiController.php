@@ -13,7 +13,7 @@ class ProgramStudiController extends Controller
     public function index()
     {
         $data = ProdiModel::all();
-        $activeMenu = 'Program Studi';
+        $activeMenu = 'prodi';
         return view('admin_page.program_studi.index', compact('data','activeMenu'));
     }
 

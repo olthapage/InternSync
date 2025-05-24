@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use App\Models\MahasiswaModel;
 use App\Models\DetailLowonganModel;
+use Illuminate\Support\Facades\Auth;
 
 class WelcomeController extends Controller
 {
@@ -36,6 +37,15 @@ class WelcomeController extends Controller
         $lowongan = DetailLowonganModel::count();
 
         $activeMenu = 'home';
-        return view('welcome', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+        if (Auth::guard('web')->check()) {
+            return view('admin_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+        }
+        if (Auth::guard('dosen')->check()) {
+            return view('dosen_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+        }
+        if (Auth::guard('mahasiswa')->check()) {
+            return view('mahasiswa_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+        }
+
     }
 }
