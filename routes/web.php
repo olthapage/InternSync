@@ -14,6 +14,7 @@
     use App\Http\Controllers\InternController;
     use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
     use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
+    use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
     use App\Http\Controllers\mahasiswa\VerifikasiController;
     use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\WelcomeController;
@@ -208,5 +209,9 @@
 
         Route::prefix('mahasiswa/verifikasi')->group(function () {
             Route::post('/store', [VerifikasiController::class, 'store'])->name('mahasiswa.verifikasi.store');
+        });
+
+        Route::prefix('mahasiswa/magang')->group(function() {
+            Route::get('/', [MahasiswaMagangController::class, 'index'])->name('mahasiswa.magang.index');
         });
 });
