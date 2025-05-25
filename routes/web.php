@@ -10,6 +10,7 @@
     use App\Http\Controllers\admin\MahasiswaController;
     use App\Http\Controllers\admin\PengajuanController;
     use App\Http\Controllers\admin\ProgramStudiController;
+    use App\Http\Controllers\dosen\MahasiswaBimbinganController;
     use App\Http\Controllers\AuthController;
     use App\Http\Controllers\InternController;
     use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
@@ -183,6 +184,13 @@
         Route::prefix('magang')->group(function () {
             Route::get('/', [MagangController::class, 'index'])->name('magang.index');
             Route::post('/list', [MagangController::class, 'list'])->name('magang.list');
+        });
+
+        // Halaman Dosen
+        Route::prefix('dosen')->group(function () {
+        Route::get('/mahasiswa-bimbingan', [MahasiswaBimbinganController::class, 'index'])->name('mahasiswa-bimbingan.index');
+        Route::get('/mahasiswa-bimbingan/list', [MahasiswaBimbinganController::class, 'list'])->name('mahasiswa-bimbingan.list');
+        Route::get('/mahasiswa-bimbingan/{id}/show', [MahasiswaBimbinganController::class, 'show']);
         });
 
         // Halaman Mahasiswa
