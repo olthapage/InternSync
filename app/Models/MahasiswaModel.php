@@ -54,6 +54,10 @@ class MahasiswaModel extends Authenticatable
     {
         return $this->belongsTo(ProdiModel::class, 'prodi_id', 'prodi_id');
     }
+    public function magang()
+    {
+        return $this->hasOne(MagangModel::class, 'mahasiswa_id');
+    }
     public function dosen()
     {
         return $this->belongsTo(DosenModel::class, 'dosen_id', 'dosen_id');
