@@ -50,6 +50,10 @@ return [
             'driver' => 'session',
             'provider' => 'dosens',
         ],
+        'industri' => [
+            'driver' => 'session',
+            'provider' => 'industris',
+        ],
     ],
 
     /*
@@ -81,6 +85,10 @@ return [
         'dosens' => [
             'driver' => 'eloquent',
             'model' => App\Models\DosenModel::class,
+        ],
+        'industris' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\IndustriModel::class,
         ],
     ],
 

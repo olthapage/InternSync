@@ -40,7 +40,10 @@
                 <button type="submit" class="btn btn-dark rounded-pill" id="btnLogin">Sign In</button>
             </div>
         </div>
-        <a href="{{ route('signup') }}" class="text-center mt-3 d-block text-decoration-none hover-blue">Belum punya akun?</a>
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ route('signup') }}" class="text-decoration-none hover-blue">Belum punya akun?</a>
+            <a href="{{ url('/company') }}" class="text-decoration-none hover-blue">Company</a>
+        </div>
     </section>
 @endsection
 

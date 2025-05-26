@@ -7,8 +7,9 @@ use App\Models\KategoriIndustriModel;
 use App\Models\LowonganDetailModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class IndustriModel extends Model
+class IndustriModel extends Authenticatable
 {
     use HasFactory;
     protected $table = 'm_industri';
@@ -16,6 +17,10 @@ class IndustriModel extends Model
     public $timestamps = false;
 
     protected $fillable = ['industri_nama', 'kota_id', 'kategori_industri_id', 'email', 'telepon', 'password', 'logo'];
+
+    protected $hidden = ['password'];
+
+    protected $casts = ['password' => 'hashed'];
 
     function kategori_industri()
     {

@@ -23,6 +23,11 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="d-flex justify-content-end">
+                    <button onclick="modalAction('{{ route('mahasiswa.create') }}')" class="btn btn-sm btn-primary">
+                        Cari Magang
+                    </button>
+                </div>
             </div>
 
             <div class="table-responsive">

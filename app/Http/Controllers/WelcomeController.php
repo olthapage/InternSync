@@ -46,6 +46,9 @@ class WelcomeController extends Controller
         if (Auth::guard('mahasiswa')->check()) {
             return view('mahasiswa_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
         }
+        if (Auth::guard('industri')->check()) {
+            return view('industri_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+        }
 
     }
 }
