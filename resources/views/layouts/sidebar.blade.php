@@ -17,14 +17,15 @@
                 <span class="nav-link-text ms-1">Dashboard</span>
             </a>
         </li>
-        <li class="nav-item">
-    <a class="nav-link {{ $activeMenu == 'mahasiswa-bimbingan' ? 'active text-success' : '' }}" href="{{ route('mahasiswa-bimbingan.index') }}">
-        <i class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
-        <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
-    </a>
-</li>
-
-
+        {{-- Menu khusus Dosen taruh sini --}}
+        @auth('dosen')
+            <li class="nav-item">
+                <a class="nav-link {{ $activeMenu == 'mahasiswa-bimbingan' ? 'active text-success' : '' }}" href="{{ route('mahasiswa-bimbingan.index') }}">
+                    <i class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
+                </a>
+            </li>
+        @endauth
         {{-- Menu khusus mahasiswa taruh sini --}}
         @auth('mahasiswa')
             <li class="nav-item">

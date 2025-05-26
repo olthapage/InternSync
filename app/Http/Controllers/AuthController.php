@@ -21,12 +21,45 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
+    public function loginCompany()
+    {
+        if (Auth::check()) {
+            return redirect('/');
+        }
+
+        return view('auth.login_company');
+    }
+
     public function postlogin(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'role' => 'required|in:web,mahasiswa,dosen'
+            'role' => 'required|in:web,mahasiswa,dosen,industri'
+        ]);
+
+        $credentials = $request->only('email', 'password');
+        $guard = $request->role;
+
+        if (Auth::guard($guard)->attempt($credentials)) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Login berhasil',
+                'redirect' => url('/dashboard')
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Email atau password salah.'
+        ]);
+    }
+    public function companylogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'role' => 'required|in:industri'
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -48,7 +81,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        foreach (['mahasiswa', 'web', 'dosen'] as $guard) {
+        foreach (['mahasiswa', 'web', 'dosen', 'industri'] as $guard) {
             if (Auth::guard($guard)->check()) {
                 Auth::guard($guard)->logout();
             }
