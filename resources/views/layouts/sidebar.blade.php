@@ -47,6 +47,22 @@
                 </a>
             </li>
         @endauth
+        @auth('industri')
+            <li class="nav-item">
+                <a class="nav-link {{ $activeMenu == 'lowongan' ? 'active text-success' : '' }}"
+                    href="{{ route('industri.lowongan.index') }} ">
+                    <i
+                        class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'lowongan' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Lowongan Magang</span>
+                </a>
+                <a class="nav-link {{ $activeMenu == 'manajemen' ? 'active text-success' : '' }}"
+                    href="{{ route('industri.lowongan.index') }} ">
+                    <i
+                        class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'manajemen' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Manajemen Magang</span>
+                </a>
+            </li>
+        @endauth
 
         {{-- Menu khusus admin taruh sini --}}
         @auth('web')
@@ -260,6 +276,29 @@
     </div>
 @endauth
 @auth('mahasiswa')
+    <div class="sidenav-footer mx-3">
+        <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
+            <div class="full-background"
+                style="background-image: url('{{ asset('softTemplate/assets/img/curved-images/white-curved.jpg') }}')">
+            </div>
+            <div class="card-body text-start p-3 w-100">
+                <div
+                    class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
+                    <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
+                        id="sidenavCardIcon"></i>
+                </div>
+                <div class="docs-info">
+                    <h6 class="text-white up mb-0">Butuh bantuan?</h6>
+                    <p class="text-xs font-weight-bold">Hubungi Admin</p>
+                    <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
+                        class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
+                </div>
+            </div>
+        </div>
+        <a class="btn btn-danger mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+    </div>
+@endauth
+@auth('industri')
     <div class="sidenav-footer mx-3">
         <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
             <div class="full-background"

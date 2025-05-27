@@ -1,12 +1,11 @@
 <?php
-
 namespace Database\Seeders;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,26 +16,26 @@ class DatabaseSeeder extends Seeder
         // tabel_prodi (Target: 10 data)
         $prodiData = [
             [
-                'prodi_id'=> 1,
-                'kode_prodi'=> 'TI',
-                'nama_prodi'=> 'Teknik Informatika'
+                'prodi_id'   => 1,
+                'kode_prodi' => 'TI',
+                'nama_prodi' => 'Teknik Informatika',
             ],
             [
-                'prodi_id'=> 2,
-                'kode_prodi'=> 'SI',
-                'nama_prodi'=> 'Sistem Informasi'
+                'prodi_id'   => 2,
+                'kode_prodi' => 'SI',
+                'nama_prodi' => 'Sistem Informasi',
             ],
             [
-                'prodi_id'=> 3,
-                'kode_prodi'=> 'MI',
-                'nama_prodi'=> 'Manajemen Informatika'
+                'prodi_id'   => 3,
+                'kode_prodi' => 'MI',
+                'nama_prodi' => 'Manajemen Informatika',
             ],
         ];
         for ($i = 4; $i <= 10; $i++) {
             $prodiData[] = [
-                'prodi_id' => $i,
-                'kode_prodi' => 'P'.strtoupper(Str::random(2)).$i,
-                'nama_prodi' => 'Prodi Contoh '.$i
+                'prodi_id'   => $i,
+                'kode_prodi' => 'P' . strtoupper(Str::random(2)) . $i,
+                'nama_prodi' => 'Prodi Contoh ' . $i,
             ];
         }
         DB::table('tabel_prodi')->insert($prodiData);
@@ -50,7 +49,7 @@ class DatabaseSeeder extends Seeder
         ];
         $additionalLevels = ['STF', 'GAA', 'SPV', 'HRD', 'FIN', 'CSO', 'OPR'];
         foreach ($additionalLevels as $kode) {
-            $levelUserData[] = ['level_kode' => $kode, 'level_nama' => 'Level '. $kode, 'created_at' => $now];
+            $levelUserData[] = ['level_kode' => $kode, 'level_nama' => 'Level ' . $kode, 'created_at' => $now];
         }
         DB::table('m_level_user')->insert($levelUserData);
         // Level User IDs akan menjadi 1 s/d 10 secara auto-increment
@@ -61,35 +60,35 @@ class DatabaseSeeder extends Seeder
         $dosenData = [
             [
                 'nama_lengkap' => 'Dr. Budi Santoso',
-                'email' => 'budi@example.com',
-                'password' => Hash::make('password123'),
-                'nip' => '19800101123456',
-                'level_id' => 3, // DSN
-                'prodi_id' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
+                'email'        => 'budi@example.com',
+                'password'     => Hash::make('password123'),
+                'nip'          => '19800101123456',
+                'level_id'     => 3, // DSN
+                'prodi_id'     => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
             ],
             [
                 'nama_lengkap' => 'Dr. Siti Aminah',
-                'email' => 'siti@example.com',
-                'password' => Hash::make('password123'),
-                'nip' => '19750506123456',
-                'level_id' => 3, // DSN
-                'prodi_id' => 2,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
+                'email'        => 'siti@example.com',
+                'password'     => Hash::make('password123'),
+                'nip'          => '19750506123456',
+                'level_id'     => 3, // DSN
+                'prodi_id'     => 2,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
         ];
         for ($i = 3; $i <= 10; $i++) {
             $dosenData[] = [
                 'nama_lengkap' => 'Dr. Dosen ' . Str::ucfirst(Str::random(5)),
-                'email' => 'dosen'.$i.'@example.com',
-                'password' => Hash::make('password123'),
-                'nip' => '19'.rand(70,90).'0'.rand(1,12).'0'.rand(1,28).rand(100000,999999),
-                'level_id' => 3, // DSN
-                'prodi_id' => rand(1, 10),
-                'created_at' => $now,
-                'updated_at' => $now,
+                'email'        => 'dosen' . $i . '@example.com',
+                'password'     => Hash::make('password123'),
+                'nip'          => '19' . rand(70, 90) . '0' . rand(1, 12) . '0' . rand(1, 28) . rand(100000, 999999),
+                'level_id'     => 3, // DSN
+                'prodi_id'     => rand(1, 10),
+                'created_at'   => $now,
+                'updated_at'   => $now,
             ];
         }
         DB::table('m_dosen')->insert($dosenData);
@@ -102,44 +101,44 @@ class DatabaseSeeder extends Seeder
         $mahasiswaData = [
             [
                 'nama_lengkap' => 'Andi Nugroho',
-                'email' => 'andi@example.com',
-                'password' => Hash::make('mahasiswa123'),
-                'nim' => '22410001',
-                'ipk' => 3.45,
-                'status' => 1,
-                'level_id' => 2, // MHS
-                'prodi_id' => 1,
-                'dosen_id' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
+                'email'        => 'andi@example.com',
+                'password'     => Hash::make('mahasiswa123'),
+                'nim'          => '22410001',
+                'ipk'          => 3.45,
+                'status'       => 1,
+                'level_id'     => 2, // MHS
+                'prodi_id'     => 1,
+                'dosen_id'     => 1,
+                'created_at'   => $now,
+                'updated_at'   => $now,
             ],
             [
                 'nama_lengkap' => 'Rina Lestari',
-                'email' => 'rina@example.com',
-                'password' => Hash::make('mahasiswa123'),
-                'nim' => '22410002',
-                'ipk' => 3.80,
-                'status' => 0,
-                'level_id' => 2, // MHS
-                'prodi_id' => 2,
-                'dosen_id' => 2,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
+                'email'        => 'rina@example.com',
+                'password'     => Hash::make('mahasiswa123'),
+                'nim'          => '22410002',
+                'ipk'          => 3.80,
+                'status'       => 0,
+                'level_id'     => 2, // MHS
+                'prodi_id'     => 2,
+                'dosen_id'     => 2,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
         ];
         for ($i = 3; $i <= 10; $i++) {
             $mahasiswaData[] = [
                 'nama_lengkap' => 'Mahasiswa ' . Str::ucfirst(Str::random(7)),
-                'email' => 'mahasiswa'.$i.'@example.com',
-                'password' => Hash::make('mahasiswa123'),
-                'nim' => '224100' . str_pad($i, 2, '0', STR_PAD_LEFT),
-                'ipk' => round(rand(275, 400) / 100, 2),
-                'status' => rand(0, 1),
-                'level_id' => 2, // MHS
-                'prodi_id' => rand(1, 10),
-                'dosen_id' => rand(1, 10),
-                'created_at' => $now,
-                'updated_at' => $now,
+                'email'        => 'mahasiswa' . $i . '@example.com',
+                'password'     => Hash::make('mahasiswa123'),
+                'nim'          => '224100' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'ipk'          => round(rand(275, 400) / 100, 2),
+                'status'       => rand(0, 1),
+                'level_id'     => 2, // MHS
+                'prodi_id'     => rand(1, 10),
+                'dosen_id'     => rand(1, 10),
+                'created_at'   => $now,
+                'updated_at'   => $now,
             ];
         }
         DB::table('m_mahasiswa')->insert($mahasiswaData);
@@ -164,7 +163,7 @@ class DatabaseSeeder extends Seeder
             ['kota_kode' => 'SMG', 'kota_nama' => 'Semarang', 'provinsi_id' => 2, 'created_at' => $now],
         ];
         for ($i = 3; $i <= 10; $i++) {
-            $kotaData[] = ['kota_kode' => 'KOTA'.strtoupper(Str::random(3)), 'kota_nama' => 'Kota Contoh '.$i, 'provinsi_id' => rand(1, 10), 'created_at' => $now];
+            $kotaData[] = ['kota_kode' => 'KOTA' . strtoupper(Str::random(3)), 'kota_nama' => 'Kota Contoh ' . $i, 'provinsi_id' => rand(1, 10), 'created_at' => $now];
         }
         DB::table('m_kota')->insert($kotaData);
         // Kota IDs akan menjadi 1 s/d 10 secara auto-increment
@@ -175,31 +174,31 @@ class DatabaseSeeder extends Seeder
         $userData = [
             [
                 'nama_lengkap' => 'Admin Satu',
-                'email' => 'admin@example.com',
-                'password' => Hash::make('password'),
-                'level_id' => 1, // ADM
-                'prodi_id'=> null,
-                'created_at' => $now
+                'email'        => 'admin@example.com',
+                'password'     => Hash::make('password'),
+                'level_id'     => 1, // ADM
+                'prodi_id'     => null,
+                'created_at'   => $now,
             ],
             [
                 'nama_lengkap' => 'Mahasiswa Satu',
-                'email' => 'mhs@example.com',
-                'password' => Hash::make('password'),
-                'level_id' => 2, // MHS
-                'prodi_id'=> 1,
-                'created_at' => $now
+                'email'        => 'mhs@example.com',
+                'password'     => Hash::make('password'),
+                'level_id'     => 2, // MHS
+                'prodi_id'     => 1,
+                'created_at'   => $now,
             ],
         ];
         for ($i = 3; $i <= 10; $i++) {
-            $levelId = rand(1, 10); // Bisa level apa saja dari m_level_user
-            $prodiId = ($levelId == 2 || $levelId == 3) ? rand(1, 10) : null; // Prodi hanya jika mahasiswa atau dosen
+            $levelId    = rand(1, 10);                                           // Bisa level apa saja dari m_level_user
+            $prodiId    = ($levelId == 2 || $levelId == 3) ? rand(1, 10) : null; // Prodi hanya jika mahasiswa atau dosen
             $userData[] = [
                 'nama_lengkap' => 'User ' . Str::ucfirst(Str::random(6)),
-                'email' => 'user'.$i.'@example.com',
-                'password' => Hash::make('password'),
-                'level_id' => $levelId,
-                'prodi_id'=> $prodiId,
-                'created_at' => $now
+                'email'        => 'user' . $i . '@example.com',
+                'password'     => Hash::make('password'),
+                'level_id'     => $levelId,
+                'prodi_id'     => $prodiId,
+                'created_at'   => $now,
             ];
         }
         DB::table('m_user')->insert($userData);
@@ -210,7 +209,7 @@ class DatabaseSeeder extends Seeder
             ['kategori_skill_kode' => 'SKL1', 'kategori_nama' => 'Programming', 'created_at' => $now],
         ];
         for ($i = 2; $i <= 10; $i++) {
-            $kategoriSkillData[] = ['kategori_skill_kode' => 'SKL'.$i, 'kategori_nama' => 'Kategori Skill '.$i, 'created_at' => $now];
+            $kategoriSkillData[] = ['kategori_skill_kode' => 'SKL' . $i, 'kategori_nama' => 'Kategori Skill ' . $i, 'created_at' => $now];
         }
         DB::table('m_kategori_skill')->insert($kategoriSkillData);
         // Kategori Skill IDs akan menjadi 1 s/d 10 secara auto-increment
@@ -220,7 +219,7 @@ class DatabaseSeeder extends Seeder
             ['kategori_industri_kode' => 'IND1', 'kategori_nama' => 'Teknologi Informasi', 'created_at' => $now],
         ];
         for ($i = 2; $i <= 10; $i++) {
-            $kategoriIndustriData[] = ['kategori_industri_kode' => 'IND'.$i, 'kategori_nama' => 'Kategori Industri '.$i, 'created_at' => $now];
+            $kategoriIndustriData[] = ['kategori_industri_kode' => 'IND' . $i, 'kategori_nama' => 'Kategori Industri ' . $i, 'created_at' => $now];
         }
         DB::table('m_kategori_industri')->insert($kategoriIndustriData);
         // Kategori Industri IDs akan menjadi 1 s/d 10 secara auto-increment
@@ -231,7 +230,7 @@ class DatabaseSeeder extends Seeder
             ['skill_nama' => 'Laravel', 'kategori_skill_id' => 1, 'created_at' => $now],
         ];
         for ($i = 2; $i <= 10; $i++) {
-            $detailSkillData[] = ['skill_nama' => 'Skill Contoh '.$i, 'kategori_skill_id' => rand(1, 10), 'created_at' => $now];
+            $detailSkillData[] = ['skill_nama' => 'Skill Contoh ' . $i, 'kategori_skill_id' => rand(1, 10), 'created_at' => $now];
         }
         DB::table('m_detail_skill')->insert($detailSkillData);
         // Detail Skill IDs (m_detail_skill_id) akan menjadi 1 s/d 10 secara auto-increment
@@ -246,11 +245,11 @@ class DatabaseSeeder extends Seeder
         for ($i = 0; $i < 9; $i++) { // Need 9 more
             do {
                 $mahasiswaId = rand(1, 10);
-                $kotaId = rand(1, 10);
-                $combo = $mahasiswaId . '-' . $kotaId;
+                $kotaId      = rand(1, 10);
+                $combo       = $mahasiswaId . '-' . $kotaId;
             } while (isset($usedUserLokasi[$combo]));
             $userPreferensiLokasiData[] = ['mahasiswa_id' => $mahasiswaId, 'kota_id' => $kotaId, 'prioritas' => rand(1, 3), 'created_at' => $now];
-            $usedUserLokasi[$combo] = true;
+            $usedUserLokasi[$combo]     = true;
         }
         DB::table('user_preferensi_lokasi')->insert($userPreferensiLokasiData);
 
@@ -264,10 +263,10 @@ class DatabaseSeeder extends Seeder
         for ($i = 0; $i < 9; $i++) { // Need 9 more
             do {
                 $mahasiswaId = rand(1, 10);
-                $skillId = rand(1, 10); // Merujuk ke m_detail_skill_id
-                $combo = $mahasiswaId . '-' . $skillId;
+                $skillId     = rand(1, 10); // Merujuk ke m_detail_skill_id
+                $combo       = $mahasiswaId . '-' . $skillId;
             } while (isset($usedUserSkill[$combo]));
-            $userSkillData[] = ['mahasiswa_id' => $mahasiswaId, 'skill_id' => $skillId, 'created_at' => $now];
+            $userSkillData[]       = ['mahasiswa_id' => $mahasiswaId, 'skill_id' => $skillId, 'created_at' => $now];
             $usedUserSkill[$combo] = true;
         }
         DB::table('mahasiswa_skill')->insert($userSkillData);
@@ -276,46 +275,52 @@ class DatabaseSeeder extends Seeder
         // Asumsi kota_id merujuk pada m_kota (ID 1-10)
         // Asumsi kategori_industri_id merujuk pada m_kategori_industri (ID 1-10)
         $industriData = [
-            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now],
-            ['industri_nama' => 'PT DES Teknologi Informasi', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
-            ['industri_nama' => 'PT Mitra Infosarana', 'kota_id' => 2, 'kategori_industri_id' => 1, 'created_at' => $now],
-            ['industri_nama' => 'PT Datamax Teknologi Indonesia', 'kota_id' => 1, 'kategori_industri_id' => 1, 'created_at' => $now],
+            ['industri_nama' => 'PT Teknologi Cerdas', 'kota_id' => 1, 'kategori_industri_id' => 1, 'email' => 'industri1@example.com', 'telepon' => '081234560001', 'password' => Hash::make('12345678'), 'created_at' => $now],
+            ['industri_nama' => 'PT DES Teknologi Informasi', 'kota_id' => 2, 'kategori_industri_id' => 1, 'email' => 'industri2@example.com', 'telepon' => '081234560002', 'password' => Hash::make('12345678'), 'created_at' => $now],
+            ['industri_nama' => 'PT Mitra Infosarana', 'kota_id' => 2, 'kategori_industri_id' => 1, 'email' => 'industri3@example.com', 'telepon' => '081234560003', 'password' => Hash::make('12345678'), 'created_at' => $now],
+            ['industri_nama' => 'PT Datamax Teknologi Indonesia', 'kota_id' => 1, 'kategori_industri_id' => 1, 'email' => 'industri4@example.com', 'telepon' => '081234560004', 'password' => Hash::make('12345678'), 'created_at' => $now],
         ];
-        for ($i = 2; $i <= 10; $i++) {
+
+        for ($i = 5; $i <= 14; $i++) {
             $industriData[] = [
-                'industri_nama' => 'PT Industri Maju '.$i,
-                'kota_id' => rand(1, 10),
+                'industri_nama'        => 'PT Industri Maju ' . $i,
+                'kota_id'              => rand(1, 10),
                 'kategori_industri_id' => rand(1, 10),
-                'created_at' => $now // Added created_at
+                'email'                => 'industri' . $i . '@example.com',
+                'telepon'              => '08123456' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'password'             => Hash::make('password' . $i),
+                'created_at'           => $now,
             ];
         }
+
         DB::table('m_industri')->insert($industriData);
+
         // Industri IDs akan menjadi 1 s/d 10 secara auto-increment
 
         // m_detail_lowongan (Target: 10 data)
         // Asumsi industri_id merujuk pada m_industri (ID 1-10)
         $detailLowonganData = [
             [
-                'judul_lowongan' => 'Magang Web Developer',
-                'deskripsi' => 'Mengembangkan aplikasi Laravel.',
-                'industri_id' => 1,
-                'tanggal_mulai' => '2025-08-01',
-                'tanggal_selesai' => '2025-12-31',
+                'judul_lowongan'    => 'Magang Web Developer',
+                'deskripsi'         => 'Mengembangkan aplikasi Laravel.',
+                'industri_id'       => 1,
+                'tanggal_mulai'     => '2025-08-01',
+                'tanggal_selesai'   => '2025-12-31',
                 'kategori_skill_id' => 1,
-                'slot' => 3,
-                'created_at' => $now
+                'slot'              => 3,
+                'created_at'        => $now,
             ],
         ];
         for ($i = 2; $i <= 10; $i++) {
             $detailLowonganData[] = [
-                'judul_lowongan' => 'Lowongan Contoh '.$i,
-                'deskripsi' => 'Deskripsi untuk lowongan contoh '.$i.'. Mencari kandidat berbakat.',
-                'industri_id' => rand(1, 10),
-                'tanggal_mulai' => '2025-08-01',
-                'tanggal_selesai' => '2025-12-31',
+                'judul_lowongan'    => 'Lowongan Contoh ' . $i,
+                'deskripsi'         => 'Deskripsi untuk lowongan contoh ' . $i . '. Mencari kandidat berbakat.',
+                'industri_id'       => rand(1, 10),
+                'tanggal_mulai'     => '2025-08-01',
+                'tanggal_selesai'   => '2025-12-31',
                 'kategori_skill_id' => rand(1, 10),
-                'slot' => rand(5, 10),
-                'created_at' => $now
+                'slot'              => rand(5, 10),
+                'created_at'        => $now,
             ];
         }
         DB::table('m_detail_lowongan')->insert($detailLowonganData);
@@ -329,69 +334,69 @@ class DatabaseSeeder extends Seeder
         ];
         $usedLowonganSkill = ['1-1' => true];
         for ($i = 0; $i < 9; $i++) { // Need 9 more
-             do {
+            do {
                 $lowonganId = rand(1, 10); // Merujuk ke m_detail_lowongan_id
-                $skillId = rand(1, 10);    // Merujuk ke m_detail_skill_id
-                $combo = $lowonganId . '-' . $skillId;
+                $skillId    = rand(1, 10); // Merujuk ke m_detail_skill_id
+                $combo      = $lowonganId . '-' . $skillId;
             } while (isset($usedLowonganSkill[$combo]));
-            $lowonganSkillData[] = ['lowongan_id' => $lowonganId, 'skill_id' => $skillId, 'created_at' => $now];
+            $lowonganSkillData[]       = ['lowongan_id' => $lowonganId, 'skill_id' => $skillId, 'created_at' => $now];
             $usedLowonganSkill[$combo] = true;
         }
         DB::table('lowongan_skill')->insert($lowonganSkillData);
         DB::table('mahasiswa_magang')->insert([
             [
                 'mahasiswa_id' => 1,
-                'lowongan_id' => 1,
-                'status' => 'sedang',
-                'evaluasi' => '"InternSync sangat membantu saya menemukan magang yang sesuai dengan minat saya di bidang AI. Rekomendasinya akurat dan prosesnya cepat!"',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'lowongan_id'  => 1,
+                'status'       => 'sedang',
+                'evaluasi'     => '"InternSync sangat membantu saya menemukan magang yang sesuai dengan minat saya di bidang AI. Rekomendasinya akurat dan prosesnya cepat!"',
+                'created_at'   => Carbon::now(),
+                'updated_at'   => Carbon::now(),
             ],
             [
                 'mahasiswa_id' => 2,
-                'lowongan_id' => 2,
-                'status' => 'belum',
-                'evaluasi' => '"Saya sangat puas dengan pengalaman magang saya di InternSync. Prosesnya mudah dan banyak pilihan lowongan yang relevan."',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'lowongan_id'  => 2,
+                'status'       => 'belum',
+                'evaluasi'     => '"Saya sangat puas dengan pengalaman magang saya di InternSync. Prosesnya mudah dan banyak pilihan lowongan yang relevan."',
+                'created_at'   => Carbon::now(),
+                'updated_at'   => Carbon::now(),
             ],
             [
                 'mahasiswa_id' => 3,
-                'lowongan_id' => 2,
-                'status' => 'belum',
-                'evaluasi' => '"InternSync adalah platform yang sangat membantu dalam mencari magang. Saya menemukan banyak lowongan yang sesuai dengan minat saya."',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'lowongan_id'  => 2,
+                'status'       => 'belum',
+                'evaluasi'     => '"InternSync adalah platform yang sangat membantu dalam mencari magang. Saya menemukan banyak lowongan yang sesuai dengan minat saya."',
+                'created_at'   => Carbon::now(),
+                'updated_at'   => Carbon::now(),
             ],
         ]);
 
         DB::table('t_pengajuan')->insert([
             [
-                'mahasiswa_id' => 1,
-                'lowongan_id' => 1,
-                'tanggal_mulai' => '2025-07-01',
+                'mahasiswa_id'    => 1,
+                'lowongan_id'     => 1,
+                'tanggal_mulai'   => '2025-07-01',
                 'tanggal_selesai' => '2025-09-30',
-                'status' => 'belum',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'status'          => 'belum',
+                'created_at'      => Carbon::now(),
+                'updated_at'      => Carbon::now(),
             ],
             [
-                'mahasiswa_id' => 2,
-                'lowongan_id' => 2,
-                'tanggal_mulai' => '2025-08-01',
+                'mahasiswa_id'    => 2,
+                'lowongan_id'     => 2,
+                'tanggal_mulai'   => '2025-08-01',
                 'tanggal_selesai' => '2025-10-31',
-                'status' => 'belum',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'status'          => 'belum',
+                'created_at'      => Carbon::now(),
+                'updated_at'      => Carbon::now(),
             ],
             [
-                'mahasiswa_id' => 3,
-                'lowongan_id' => 1,
-                'tanggal_mulai' => '2025-06-15',
+                'mahasiswa_id'    => 3,
+                'lowongan_id'     => 1,
+                'tanggal_mulai'   => '2025-06-15',
                 'tanggal_selesai' => '2025-09-15',
-                'status' => 'belum',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'status'          => 'belum',
+                'created_at'      => Carbon::now(),
+                'updated_at'      => Carbon::now(),
             ],
         ]);
 //         DB::table('kriteria_magang')->insert([

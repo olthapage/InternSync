@@ -20,7 +20,7 @@
 
 
             @unless ($profilLengkap)
-                <div class="border p-3 mb-3 rounded-xl text-danger">
+                <div class="p-3 mb-3 rounded-xl text-danger shadow-sm">
                     <strong>Profil belum lengkap atau invalid!</strong> Silakan lengkapi data verifikasi seperti KTP, KHS, Surat
                     Izin Orang
                     Tua, dan CV sebelum mengajukan magang.
@@ -34,7 +34,7 @@
                     <div class="row mt-4 mb-4">
                         @foreach ($pengajuan as $item)
                             <div class="col-xl-3 col-md-6 mb-4 d-flex">
-                                <div class="card card-blog card-plain border pengajuan-card rounded-xl py-3 w-100">
+                                <div class="card card-blog card-plain shadow pengajuan-card rounded-xl py-3 w-100">
                                     <div class="position-relative">
                                         <div class="image-container py-3 pt-6">
                                             {{-- Gambar industri --}}

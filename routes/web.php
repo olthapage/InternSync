@@ -16,6 +16,7 @@
     use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
     use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
     use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
+    use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
     use App\Http\Controllers\mahasiswa\VerifikasiController;
     use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\WelcomeController;
@@ -223,5 +224,12 @@
 
         Route::prefix('mahasiswa/magang')->group(function() {
             Route::get('/', [MahasiswaMagangController::class, 'index'])->name('mahasiswa.magang.index');
+        });
+        // Industri
+        Route::prefix('industri/lowongan')->group(function() {
+            Route::get('/', [IndustriLowonganController::class, 'index'])->name('industri.lowongan.index');
+            Route::get('/{id}/show', [IndustriLowonganController::class, 'show'])->name('industri.lowongan.show');
+            Route::get('/create', [IndustriLowonganController::class, 'create'])->name('industri.lowongan.create');
+            Route::post('/', [IndustriLowonganController::class, 'store'])->name('industri.lowongan.store');
         });
 });

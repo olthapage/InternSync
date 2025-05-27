@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('slot')->nullable();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
+            $table->date('pendaftaran_tanggal_mulai')->nullable();
+            $table->date('pendaftaran_tanggal_selesai')->nullable();
 
             $table->timestamp('created_at')->nullable();
 
