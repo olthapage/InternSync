@@ -42,7 +42,7 @@
                         <div class="col-xl-3 col-md-6 mb-4 lowongan-card" data-industri="{{ $lowongan->industri_id }}"
                             data-kategori="{{ $lowongan->kategori_skill_id }}" data-index="{{ $index }}"
                             style="{{ $index >= 5 ? 'display: none;' : '' }}">
-                            <div class="card card-blog card-plain border rounded-xl py-3">
+                            <div class="card card-blog card-plain shadow rounded-xl py-3">
                                 <div class="position-relative">
                                     <div class="image-container">
                                         <img src="{{ $lowongan->industri->logo ? asset('storage/logo_industri/' . $lowongan->industri->logo) : asset('assets/default-industri.png') }}"
