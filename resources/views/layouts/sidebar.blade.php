@@ -56,7 +56,7 @@
                     <span class="nav-link-text ms-1">Lowongan Magang</span>
                 </a>
                 <a class="nav-link {{ $activeMenu == 'manajemen' ? 'active text-success' : '' }}"
-                    href="{{ route('industri.lowongan.index') }} ">
+                    href="{{ route('industri.magang.index') }} ">
                     <i
                         class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'manajemen' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Manajemen Magang</span>

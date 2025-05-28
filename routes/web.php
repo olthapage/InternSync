@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\industri\ManajemenMagangController;
+
     use App\Http\Controllers\admin\AdminController;
     use App\Http\Controllers\admin\DaftarSkillController;
     use App\Http\Controllers\admin\DosenController;
@@ -231,5 +233,9 @@
             Route::get('/{id}/show', [IndustriLowonganController::class, 'show'])->name('industri.lowongan.show');
             Route::get('/create', [IndustriLowonganController::class, 'create'])->name('industri.lowongan.create');
             Route::post('/', [IndustriLowonganController::class, 'store'])->name('industri.lowongan.store');
+        });
+        Route::prefix('industri/manajemen')->group(function() {
+            Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');
+            Route::post('/list', [ManajemenMagangController::class, 'list'])->name('industri.magang.list');
         });
 });
