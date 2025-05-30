@@ -400,6 +400,39 @@ class DatabaseSeeder extends Seeder
                 'updated_at'      => Carbon::now(),
             ],
         ]);
+DB::table('m_logharian')->insert([
+    [
+        'mahasiswa_magang_id' => 1,
+        'tanggal' => '2025-05-29',
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ],
+]);
+
+$logHarian1Id = DB::table('m_logharian')
+    ->where('mahasiswa_magang_id', 1)
+    ->where('tanggal', '2025-05-29')
+    ->value('logHarian_id');
+
+DB::table('m_logharian_detail')->insert([
+    [
+        'logHarian_id' => $logHarian1Id,
+        'isi' => 'Belajar penggunaan Laravel Seeder dan membuat data dummy untuk log harian.',
+        'tanggal_kegiatan' => '2025-05-29',
+        'lokasi' => 'Kantor Magang',
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ],
+    [
+        'logHarian_id' => $logHarian1Id,
+        'isi' => 'Membuat dokumentasi kegiatan magang dan laporan harian.',
+        'tanggal_kegiatan' => '2025-05-29',
+        'lokasi' => 'Kantor Magang',
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ],
+]);
+
 //         DB::table('kriteria_magang')->insert([
 //     [
 //         'lowongan_id' => 1,
