@@ -5,7 +5,9 @@
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Kategori Industri</h2>
             <div class="d-flex justify-content-end mb-3">
-                <a href="{{ route('kategori-industri.create') }}" class="btn btn-primary">+ Tambah Kategori</a>
+                <button type="button" onclick="modalAction('{{ route('kategori-industri.create') }}')" class="btn btn-primary">
+                    + Tambah Kategori
+                </button>
             </div>
             <div class="table-responsive text-sm">
                 <table class="table table-bordered table-striped table-hover align-middle" id="table_kategori_industri">

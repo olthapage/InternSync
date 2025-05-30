@@ -12,5 +12,5 @@ class KategoriIndustriModel extends Model
     protected $primaryKey = 'kategori_industri_id';
     public $timestamps = false;
 
-    protected $fillable = ['kategori_nama'];
+    protected $fillable = ['kategori_nama', 'kategori_industri_kode'];
 }

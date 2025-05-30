@@ -38,22 +38,43 @@ class KategoriIndustriController extends Controller
     public function create()
     {
         $activeMenu = 'kategori-industri';
-        return view('admin_page.kategori_industri.create', compact('activeMenu'));
-    }
 
+        $lastKode = KategoriIndustriModel::latest('kategori_industri_kode')->first()?->kategori_industri_kode ?? 'KI000';
+
+        $nextNumber = (int) substr($lastKode, 2) + 1;
+        $kodeKategori = 'KI' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        return view('admin_page.kategori_industri.create', compact('activeMenu', 'kodeKategori'));
+    }
     public function store(Request $request)
     {
         $request->validate([
-            'kategori_nama' => 'required|unique:m_kategori_industri,kategori_nama'
+            'kategori_industri_kode' => 'required|unique:m_kategori_industri,kategori_industri_kode',
+            'kategori_nama' => 'required|string|max:255'
         ]);
 
-        KategoriIndustriModel::create([
-            'kategori_nama' => $request->kategori_nama
-        ]);
+        $last = KategoriIndustriModel::orderBy('kategori_industri_id', 'desc')->first();
+        $lastNumber = $last ? intval(substr($last->kategori_industri_kode, 3)) : 0;
+        $newKode = 'KAT' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
 
-        return redirect()->route('kategori-industri.index')->with('success', 'Kategori industri berhasil ditambahkan');
+        try {
+            KategoriIndustriModel::create([
+                'kategori_industri_kode' => $newKode,
+                'kategori_nama' => $request->kategori_nama
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Kategori industri berhasil ditambahkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'msgField' => []
+            ]);
+        }
     }
-
     public function show($id)
     {
         $kategori = KategoriIndustriModel::findOrFail($id);

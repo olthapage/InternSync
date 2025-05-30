@@ -46,7 +46,7 @@ class AdminController extends Controller
     {
         $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('admin.create', compact('level'));
+            return view('admin_page.admin.create', compact('level'));
         }
         $activeMenu = 'admin';
         return view('admin_page.admin.create', compact('level', 'activeMenu'));
@@ -93,7 +93,7 @@ class AdminController extends Controller
         ]);
 
             if ($request->ajax()) {
-                return view('admin.show', compact('admin'));
+                return view('admin_page.admin.show', compact('admin'));
             }
             return redirect()->route('admin.index');
         }
