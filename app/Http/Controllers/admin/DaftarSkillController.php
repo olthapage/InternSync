@@ -82,10 +82,10 @@ class DaftarSkillController extends Controller
         $activeMenu = 'skill';
 
         if ($request->ajax()) {
-            return view('skill.show', compact('detail'));
+            return view('admin_page.skill.show', compact('detail'));
         }
 
-        return view('skill.show', compact('detail', 'activeMenu'));
+        return view('admin_page.skill.show', compact('detail', 'activeMenu'));
     }
 
     public function edit(Request $request, $id)
