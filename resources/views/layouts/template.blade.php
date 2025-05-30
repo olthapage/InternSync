@@ -369,9 +369,9 @@
         });
     </script>
     <!-- jQuery -->
-    <script src="{{ asset('softTemplate/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
     <!-- Bootstrap Bundle -->
-    <script src="{{ asset('softTemplate/plugins/boostrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <!-- jQuery Validate -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <!-- SweetAlert2 -->
