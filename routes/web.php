@@ -22,6 +22,7 @@ use App\Http\Controllers\industri\ManajemenMagangController;
     use App\Http\Controllers\mahasiswa\VerifikasiController;
     use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\WelcomeController;
+    use App\Http\Controllers\LogHarianController;
     use Illuminate\Support\Facades\Route;
 
     /*
@@ -60,6 +61,18 @@ use App\Http\Controllers\industri\ManajemenMagangController;
             Route::post('academic-form', [InternController::class, 'storeAcademicProfile'])->name('storeAcademicProfile');
             Route::get('preferences', [InternController::class, 'showPreferences'])->name('preferences');
             Route::post('preferences', [InternController::class, 'updatePreferences'])->name('updatePreferences');
+        });
+
+        Route::prefix('log-harian')->middleware('auth')->group(function() {
+            Route::get('/', [LogHarianController::class, 'index'])->name('logHarian.index');
+            Route::post('/list', [LogHarianController::class, 'list'])->name('logHarian.list');
+            Route::get('/create', [LogHarianController::class, 'create'])->name('logHarian.create');
+            Route::post('/', [LogHarianController::class, 'store'])->name('logHarian.store');
+            Route::get('/{id}/edit', [LogHarianController::class, 'edit'])->name('logHarian.edit');
+            Route::put('/{id}', [LogHarianController::class, 'update'])->name('logHarian.update');
+            Route::delete('/{id}/delete', [LogHarianController::class, 'delete_ajax'])->name('logHarian.delete');
+            Route::get('/{id}/show', [LogHarianController::class, 'show'])->name('logHarian.show');
+            Route::get('/export_pdf', [LogHarianController::class, 'export_pdf'])->name('logHarian.export_pdf');
         });
 
         /*      --Route admin disini--      */

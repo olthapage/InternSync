@@ -45,6 +45,11 @@
                     <i class="fa-solid fa-chart-simple me-2 {{ $activeMenu == 'magang' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Magang Saya</span>
                 </a>
+                <a class="nav-link {{ ($activeMenu ?? '') == 'logharian' ? 'active text-success' : '' }}"
+                    href="{{ route('logHarian.index') }}">
+                    <i class="fa-solid fa-book me-2 {{ ($activeMenu ?? '') == 'logharian' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Log Harian</span>
+                </a>
             </li>
         @endauth
         @auth('industri')

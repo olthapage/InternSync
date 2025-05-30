@@ -240,6 +240,7 @@ class DatabaseSeeder extends Seeder
         // Asumsi kota_id merujuk pada m_kota (ID 1-10)
         $userPreferensiLokasiData = [
             ['mahasiswa_id' => 2, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => $now], // Mahasiswa Rina Lestari, Kota Malang
+            ['mahasiswa_id' => 1, 'kota_id' => 1, 'prioritas' => 1, 'created_at' => $now], // Mahasiswa Andi, Kota Malang
         ];
         $usedUserLokasi = ['2-1' => true];
         for ($i = 0; $i < 9; $i++) { // Need 9 more
