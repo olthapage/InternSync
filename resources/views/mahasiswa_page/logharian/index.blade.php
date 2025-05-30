@@ -10,8 +10,12 @@
                     <input type="date" id="tanggal" class="form-control" placeholder="Filter tanggal...">
                 </div>
                 <div class="col-md-9 d-flex justify-content-end">
-                    <button onclick="modalAction('{{ route('logHarian.create') }}')" class="btn btn-sm btn-primary">Tambah Log Harian</button>
-                    <a href="{{ route('logHarian.export_pdf') }}" class="btn btn-secondary"><i class="fa fa-filepdf"></i> Export Log Book (pdf)</a>
+                    <button onclick="modalAction('{{ route('logHarian.create') }}')" class="btn btn-sm btn-primary me-2">
+                        Tambah Log Harian
+                    </button>
+                    <a href="{{ route('logHarian.export_pdf') }}" class="btn btn-sm btn-secondary">
+                        <i class="fa fa-file-pdf"></i> Export Log Book (pdf)
+                    </a>
                 </div>
             </div>
             <div class="table-responsive">
@@ -57,28 +61,27 @@
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
-    url: '/log-harian/' + id,
-    type: 'DELETE',
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    },
-    success: function (response) {
-        $('#table_logharian').DataTable().ajax.reload();
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: response.success
-        });
-    },
-    error: function (xhr) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal!',
-            text: 'Terjadi kesalahan saat menghapus log.'
-        });
-    }
-});
-
+                url: '/log-harian/' + id + '/delete',
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    $('#table_logharian').DataTable().ajax.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: response.message || 'Log berhasil dihapus.'
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan saat menghapus log.'
+                    });
+                }
+            });
         }
     });
 }

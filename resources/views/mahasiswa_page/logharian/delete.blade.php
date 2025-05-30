@@ -1,4 +1,4 @@
-@empty($log)
+@if(empty($log))
 <div id="modal-master" class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
     <div class="modal-header">
@@ -51,39 +51,38 @@
 </form>
 
 <script>
-$(document).ready(function () {
-  $('#form-delete-logharian').on('submit', function (e) {
+$('#form-delete-logharian').on('submit', function (e) {
     e.preventDefault();
+
     $.ajax({
-      url: this.action,
-      type: $(this).find('input[name="_method"]').val() || 'POST',
-      data: $(this).serialize(),
-      success: function (res) {
-        if (res.status) {
-          $('#myModal').modal('hide');
-          Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: res.message,
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer)
-              toast.addEventListener('mouseleave', Swal.resumeTimer)
+        url: this.action,
+        type: 'POST',
+        data: $(this).serialize(),
+        headers: {
+            'X-HTTP-Method-Override': 'DELETE'
+        },
+        success: function (res) {
+            if (res.status) {
+                $('#myModal').modal('hide');
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: res.message,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                $('#table_logharian').DataTable().ajax.reload();
+            } else {
+                Swal.fire('Gagal', res.message, 'error');
             }
-          });
-          $('#table_logharian').DataTable().ajax.reload();
-        } else {
-          Swal.fire('Gagal', res.message, 'error');
+        },
+        error: function () {
+            Swal.fire('Error', 'Terjadi kesalahan server.', 'error');
         }
-      },
-      error: function () {
-        Swal.fire('Error', 'Terjadi kesalahan server.', 'error');
-      }
     });
-  });
 });
+
 </script>
-@endempty
+@endif
