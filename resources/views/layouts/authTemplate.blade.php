@@ -95,6 +95,26 @@
             color: #0d6efd !important;
         }
 
+         .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
         @yield('custom-styles')
     </style>
 </head>
@@ -105,7 +125,14 @@
             <!-- Left Side: Image -->
             <div class="col-md-6 d-none d-md-block p-0">
                 <div class="img-overlay-container">
-                    <img src="@yield('background-image', asset('assets/auth.jpg'))" alt="@yield('image-alt', 'Authentication')">
+                    <div class="slideshow-container">
+                        <img class="slide fade" src="{{ asset('images/slide1.jpg') }}" alt="Slide 1">
+                        <img class="slide fade" src="{{ asset('images/slide2.jpg') }}" alt="Slide 2">
+                        <img class="slide fade" src="{{ asset('images/slide3.JPG') }}" alt="Slide 3">
+                        <img class="slide fade" src="{{ asset('images/slide4.jpg') }}" alt="Slide 4">
+                        <img class="slide fade" src="{{ asset('images/slide5.JPG') }}" alt="Slide 5">
+                        <img class="slide fade" src="{{ asset('images/slide6.jpg') }}" alt="Slide 6">
+                    </div>
                     <div class="overlay-text">
                         <div class="big-text libre">@yield('overlay-title', 'Welcome')</div>
                         <div class="small-text">@yield('overlay-description', 'Please authenticate to access the system.')</div>
@@ -152,6 +179,28 @@
             }
         });
     </script>
+
+    <script>
+    let slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active');
+            if (i === index) {
+                slide.classList.add('active');
+            }
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    showSlide(currentSlide);
+    setInterval(nextSlide, 6000); 
+    </script>
 
     @yield('scripts')
 </body>
