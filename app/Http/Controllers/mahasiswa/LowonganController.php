@@ -23,6 +23,7 @@ class LowonganController extends Controller
         ));
     }
 
+    
     public function list(Request $request)
     {
         $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill'])
