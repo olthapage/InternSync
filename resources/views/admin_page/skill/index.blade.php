@@ -6,14 +6,14 @@
     <div class="d-flex justify-content-end mb-3">
         <button onclick="modalAction('{{ url('skill/create') }}')" class="btn btn-sm btn-primary">+ Tambah Skill</button>
     </div>
-    <div class="table-responsive text-sm">
-        <table class="table table-bordered table-striped table-hover align-middle" id="table_skill">
-            <thead class="table-dark text-center">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-center" id="table_skill">
+            <thead>
                 <tr>
-                    <th >No</th>
+                    <th class="text-start">No</th>
                     <th >Nama Skill</th>
                     <th >Kategori</th>
-                    <th >Aksi</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
             </thead>
         </table>

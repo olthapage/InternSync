@@ -32,13 +32,13 @@
                 </div>
             </div>
 
-            <table class="table table-bordered table-striped table-hover table-sm" id="table_lowongan">
-                <thead class="table-dark text-center">
+            <table class="table table-hover align-middle mb-0 text-center" id="table_lowongan">
+                <thead>
                     <tr>
-                        <th>No</th>
+                        <th class="text-start">No</th>
                         <th>Lowongan</th>
                         <th>Industri</th>
-                        <th>Aksi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
             </table>
