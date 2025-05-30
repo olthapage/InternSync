@@ -40,6 +40,11 @@
                     <i class="fa-solid fa-scroll me-2 {{ $activeMenu == 'pengajuan' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Pengajuan Magang</span>
                 </a>
+                <a class="nav-link {{ ($activeMenu ?? 'portofolio') == 'portofolio' ? 'active text-success' : '' }}"
+                    href="{{ route('mahasiswa.portofolio.index') }}">
+                    <i class="fa-solid fa-address-card me-2 {{ ($activeMenu ?? '') == 'portofolio' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Portofolio Saya</span>
+                </a>
                 <a class="nav-link {{ $activeMenu == 'magang' ? 'active text-success' : '' }}"
                     href="{{ route('mahasiswa.magang.index') }} ">
                     <i class="fa-solid fa-chart-simple me-2 {{ $activeMenu == 'magang' ? 'text-success' : 'text-dark' }}"></i>

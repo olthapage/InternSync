@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('lowongan_id');
             $table->unsignedBigInteger('skill_id');
             $table->integer('bobot')->default(0);
+            $table->enum('level_kompetensi', ['Beginner', 'Intermediate', 'Expert'])->default('Beginner');
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('lowongan_id')->references('lowongan_id')->on('m_detail_lowongan')->onDelete('cascade');
