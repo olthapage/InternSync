@@ -7,8 +7,8 @@
             <p class="mb-4">Melihat daftar mahasiswa yang dibimbing beserta detail magang mereka.</p>
 
             <div class="table-responsive">
-                <table class="table table-hover align-items-center mb-0 text-center" id="table_mahasiswa_bimbingan">
-                    <thead class="table-dark text-center">
+                <table class="table table-hover align-middle mb-0 text-center" id="table_mahasiswa_bimbingan">
+                    <thead>
                         <tr>
                             <th class="text-start">No</th>
                             <th>Nama</th>
