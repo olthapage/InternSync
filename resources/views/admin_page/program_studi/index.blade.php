@@ -10,14 +10,14 @@
                 <button onclick="modalAction('{{ url('program-studi/create') }}')" class="btn btn-sm btn-primary">+ Tambah
                     Program Studi</button>
             </div>
-            <div class="table-responsive text-sm">
-                <table class="table table-bordered table-striped table-hover table-sm" id="tabel_prodi">
-                    <thead class="table-dark text-center">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="tabel_prodi" style="width:100%">
+                    <thead>
                         <tr>
-                            <th>No</th>
+                            <th class="text-start">No</th>
                             <th>Nama Program Studi</th>
                             <th>Kode</th>
-                            <th>Aksi</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                 </table>

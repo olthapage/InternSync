@@ -9,14 +9,14 @@
                     + Tambah Admin
                 </button>
             </div>
-            <div class="table-responsive text-sm">
-                <table class="table table-bordered table-striped table-hover align-middle" id="table_admin">
-                    <thead class="table-dark text-center">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="table_admin">
+                    <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Nama Lengkap</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Aksi</th>
+                            <th class="text-start">No</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                 </table>

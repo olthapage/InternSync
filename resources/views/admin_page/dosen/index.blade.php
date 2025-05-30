@@ -8,23 +8,22 @@
                 <button onclick="modalAction('{{ route('dosen.create') }}')" class="btn btn-sm btn-primary">+ Tambah
                     Dosen</button>
             </div>
-            <div class="table-responsive text-sm">
-                <table class="table table-bordered table-striped table-hover align-middle" id="table_dosen">
-                    <thead class="table-dark text-center">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="table_dosen">
+                    <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Nama Lengkap</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">NIP</th>
-                            <th scope="col">Program Studi</th>
-                            <th scope="col">Aksi</th>
+                            <th class="text-start">No</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th>NIP</th>
+                            <th>Program Studi</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                 </table>
             </div>
         </div>
     </div>
-
     <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
         data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection

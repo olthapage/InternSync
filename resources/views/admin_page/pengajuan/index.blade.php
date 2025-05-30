@@ -4,17 +4,17 @@
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Pengajuan Magang</h2>
-            <div class="table-responsive text-sm">
-                <table class="table table-bordered table-striped table-hover align-middle" id="table_pengajuan">
-                    <thead class="table-dark text-center">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="table_pengajuan">
+                    <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Nama Mahasiswa</th>
-                            <th scope="col">Judul Lowongan</th>
-                            <th scope="col">Tanggal Mulai</th>
-                            <th scope="col">Tanggal Selesai</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Aksi</th>
+                            <th class="text-start">No</th>
+                            <th>Nama Mahasiswa</th>
+                            <th>Judul Lowongan</th>
+                            <th>Tanggal Mulai</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Status</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                 </table>

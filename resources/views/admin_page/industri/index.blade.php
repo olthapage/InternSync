@@ -8,15 +8,15 @@
                 <button onclick="modalAction('{{ route('industri.create') }}')" class="btn btn-sm btn-primary">+ Tambah
                     Industri</button>
             </div>
-            <div class="table-responsive text-sm">
-                <table class="table table-bordered table-striped table-hover align-middle" id="table_industri">
-                    <thead class="table-dark text-center">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center" id="table_industri">
+                    <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Nama Industri</th>
-                            <th scope="col">Kota</th>
-                            <th scope="col">Kategori Industri</th>
-                            <th scope="col">Aksi</th>
+                            <th class="text-start">No</th>
+                            <th>Nama Industri</th>
+                            <th>Kota</th>
+                            <th>Kategori Industri</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                 </table>
