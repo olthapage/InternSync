@@ -61,6 +61,7 @@ use App\Http\Controllers\industri\ManajemenMagangController;
             Route::post('academic-form', [InternController::class, 'storeAcademicProfile'])->name('storeAcademicProfile');
             Route::get('preferences', [InternController::class, 'showPreferences'])->name('preferences');
             Route::post('preferences', [InternController::class, 'updatePreferences'])->name('updatePreferences');
+            Route::get('/ajax/kota', [InternController::class, 'getKotaByProvinsi']);
         });
 
         Route::prefix('log-harian')->middleware('auth')->group(function() {

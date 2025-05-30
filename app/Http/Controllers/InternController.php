@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ProdiModel;
 use App\Models\DosenModel;
+use App\Models\KotaModel;
+use App\Models\ProvinsiModel;
 
 class InternController extends Controller
 {
@@ -74,6 +76,7 @@ class InternController extends Controller
     {
         $data = [
             'user'       => Auth::user(),
+            'province'       => ProvinsiModel::all(),
             'activeMenu' => 'preferences',
         ];
 
@@ -83,6 +86,21 @@ class InternController extends Controller
         }
 
         return view('intern.preferences', $data);
+    }
+
+    public function getKotaByProvinsi(Request $request)
+    {
+        $provinsiId = $request->provinsi_id;
+
+        if (!$provinsiId) {
+            return response()->json([], 400);
+        }
+
+        $kotas = KotaModel::where('provinsi_id', $provinsiId)
+                    ->orderBy('kota_nama')
+                    ->get(['kota_id', 'kota_nama']);
+
+        return response()->json($kotas);
     }
 
     /**
