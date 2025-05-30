@@ -14,7 +14,7 @@ class LowonganSkillModel extends Model
     protected $primaryKey = 'lowongan_skill_id';
     public $timestamps = false;
 
-    protected $fillable = ['lowongan_id', 'skill_id', 'bobot'];
+    protected $fillable = ['lowongan_id', 'skill_id', 'level_kompetensi', 'bobot'];
     public function lowongan()
     {
         return $this->belongsTo(DetailLowonganModel::class, 'lowongan_id', 'lowongan_id');

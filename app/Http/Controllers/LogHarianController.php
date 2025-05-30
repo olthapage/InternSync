@@ -105,7 +105,7 @@ class LogHarianController extends Controller
             'aktivitas' => 'required|array|min:1',
             'aktivitas.*.deskripsi' => 'required|string',
             'aktivitas.*.lokasi' => 'required|string',
-            'aktivitas.*.tanggal' => 'required|date',  
+            'aktivitas.*.tanggal' => 'required|date',
         ]);
 
         // Simpan log harian header (tanggal umum)
@@ -120,7 +120,7 @@ class LogHarianController extends Controller
                 'logHarian_id' => $log->logHarian_id,
                 'isi' => $aktivitas['deskripsi'],
                 'lokasi' => $aktivitas['lokasi'],
-                'tanggal_kegiatan' => $aktivitas['tanggal'],         
+                'tanggal_kegiatan' => $aktivitas['tanggal'],
                 'status_approval_dosen' => 'pending',
                 'status_approval_industri' => 'pending',
                 'catatan_dosen' => null,
@@ -175,7 +175,7 @@ class LogHarianController extends Controller
                 'logHarian_id' => $log->logHarian_id,
                 'isi' => $aktivitas['deskripsi'],
                 'lokasi' => $aktivitas['lokasi'],
-                'status_approval_dosen' => 'pending', 
+                'status_approval_dosen' => 'pending',
                 'status_approval_industri' => 'pending',
                 'catatan_dosen' => null,
                 'catatan_industri' => null,

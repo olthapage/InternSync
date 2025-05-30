@@ -73,26 +73,38 @@ class LowonganController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'judul_lowongan'              => 'required|string|max:255',
-            'kategori_skill_id'           => 'required|exists:m_kategori_skill,kategori_skill_id', // Pastikan nama tabel dan kolom sesuai
-            'slot'                        => 'required|integer|min:1',
-            'deskripsi'                   => 'required|string',
-            'tanggal_mulai'               => 'required|date',
-            'tanggal_selesai'             => 'required|date|after_or_equal:tanggal_mulai',
-            'pendaftaran_tanggal_mulai'   => 'required|date',
+            'judul_lowongan'            => 'required|string|max:255',
+            'kategori_skill_id'         => 'required|exists:m_kategori_skill,kategori_skill_id',
+            'slot'                      => 'required|integer|min:1',
+            'deskripsi'                 => 'required|string',
+            'tanggal_mulai'             => 'required|date',
+            'tanggal_selesai'           => 'required|date|after_or_equal:tanggal_mulai',
+            'pendaftaran_tanggal_mulai' => 'required|date',
             'pendaftaran_tanggal_selesai' => 'required|date|after_or_equal:pendaftaran_tanggal_mulai',
-            'skills'                      => 'sometimes|array',                  // 'skills' adalah array dari skill_id
-            'skills.*'                    => 'required|exists:m_detail_skill,skill_id', // Asumsi tabel skill adalah m_skill dan primary key skill_id
-            'bobot'                       => 'sometimes|array',
-            'bobot.*'                     => 'required|numeric|min:1|max:100', // Asumsi bobot antara 1-100
+
+            // Validasi untuk alamat (jika Anda sudah menambahkannya di form)
+            // 'provinsi_id' => 'required|exists:provinsis,id', // Sesuaikan nama tabel dan kolom
+            // 'kota_id' => 'required|exists:kotas,id', // Sesuaikan
+            // 'alamat_lengkap' => 'required|string|max:500',
+
+            'skills'                    => 'sometimes|array',
+            'skills.*'                  => 'required_with:skills|exists:m_detail_skill,skill_id',
+            'levels'                    => 'sometimes|array',
+            'levels.*'                  => 'required_with:skills|string|in:Beginner,Intermediate,Expert', // Validasi untuk level
+
+            // Validasi untuk bobot kriteria lainnya (IPK & Lokasi)
+            'bobot_akademik'            => 'required|numeric|min:1|max:100',
+            'bobot_lokasi'              => 'required|numeric|min:1|max:100',
+
         ], [
             'kategori_skill_id.required' => 'Kategori lowongan wajib dipilih.',
             'kategori_skill_id.exists'   => 'Kategori lowongan tidak valid.',
             'skills.*.exists'            => 'Salah satu skill yang dipilih tidak valid.',
-            'bobot.*.required'           => 'Bobot untuk setiap skill wajib diisi.',
-            'bobot.*.numeric'            => 'Bobot harus berupa angka.',
-            'bobot.*.min'                => 'Bobot minimal adalah 1.',
-            'bobot.*.max'                => 'Bobot maksimal adalah 100.',
+            'levels.*.required_with'     => 'Level kompetensi untuk setiap skill wajib dipilih.',
+            'levels.*.in'                => 'Level kompetensi tidak valid.',
+            'bobot_akademik.required'    => 'Bobot nilai akademik wajib diisi.',
+            'bobot_lokasi.required'      => 'Bobot lokasi wajib diisi.',
+            // Tambahkan pesan validasi untuk alamat jika perlu
         ]);
 
         if ($validator->fails()) {
@@ -101,45 +113,104 @@ class LowonganController extends Controller
                 ->withInput();
         }
 
-        // Pastikan jumlah skills dan bobot cocok jika ada
-        if ($request->has('skills') && $request->has('bobot')) {
-            if (count($request->input('skills')) !== count($request->input('bobot'))) {
+        // Pastikan jumlah skills dan levels cocok jika ada
+        if ($request->has('skills') && $request->has('levels')) {
+            if (count($request->input('skills')) !== count($request->input('levels'))) {
                 return redirect()->back()
-                    ->withErrors(['skills' => 'Jumlah skill dan bobot tidak cocok.'])
+                    ->withErrors(['skills' => 'Jumlah skill dan level kompetensi tidak cocok.'])
                     ->withInput();
             }
         }
 
         DB::beginTransaction();
         try {
-                                      // Ambil industri_id dari user yang sedang login
-                                      // Sesuaikan dengan implementasi Auth Anda
-            $industriId = Auth::id(); // Jika primary key user adalah industri_id
-                                      // atau $industriId = Auth::user()->industri_id; // Jika user memiliki relasi atau properti industri_id
+            // Dapatkan industri_id dari user yang terautentikasi
+            // Penting: Sesuaikan logika ini dengan bagaimana Anda mengelola autentikasi industri
+            $loggedInUser = Auth::user();
+            $industriId = null;
 
-            if (! $industriId) {
-                throw new \Exception("Tidak dapat menemukan ID Industri yang terautentikasi.");
+            if ($loggedInUser instanceof IndustriModel) {
+                $industriId = $loggedInUser->industri_id; // Atau $loggedInUser->getKey() jika PKnya adalah industri_id
+            } elseif (method_exists($loggedInUser, 'industri')) { // Jika ada relasi 'industri' di model User standar
+                $industriRelasi = $loggedInUser->industri; // Misal relasi HasOne atau BelongsTo ke IndustriModel
+                if ($industriRelasi) {
+                    $industriId = $industriRelasi->industri_id; // Atau $industriRelasi->getKey()
+                }
+            } else if (isset($loggedInUser->industri_id)) { // Jika ada properti industri_id langsung
+                $industriId = $loggedInUser->industri_id;
             }
 
-            $lowongan = DetailLowonganModel::create([
-                'judul_lowongan'              => $request->judul_lowongan,
-                'kategori_skill_id'           => $request->kategori_skill_id,
-                'slot'                        => $request->slot,
-                'deskripsi'                   => $request->deskripsi,
-                'tanggal_mulai'               => $request->tanggal_mulai,
-                'tanggal_selesai'             => $request->tanggal_selesai,
-                'pendaftaran_tanggal_mulai'   => $request->pendaftaran_tanggal_mulai,
+
+            if (!$industriId) {
+                throw new \Exception("Tidak dapat menemukan ID Industri yang terautentikasi atau user bukan merupakan industri.");
+            }
+
+            $lowonganData = [
+                'judul_lowongan'            => $request->judul_lowongan,
+                'kategori_skill_id'         => $request->kategori_skill_id,
+                'slot'                      => $request->slot,
+                'deskripsi'                 => $request->deskripsi,
+                'tanggal_mulai'             => $request->tanggal_mulai,
+                'tanggal_selesai'           => $request->tanggal_selesai,
+                'pendaftaran_tanggal_mulai' => $request->pendaftaran_tanggal_mulai,
                 'pendaftaran_tanggal_selesai' => $request->pendaftaran_tanggal_selesai,
-                'industri_id'                 => $industriId,
-            ]);
+                'industri_id'               => $industriId,
+                // Tambahkan field alamat jika sudah ada di DetailLowonganModel dan form
+                // 'provinsi_id' => $request->provinsi_id,
+                // 'kota_id' => $request->kota_id,
+                // 'alamat_lengkap' => $request->alamat_lengkap,
+
+                // Simpan bobot kriteria lainnya jika ada di DetailLowonganModel
+                // atau tabel terpisah (KriteriaMagangModel yang Anda sebutkan sebelumnya)
+                // Contoh jika disimpan di DetailLowonganModel (pastikan ada kolomnya):
+                // 'bobot_akademik' => $request->bobot_akademik,
+                // 'bobot_lokasi' => $request->bobot_lokasi,
+            ];
+
+            // Cek apakah model DetailLowonganModel memiliki fillable untuk bobot_akademik dan bobot_lokasi
+            // Jika tidak, Anda perlu menyimpannya ke tabel KriteriaMagangModel
+            // Untuk saat ini, kita asumsikan belum disimpan langsung di DetailLowonganModel
+
+            $lowongan = DetailLowonganModel::create($lowonganData);
+
+            // Simpan bobot ke tabel kriteria_magang jika KriteriaMagangModel ada
+            // Asumsi KriteriaMagangModel memiliki lowongan_id, nama_kriteria, bobot
+            if (class_exists(\App\Models\KriteriaMagangModel::class)) {
+                 \App\Models\KriteriaMagangModel::updateOrCreate(
+                    ['lowongan_id' => $lowongan->lowongan_id, 'nama_kriteria' => 'Akademik (IPK)'],
+                    ['bobot' => $request->bobot_akademik]
+                );
+                \App\Models\KriteriaMagangModel::updateOrCreate(
+                    ['lowongan_id' => $lowongan->lowongan_id, 'nama_kriteria' => 'Lokasi'],
+                    ['bobot' => $request->bobot_lokasi]
+                );
+            }
+
 
             if ($request->has('skills')) {
                 foreach ($request->input('skills') as $index => $skillId) {
-                    if (! empty($skillId) && isset($request->input('bobot')[$index])) {
+                    $levelKompetensi = $request->input('levels')[$index] ?? 'Beginner'; // default jika tidak ada
+                    $bobotNumerik = 0;
+
+                    // Konversi level ke bobot numerik (sesuaikan nilai bobot ini)
+                    switch ($levelKompetensi) {
+                        case 'Beginner':
+                            $bobotNumerik = 30; // Contoh bobot
+                            break;
+                        case 'Intermediate':
+                            $bobotNumerik = 60; // Contoh bobot
+                            break;
+                        case 'Expert':
+                            $bobotNumerik = 90; // Contoh bobot
+                            break;
+                    }
+
+                    if (!empty($skillId)) {
                         LowonganSkillModel::create([
-                            'lowongan_id' => $lowongan->lowongan_id,
-                            'skill_id'    => $skillId,
-                            'bobot'       => $request->input('bobot')[$index],
+                            'lowongan_id'       => $lowongan->lowongan_id,
+                            'skill_id'          => $skillId,
+                            'level_kompetensi'  => $levelKompetensi,
+                            'bobot'             => $bobotNumerik,
                         ]);
                     }
                 }
@@ -150,7 +221,7 @@ class LowonganController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log error $e->getMessage()
+            // Log error: Log::error('Error saat simpan lowongan: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menambahkan lowongan: ' . $e->getMessage())->withInput();
         }
     }

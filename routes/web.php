@@ -20,6 +20,7 @@ use App\Http\Controllers\industri\ManajemenMagangController;
     use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
     use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
     use App\Http\Controllers\mahasiswa\VerifikasiController;
+    use App\Http\Controllers\mahasiswa\PortofolioController as MahasiswaPortofolioController;
     use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\WelcomeController;
     use App\Http\Controllers\LogHarianController;
@@ -241,6 +242,16 @@ use App\Http\Controllers\industri\ManajemenMagangController;
         Route::prefix('mahasiswa/magang')->group(function() {
             Route::get('/', [MahasiswaMagangController::class, 'index'])->name('mahasiswa.magang.index');
         });
+
+        Route::prefix('mahasiswa/portofolio')->group(function() {
+            Route::get('/', [MahasiswaPortofolioController::class, 'index'])->name('mahasiswa.portofolio.index');
+             Route::post('/skill', [MahasiswaPortofolioController::class, 'storeSkill'])->name('mahasiswa.portofolio.skill.store');
+            Route::delete('/skill/{mahasiswaSkill}', [MahasiswaPortofolioController::class, 'destroySkill'])->name('mahasiswa.portofolio.skill.destroy');
+            Route::post('/item', [MahasiswaPortofolioController::class, 'storePortfolio'])->name('mahasiswa.portofolio.item.store');
+            Route::delete('/item/{portfolio}', [MahasiswaPortofolioController::class, 'destroyPortfolio'])->name('mahasiswa.portofolio.item.destroy');
+    // Route::put('/item/{portfolio}', [MahasiswaPortfolioController::class, 'updatePortfolio'])->name('item.update'); // Untuk Edit
+        });
+
         // Industri
         Route::prefix('industri/lowongan')->group(function() {
             Route::get('/', [IndustriLowonganController::class, 'index'])->name('industri.lowongan.index');

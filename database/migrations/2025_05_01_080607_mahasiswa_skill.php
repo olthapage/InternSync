@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id('mahasiswa_skill_id');
             $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('skill_id');
-            $table->integer('bobot')->default(0);
+            $table->enum('level_kompetensi', ['Beginner', 'Intermediate', 'Expert'])->default('Beginner');
+            $table->enum('status_verifikasi', ['Pending', 'Valid', 'Invalid'])->default('Pending');
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');
