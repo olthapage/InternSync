@@ -58,13 +58,12 @@ class LogHarianController extends Controller
             })
             ->addColumn('aksi', function ($row) {
                 $editUrl = route('logHarian.edit', ['id' => $row->logHarian_id]);
-                $deleteUrl = route('logHarian.delete', ['id' => $row->logHarian_id]);
                 $detailUrl = route('logHarian.show', ['id' => $row->logHarian_id]);
 
                 return '
-                <button class="btn btn-sm btn-info" onclick="modalAction(\'' . $detailUrl . '\')">Detail</button>
-                <button class="btn btn-sm btn-warning" onclick="modalAction(\'' . $editUrl . '\')">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="modalAction(\'' . $deleteUrl . '\')">Hapus</button>';
+                    <button class="btn btn-sm btn-info" onclick="modalAction(\'' . $detailUrl . '\')">Detail</button>
+                    <button class="btn btn-sm btn-warning" onclick="modalAction(\'' . $editUrl . '\')">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteLog(' . $row->logHarian_id . ')">Hapus</button>';
             })
             ->editColumn('tanggal', function ($row) {
                 return date('d-m-Y', strtotime($row->tanggal));
@@ -159,6 +158,7 @@ class LogHarianController extends Controller
             'aktivitas' => 'required|array|min:1',
             'aktivitas.*.deskripsi' => 'required|string',
             'aktivitas.*.lokasi' => 'required|string',
+            'aktivitas.*.tanggal_kegiatan' => 'required|date',
         ]);
 
         $log = LogHarianModel::findOrFail($id);
@@ -166,15 +166,14 @@ class LogHarianController extends Controller
             'tanggal' => $request->tanggal,
         ]);
 
-        // Hapus semua detail lama
         LogHarianDetailModel::where('logHarian_id', $log->logHarian_id)->delete();
 
-        // Buat ulang detail baru
         foreach ($request->aktivitas as $aktivitas) {
             LogHarianDetailModel::create([
                 'logHarian_id' => $log->logHarian_id,
                 'isi' => $aktivitas['deskripsi'],
                 'lokasi' => $aktivitas['lokasi'],
+                'tanggal_kegiatan' => $aktivitas['tanggal_kegiatan'],
                 'status_approval_dosen' => 'pending',
                 'status_approval_industri' => 'pending',
                 'catatan_dosen' => null,
@@ -230,7 +229,7 @@ class LogHarianController extends Controller
         ->orderBy('tanggal', 'asc')
         ->get();
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('mahasiswa_page.logharian.export_pdf', [
+    $pdf = Pdf::loadView('mahasiswa_page.logharian.export_pdf', [
         'mahasiswa' => $mahasiswa,
         'dosen' => $dosen,
         'lokasi' => $lokasi,
