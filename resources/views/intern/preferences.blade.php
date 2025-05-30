@@ -1,22 +1,22 @@
 <div id="form-preferences-container" style="display: block;">
   <form action="{{ url('/intern/preferences') }}" method="POST" id="form-preferences">
     @csrf
-
     <div class="mb-3">
       <label for="province" class="form-label">Preferensi Provinsi Magang</label>
-      <select name="province" id="province" class="form-control" required>
+      <select name="province_id" id="province_id" class="form-control" required>
         <option value="">-- Pilih Provinsi --</option>
-        <option value="DKI Jakarta" {{ old('province', $user->province ?? '') == 'DKI Jakarta' ? 'selected' : '' }}>DKI Jakarta</option>
-        <option value="Jawa Barat" {{ old('province', $user->province ?? '') == 'Jawa Barat' ? 'selected' : '' }}>Jawa Barat</option>
-        <option value="Jawa Timur" {{ old('province', $user->province ?? '') == 'Jawa Timur' ? 'selected' : '' }}>Jawa Timur</option>
-        <option value="Jawa Tengah" {{ old('province', $user->province ?? '') == 'Jawa Tengah' ? 'selected' : '' }}>Jawa Tengah</option>
+        @foreach ($province as $provinsi)
+          <option value="{{ $provinsi->id }}" {{ old('province_id', $user->province_id ?? '') == $provinsi->id ? 'selected' : '' }}>
+            {{ $provinsi->provinsi_nama }}
+          </option>
+        @endforeach
       </select>
       <small id="error-province" class="text-danger"></small>
     </div>
 
     <div class="mb-3">
       <label for="city" class="form-label">Preferensi Kota Magang</label>
-      <select name="city" id="city" class="form-control" required>
+      <select name="city_id" id="city_id" class="form-control" required>
         <option value="">-- Pilih Kota --</option>
       </select>
       <small id="error-city" class="text-danger"></small>
@@ -38,65 +38,65 @@
 
 @push('js')
 <script>
-  $(function () {
+  function loadKota(provinsiId, selectedCityId = null) {
+  const $kotaSelect = $('#city_id'); // sesuai id select kota di HTML
+  $kotaSelect.empty().append('<option value="">Memuat kota...</option>');
 
-    function fillCities(prov, selectedCity = null) {
-      const $c = $('#city').empty().append('<option value="">-- Pilih Kota --</option>');
-      let arr = [];
+  if (!provinsiId) {
+    $kotaSelect.html('<option value="">-- Pilih Kota --</option>');
+    return;
+  }
 
-      if (prov === 'DKI Jakarta') {
-        arr = ['Jakarta Pusat', 'Jakarta Selatan', 'Jakarta Barat', 'Jakarta Timur', 'Jakarta Utara'];
-      } else if (prov === 'Jawa Barat') {
-        arr = ['Bandung', 'Bekasi', 'Bogor', 'Depok'];
-      } else if (prov === 'Jawa Timur') {
-        arr = ['Surabaya', 'Malang', 'Sidoarjo', 'Kediri'];
-      } else if (prov === 'Jawa Tengah') {
-        arr = ['Semarang', 'Surakarta', 'Magelang', 'Pekalongan'];
-      }
-
-      arr.forEach(k => {
-        const sel = (k === selectedCity) ? ' selected' : '';
-        $c.append(`<option value="${k}"${sel}>${k}</option>`);
+  $.get('intern/ajax/kota', { provinsi_id: provinsiId })
+    .done(function (data) {
+      $kotaSelect.empty().append('<option value="">-- Pilih Kota --</option>');
+      data.forEach(function (kota) {
+        const selected = kota_id == selectedCityId ? 'selected' : '';
+        $kotaSelect.append(`<option value="${kota_id}" ${selected}>${kota_nama}</option>`);
       });
-    }
-
-    $('#province').on('change', function () {
-      fillCities($(this).val());
-      $('#error-province, #error-city').text('');
+    })
+    .fail(function () {
+      $kotaSelect.empty().append('<option value="">Gagal memuat kota</option>');
     });
+}
 
-    const initProv = $('#province').val();
-    const oldCity = @json(old('city', $user->city ?? null));
-    if (initProv) fillCities(initProv, oldCity);
+$('#province_id').on('change', function () {
+  loadKota($(this).val());
+});
 
-    $('#form-preferences').on('submit', function (e) {
-      e.preventDefault();
-      $('#error-province, #error-city').text('');
-      $('#alertPreferences').hide();
+// Load on page load (misalnya untuk edit data)
+const initialProvinceId = $('#province_id').val();
+const initialCityId = @json(old('city_id', $user->city_id ?? null));
+if (initialProvinceId) {
+  loadKota(initialProvinceId, initialCityId);
+}
 
-      $.post($(this).attr('action'), $(this).serialize())
-        .done(res => {
-          $('#alertPreferences')
-            .removeClass('alert-danger')
-            .addClass('alert-success')
-            .text(res.message)
-            .show();
-        })
-        .fail(xhr => {
-          if (xhr.status === 422) {
-            const errs = xhr.responseJSON.errors;
-            if (errs.province) $('#error-province').text(errs.province[0]);
-            if (errs.city) $('#error-city').text(errs.city[0]);
-          } else {
-            $('#alertPreferences')
-              .removeClass('alert-success')
-              .addClass('alert-danger')
-              .text('Terjadi kesalahan pada server.')
-              .show();
-          }
-        });
+$('#form-preferences').on('submit', function (e) {
+  e.preventDefault();
+  $('#error-province, #error-city').text('');
+  $('#alertPreferences').hide();
+
+  $.post($(this).attr('action'), $(this).serialize())
+    .done(res => {
+      $('#alertPreferences')
+        .removeClass('alert-danger')
+        .addClass('alert-success')
+        .text(res.message)
+        .show();
+    })
+    .fail(xhr => {
+      if (xhr.status === 422) {
+        const errs = xhr.responseJSON.errors;
+        if (errs.province_id) $('#error-province').text(errs.province_id[0]);
+        if (errs.city_id) $('#error-city').text(errs.city_id[0]);
+      } else {
+        $('#alertPreferences')
+          .removeClass('alert-success')
+          .addClass('alert-danger')
+          .text('Terjadi kesalahan pada server.')
+          .show();
+      }
     });
-
-  });
+});
 </script>
 @endpush

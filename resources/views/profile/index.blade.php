@@ -143,212 +143,78 @@
                         </div>
                         <div class="card-body p-3">
                             <div class="d-grid gap-2">
-                                <button type="button" id="btn-academic-profile" class="btn btn-outline-success">
+                                <button type="button" id="btn-academic-profile" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#academicModal">
                                     🎓 Isi Profil Akademik
                                 </button>
-                                <button type="button" id="btn-preferences" class="btn btn-outline-warning">
+                                <button type="button" id="btn-preferences" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#preferencesModal">
                                     📍 Perbarui Preferensi Lokasi
                                 </button>
                             </div>
-
-                            <div id="academic-form-container" class="mt-4" style="display:none;"></div>
-                            <div id="preferences-form-container" class="mt-4" style="display:none;"></div>
-
-                            @push('js')
-                                <script>
-                                    $(function() {
-                                        function loadInline(url, $container) {
-                                            $.ajax({
-                                                url: url,
-                                                method: 'GET',
-                                                success(html) {
-                                                    $container.html(html).slideDown();
-                                                },
-                                                error() {
-                                                    Swal.fire('Error', 'Gagal memuat form.', 'error');
-                                                }
-                                            });
-                                        }
-
-                                        $('#btn-academic-profile').click(function() {
-                                            $('#preferences-form-container').slideUp();
-                                            loadInline("{{ route('intern.academicProfile') }}", $('#academic-form-container'));
-                                        });
-
-                                        $('#btn-preferences').click(function() {
-                                            $('#academic-form-container').slideUp();
-                                            loadInline("{{ route('intern.preferences') }}", $('#preferences-form-container'));
-                                        });
-                                    });
-                                </script>
-                            @endpush
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal: Academic Profile -->
+                <div class="modal fade" id="academicModal" tabindex="-1" aria-labelledby="academicModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="academicModalLabel">🎓 Isi Profil Akademik</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="academic-form-container">
+                                <div class="text-center py-3">Memuat formulir...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal: Preferences -->
+                <div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="preferencesModalLabel">📍 Perbarui Preferensi Lokasi</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="preferences-form-container">
+                                <div class="text-center py-3">Memuat formulir...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @push('js')
+                <script>
+                    function loadForm(url, container) {
+                        $.ajax({
+                            url: url,
+                            method: 'GET',
+                            success: function (html) {
+                                $(container).html(html);
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Gagal memuat form.', 'error');
+                            }
+                        });
+                    }
+
+                    $(document).ready(function () {
+                        $('#academicModal').on('show.bs.modal', function () {
+                            const $container = $('#academic-form-container');
+                            $container.html('<div class="text-center py-3">Memuat formulir...</div>');
+                            loadForm("{{ route('intern.academicProfile') }}", $container);
+                        });
+
+                        $('#preferencesModal').on('show.bs.modal', function () {
+                            const $container = $('#preferences-form-container');
+                            $container.html('<div class="text-center py-3">Memuat formulir...</div>');
+                            loadForm("{{ route('intern.preferences') }}", $container);
+                        });
+                    });
+                </script>
+                @endpush
             @endunless
-            <div class="col-12 mt-4">
-                <div class="card mb-4">
-                    <div class="card-header pb-0 p-3">
-                        <h6 class="mb-1">Projects</h6>
-                        <p class="text-sm">Architects design houses</p>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="row">
-                            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
-                                <div class="card card-blog card-plain">
-                                    <div class="position-relative">
-                                        <a class="d-block">
-                                            <img src="softTemplate/assets/img/home-decor-1.jpg" alt="img-blur-shadow"
-                                                class="img-fluid shadow border-radius-md">
-                                        </a>
-                                    </div>
-                                    <div class="card-body px-1 pb-0">
-                                        <p class="text-secondary mb-0 text-sm">Project #2</p>
-                                        <a href="javascript:;">
-                                            <h5 class="font-weight-bolder">
-                                                Modern
-                                            </h5>
-                                        </a>
-                                        <p class="mb-4 text-sm">
-                                            As Uber works through a huge amount of internal management turmoil.
-                                        </p>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <button type="button" class="btn btn-outline-primary btn-sm mb-0">View
-                                                Project</button>
-                                            <div class="avatar-group mt-2">
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Elena Morison">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Ryan Milly">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Nick Daniel">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
-                                <div class="card card-blog card-plain">
-                                    <div class="position-relative">
-                                        <a class="d-block">
-                                            <img src="softTemplate/assets/img/home-decor-2.jpg" alt="img-blur-shadow"
-                                                class="img-fluid shadow border-radius-md">
-                                        </a>
-                                    </div>
-                                    <div class="card-body px-1 pb-0">
-                                        <p class="text-secondary mb-0 text-sm">Project #1</p>
-                                        <a href="javascript:;">
-                                            <h5 class="font-weight-bolder">
-                                                Scandinavian
-                                            </h5>
-                                        </a>
-                                        <p class="mb-4 text-sm">
-                                            Music is something that every person has his or her own specific
-                                            opinion.
-                                        </p>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <button type="button" class="btn btn-outline-primary btn-sm mb-0">View
-                                                Project</button>
-                                            <div class="avatar-group mt-2">
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Nick Daniel">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Elena Morison">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Ryan Milly">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
-                                <div class="card card-blog card-plain">
-                                    <div class="position-relative">
-                                        <a class="d-block">
-                                            <img src="softTemplate/assets/img/home-decor-3.jpg" alt="img-blur-shadow"
-                                                class="img-fluid shadow border-radius-md">
-                                        </a>
-                                    </div>
-                                    <div class="card-body px-1 pb-0">
-                                        <p class="text-secondary mb-0 text-sm">Project #3</p>
-                                        <a href="javascript:;">
-                                            <h5 class="font-weight-bolder">
-                                                Minimalist
-                                            </h5>
-                                        </a>
-                                        <p class="mb-4 text-sm">
-                                            Different people have different taste, and various types of music.
-                                        </p>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <button type="button" class="btn btn-outline-primary btn-sm mb-0">View
-                                                Project</button>
-                                            <div class="avatar-group mt-2">
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Peterson">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-4.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Nick Daniel">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-3.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Ryan Milly">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-2.jpg">
-                                                </a>
-                                                <a href="javascript:;" class="avatar avatar-xs rounded-circle"
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Elena Morison">
-                                                    <img alt="Image placeholder" src="softTemplate/assets/img/team-1.jpg">
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6 mb-xl-0 mb-4">
-                                <div class="card h-100 card-plain border">
-                                    <div class="card-body d-flex flex-column justify-content-center text-center">
-                                        <a href="javascript:;">
-                                            <i class="fa fa-plus text-secondary mb-3"></i>
-                                            <h5 class=" text-secondary"> New project </h5>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
-                data-keyboard="false" data-width="75%" aria-hidden="true"></div>
         @endsection
         @push('js')
             <script>
