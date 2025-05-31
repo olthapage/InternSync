@@ -1,11 +1,13 @@
 <?php
 namespace App\Http\Controllers\Mahasiswa;
 
-use App\Http\Controllers\Controller;
-use App\Models\DetailLowonganModel;
-use App\Models\KategoriSkillModel;
+use Carbon\Carbon;
 use App\Models\KotaModel;
 use Illuminate\Http\Request;
+use App\Models\KategoriSkillModel;
+use App\Models\DetailLowonganModel;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
 
 class LowonganController extends Controller
@@ -23,7 +25,7 @@ class LowonganController extends Controller
         ));
     }
 
-    
+
     public function list(Request $request)
     {
         $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill'])
@@ -97,4 +99,72 @@ class LowonganController extends Controller
         return view('mahasiswa_page.lowongan.show', compact('lowongan'));
     }
 
+    public function getLowonganDetailJson(DetailLowonganModel $lowongan)
+    {
+        try {
+            // Eager load relasi yang dibutuhkan untuk menghindari N+1 query
+            $lowongan->load([
+                'industri.kota.provinsi', // industri, lalu kota dari industri, lalu provinsi dari kota
+                'kategoriSkill',
+                'lowonganSkill.skill'     // lowonganSkill, dan skill dari setiap lowonganSkill
+            ]);
+
+            // Memproses skill yang dibutuhkan
+            $required_skills = $lowongan->lowonganSkill->map(function ($lowonganSkill) {
+                return [
+                    'nama_skill'       => optional($lowonganSkill->skill)->skill_nama ?? 'N/A', // Menggunakan optional() untuk keamanan
+                    'level_kompetensi' => $lowonganSkill->level_kompetensi ?? 'N/A',
+                    // 'bobot'           => $lowonganSkill->bobot ?? 'N/A', // Uncomment jika Anda ingin mengirim bobot skill lowongan
+                ];
+            });
+
+            // Mengambil data industri dan lokasi dengan aman
+            $industri = $lowongan->industri;
+            $kota = optional($industri)->kota;
+            $provinsi = optional($kota)->provinsi;
+            $lokasi_string = trim((optional($kota)->kota_nama ?? '') . ($kota && $provinsi ? ', ' . optional($provinsi)->provinsi_nama : ''), ', ');
+
+
+            // Menyusun data untuk respons JSON
+            $data = [
+                'lowongan_id'           => $lowongan->lowongan_id,
+                'judul_lowongan'        => $lowongan->judul_lowongan ?? 'Judul Tidak Tersedia',
+                'industri_nama'         => optional($industri)->industri_nama ?? '-',
+                'logo_industri_url'     => (optional($industri)->logo) ? asset('storage/logo_industri/' . $industri->logo) : asset('assets/default-industri.png'), // Pastikan path default benar
+                'deskripsi_lengkap'     => nl2br(htmlspecialchars($lowongan->deskripsi ?? '')),
+                'kategori_nama'         => optional($lowongan->kategoriSkill)->kategori_nama ?? 'Umum',
+
+                'periode_magang'        => ($lowongan->tanggal_mulai && $lowongan->tanggal_selesai)
+                                          ? (Carbon::parse($lowongan->tanggal_mulai)->isoFormat('D MMMM YYYY') . ' - ' . Carbon::parse($lowongan->tanggal_selesai)->isoFormat('D MMMM YYYY'))
+                                          : 'Tidak ditentukan',
+                // Menyediakan format tanggal Y-m-d untuk JavaScript (misal untuk date picker min/max)
+                'periode_magang_raw'    => [
+                    'start' => optional($lowongan->tanggal_mulai)->format('Y-m-d'),
+                    'end'   => optional($lowongan->tanggal_selesai)->format('Y-m-d'),
+                ],
+
+                'periode_pendaftaran'   => ($lowongan->pendaftaran_tanggal_mulai && $lowongan->pendaftaran_tanggal_selesai)
+                                          ? (Carbon::parse($lowongan->pendaftaran_tanggal_mulai)->isoFormat('D MMMM YYYY') . ' s/d ' . Carbon::parse($lowongan->pendaftaran_tanggal_selesai)->isoFormat('D MMMM YYYY'))
+                                          : 'Tidak ditentukan',
+
+                // Pastikan accessor ini ada di DetailLowonganModel dan aman terhadap null
+                'status_pendaftaran_text' => $lowongan->status_pendaftaran_text ?? 'Status Tidak Diketahui',
+                'status_pendaftaran_badge_class' => $lowongan->status_pendaftaran_badge_class ?? 'bg-secondary',
+
+                'lokasi'                => $lokasi_string ?: 'Lokasi Tidak Dicantumkan', // Tampilkan pesan jika lokasi kosong
+
+                // Pastikan method slotTersedia() ada di DetailLowonganModel dan aman
+                'slot_tersedia'         => method_exists($lowongan, 'slotTersedia') ? $lowongan->slotTersedia() : ($lowongan->slot ?? 0),
+                'total_slot'            => $lowongan->slot ?? 0,
+                'required_skills'       => $required_skills,
+            ];
+
+            return response()->json(['status' => true, 'data' => $data]);
+
+        } catch (\Exception $e) {
+            // Log error dengan lebih detail, termasuk stack trace
+            Log::error("Error fetching lowongan detail JSON for ID {$lowongan->lowongan_id}: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json(['status' => false, 'message' => 'Gagal memuat detail lowongan. Silakan coba lagi nanti.'], 500);
+        }
+    }
 }

@@ -22,11 +22,25 @@ return new class extends Migration
             $table->date('tanggal_selesai');
             $table->date('pendaftaran_tanggal_mulai')->nullable();
             $table->date('pendaftaran_tanggal_selesai')->nullable();
+            $table->boolean('use_specific_location')->default(false);
+
+            // Kolom untuk alamat spesifik lowongan (opsional)
+            $table->unsignedBigInteger('lokasi_provinsi_id')->nullable();
+            $table->unsignedBigInteger('lokasi_kota_id')->nullable();
+            $table->text('lokasi_alamat_lengkap')->nullable();
+
 
             $table->timestamp('created_at')->nullable();
 
             $table->foreign('industri_id')->references('industri_id')->on('m_industri')->onDelete('cascade');
             $table->foreign('kategori_skill_id')->references('kategori_skill_id')->on('m_kategori_skill')->onDelete('cascade');
+             $table->foreign('lokasi_provinsi_id')
+                  ->references('provinsi_id')->on('m_provinsi') // Ganti 'm_provinsi' & 'provinsi_id' jika perlu
+                  ->onDelete('cascade');
+
+            $table->foreign('lokasi_kota_id')
+                  ->references('kota_id')->on('m_kota')       // Ganti 'm_kota' & 'kota_id' jika perlu
+                  ->onDelete('cascade');
         });
 
     }

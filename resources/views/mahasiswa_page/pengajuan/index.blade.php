@@ -10,6 +10,8 @@
                     $mahasiswa = auth()->user();
                     $profilLengkap = $mahasiswa && $mahasiswa->status_verifikasi == 'valid';
                 @endphp
+                <p class="text-sm text-secondary">Sebelum mengajukan magang, lebih baik melengkapi portofoliomu dan usahakan sesuai dengan apa yang dibutuhkan perusahaan <br>
+                untuk mendapatkan peluang diterima yang lebih besar!</p>
 
                 @if ($profilLengkap)
                     <a href="{{ route('mahasiswa.pengajuan.create') }}" class="btn btn-success btn-lg">
@@ -24,6 +26,7 @@
                     <strong>Profil belum lengkap atau invalid!</strong> Silakan lengkapi data verifikasi seperti KTP, KHS, Surat
                     Izin Orang
                     Tua, dan CV sebelum mengajukan magang.
+                    <p class="text-secondary">Lengkapi juga portofolio beserta skill yang kamu kuasai pada halaman <a href="{{ route('mahasiswa.portofolio.index') }}" class="text-info">Portofolio Saya</a></p>
                 </div>
             @else
                 <h5 class="mb-2">Riwayat Pengajuan</h5>

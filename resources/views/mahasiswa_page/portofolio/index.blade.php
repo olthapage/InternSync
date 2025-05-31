@@ -82,15 +82,30 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-5">
                             <label for="skill_id" class="form-label">Pilih Skill <span class="text-danger">*</span></label>
-                            <select name="skill_id" id="skill_id"
+                            {{-- MODIFIKASI DIMULAI DI SINI --}}
+                            {{-- Diasumsikan controller mengirimkan $kategorizedSkills yang berisi --}}
+                            {{-- koleksi KategoriSkillModel dengan relasi skills yang sudah di-load --}}
+                            {{-- dan skills tersebut adalah skill yang belum diklaim oleh mahasiswa --}}
+                            <select name="skill_id" id="skill_id"f
                                 class="form-select @error('skill_id', 'storeSkillErrors') is-invalid @enderror" required>
                                 <option value="">-- Pilih Keahlian --</option>
-                                @foreach ($availableSkills as $skill)
-                                    <option value="{{ $skill->skill_id }}"
-                                        {{ old('skill_id') == $skill->skill_id ? 'selected' : '' }}>{{ $skill->skill_nama }}
-                                    </option>
-                                @endforeach
+                                @forelse ($kategorizedSkills as $kategori)
+                                    @if ($kategori->skills->isNotEmpty())
+                                        {{-- Hanya tampilkan kategori jika ada skill di dalamnya --}}
+                                        <optgroup label="{{ $kategori->kategori_nama }}">
+                                            @foreach ($kategori->skills as $skill)
+                                                <option value="{{ $skill->skill_id }}"
+                                                    {{ old('skill_id') == $skill->skill_id ? 'selected' : '' }}>
+                                                    {{ $skill->skill_nama }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @empty
+                                    <option value="" disabled>Tidak ada skill tersedia untuk ditambahkan.</option>
+                                @endforelse
                             </select>
+                            {{-- MODIFIKASI SELESAI DI SINI --}}
                             @error('skill_id', 'storeSkillErrors')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -116,11 +131,11 @@
                         <div class="col-md-2 d-flex flex-column justify-content-end">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah</button>
                         </div>
-
                     </div>
                 </form>
 
                 <h6>Daftar Skill Anda:</h6>
+                {{-- ... (sisa kode untuk menampilkan daftar skill yang sudah diklaim tidak berubah) ... --}}
                 @if ($claimedSkills->isEmpty())
                     <p class="text-muted">Anda belum menambahkan skill apapun.</p>
                 @else
@@ -128,20 +143,22 @@
                         @foreach ($claimedSkills as $cs)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ $cs->detailSkill->skill_nama ?? 'Skill tidak diketahui' }}</strong> -
+                                    <strong>{{ $cs->detailSkill->skill_nama ?? 'Skill tidak diketahui' }}</strong>
+                                    (<small
+                                        class="text-muted">{{ $cs->detailSkill->kategori->kategori_nama ?? 'Tanpa Kategori' }}</small>)
+                                    -
                                     <span class="badge bg-info">{{ $cs->level_kompetensi }}</span>
-                                    {{-- MODIFIKASI UNTUK MENAMPILKAN STATUS VERIFIKASI --}}
                                     @php
                                         $statusClass = 'bg-secondary'; // Default untuk Pending
-                                        $statusText = $cs->status_verifikasi; // Ambil dari model
-                                        $titleText = "Menunggu Verifikasi"; // Default title
+                                        $statusText = $cs->status_verifikasi;
+                                        $titleText = 'Menunggu Verifikasi';
 
                                         if ($cs->status_verifikasi === 'Valid') {
                                             $statusClass = 'bg-success';
-                                            $titleText = "Terverifikasi";
+                                            $titleText = 'Terverifikasi';
                                         } elseif ($cs->status_verifikasi === 'Invalid') {
                                             $statusClass = 'bg-danger';
-                                            $titleText = "Verifikasi Ditolak";
+                                            $titleText = 'Verifikasi Ditolak';
                                         }
                                     @endphp
                                     <span class="badge {{ $statusClass }} status-badge" title="{{ $titleText }}">
@@ -149,14 +166,16 @@
                                     </span>
 
                                     @if ($cs->status_verifikasi === 'Valid')
-                                        <i class="fas fa-check-circle text-success ms-1 verification-icon" title="Skill terverifikasi dan siap digunakan untuk melamar"></i>
+                                        <i class="fas fa-check-circle text-success ms-1 verification-icon"
+                                            title="Skill terverifikasi"></i>
                                     @elseif ($cs->status_verifikasi === 'Invalid')
-                                        <i class="fas fa-times-circle text-danger ms-1 verification-icon" title="Verifikasi skill ditolak"></i>
-                                    @else {{-- Pending --}}
-                                        <i class="fas fa-hourglass-half text-warning ms-1 verification-icon" title="Skill Anda sedang menunggu proses verifikasi"></i>
+                                        <i class="fas fa-times-circle text-danger ms-1 verification-icon"
+                                            title="Verifikasi skill ditolak"></i>
+                                    @else
+                                        {{-- Pending --}}
+                                        <i class="fas fa-hourglass-half text-warning ms-1 verification-icon"
+                                            title="Skill Anda sedang menunggu proses verifikasi"></i>
                                     @endif
-                                    {{-- AKHIR MODIFIKASI STATUS VERIFIKASI --}}
-                                    {{-- Jika ingin menampilkan bobot: (Bobot: {{ $cs->bobot }}) --}}
                                     @if ($cs->linkedPortofolios->isNotEmpty())
                                         <br>
                                         <small class="text-muted">Terhubung ke {{ $cs->linkedPortofolios->count() }}
@@ -164,7 +183,6 @@
                                     @endif
                                 </div>
                                 <div>
-                                    {{-- <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Edit Skill"><i class="fas fa-edit"></i></button> --}}
                                     <form
                                         action="{{ route('mahasiswa.portofolio.skill.destroy', $cs->mahasiswa_skill_id) }}"
                                         method="POST" class="d-inline"
@@ -181,6 +199,8 @@
                 @endif
             </div>
         </div>
+
+        {{-- ... (sisa kode untuk bagian portofolio tidak berubah) ... --}}
 
         {{-- BAGIAN KELOLA PORTOFOLIO --}}
         <div class="card shadow-sm form-section">
@@ -484,7 +504,7 @@
                         } else {
                             deskripsiInput.setAttribute('name',
                                 'deskripsi_penggunaan_skill_temp[]'
-                                ); // Temporary name if no skill selected
+                            ); // Temporary name if no skill selected
                         }
                     });
                     // Set initial name for description input to be unique until a skill is selected

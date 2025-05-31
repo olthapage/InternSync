@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\DosenModel;
 use App\Models\LevelModel;
 use App\Models\MahasiswaSkillModel;
+use App\Models\PortofolioMahasiswa;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MahasiswaPreferensiLokasiModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,7 @@ class MahasiswaModel extends Authenticatable
         'level_id',
         'prodi_id',
         'dosen_id',
+        'dpa_id',
         'sertifikat_kompetensi',
         'pakta_integritas',
         'daftar_riwayat_hidup',
@@ -66,8 +68,21 @@ class MahasiswaModel extends Authenticatable
     {
         return $this->hasMany(MahasiswaPreferensiLokasiModel::class, 'mahasiswa_id', 'mahasiswa_id');
     }
-    public function skill()
+    public function skills()
     {
         return $this->hasMany(MahasiswaSkillModel::class, 'mahasiswa_id', 'mahasiswa_id');
     }
+    public function dosenPembimbing()
+    {
+        return $this->belongsTo(DosenModel::class, 'dosen_id', 'dosen_id');
+    }
+    public function dpa()
+    {
+        return $this->belongsTo(DosenModel::class, 'dpa_id', 'dosen_id');
+    }
+    public function portofolios()
+    {
+        return $this->hasMany(PortofolioMahasiswa::class, 'mahasiswa_id', 'mahasiswa_id');
+    }
+
 }
