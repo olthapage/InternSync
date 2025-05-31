@@ -26,13 +26,16 @@ return new class extends Migration
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
             $table->unsignedBigInteger('dosen_id')->nullable();
+            $table->unsignedBigInteger('dpa_id')->nullable()->comment('Foreign Key ke m_dosen untuk DPA');
             $table->timestamps();
 
-            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');;
+            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');
 
-            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');;
+            $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');
 
             $table->foreign('dosen_id')->references('dosen_id')->on('m_dosen')->onDelete('cascade');
+
+            $table->foreign('dpa_id')->references('dosen_id')->on('m_dosen')->onDelete('cascade');
 
             $table->string('sertifikat_kompetensi')->nullable();
             $table->string('pakta_integritas')->nullable();

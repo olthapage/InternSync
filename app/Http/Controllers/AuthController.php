@@ -127,14 +127,17 @@ class AuthController extends Controller
         ];
 
         if ($role === 'dosen') {
-            // GANTI 'm_dosen' dengan nama tabel dosen Anda jika berbeda
-            // GANTI 'nip' dengan nama kolom NIDN di tabel dosen Anda jika berbeda
             $rules['nidn'] = 'required|digits:10|unique:m_dosen,nip';
             $rules['email'] = 'required|email|unique:m_dosen,email';
+            $rules['role_dosen_signup'] = 'required|in:dpa,pembimbing';
+
             $messages['nidn.required'] = 'NIDN wajib diisi untuk dosen.';
             $messages['nidn.digits'] = 'NIDN harus terdiri dari 10 digit.';
             $messages['nidn.unique'] = 'NIDN sudah terdaftar.';
             $messages['email.unique'] = 'Email sudah terdaftar untuk dosen.';
+
+            $messages['role_dosen_signup.required'] = 'Peran dosen (DPA/Pembimbing) wajib dipilih.';
+            $messages['role_dosen_signup.in'] = 'Peran dosen yang dipilih tidak valid.';
 
         } elseif ($role === 'mahasiswa') {
             // GANTI 'm_mahasiswa' dengan nama tabel mahasiswa Anda jika berbeda
@@ -174,6 +177,7 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'nip' => $request->nidn,
                 'level_id' => 3,
+                'role_dosen' => $request->role_dosen_signup,
             ]);
         }
 

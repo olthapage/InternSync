@@ -19,12 +19,26 @@
         </li>
         {{-- Menu khusus Dosen taruh sini --}}
         @auth('dosen')
-            <li class="nav-item">
-                <a class="nav-link {{ $activeMenu == 'mahasiswa-bimbingan' ? 'active text-success' : '' }}" href="{{ route('mahasiswa-bimbingan.index') }}">
-                    <i class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
-                    <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
-                </a>
-            </li>
+            @if (Auth::user()->role_dosen === 'pembimbing')
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeMenu == 'mahasiswa-bimbingan' ? 'active text-success' : '' }}"
+                        href="{{ route('mahasiswa-bimbingan.index') }}"> {{-- Pastikan route name ini benar --}}
+                        <i
+                            class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
+                        <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
+                    </a>
+                </li>
+            @endif
+            @if (Auth::user()->role_dosen === 'dpa')
+                <li class="nav-item">
+                    <a class="nav-link {{ $activeMenu == 'validasi-portofolio' ? 'active text-success' : '' }}"
+                        href="{{ route('dosen.mahasiswa-dpa.index') }}">
+                        <i
+                            class="fas fa-check-double me-2 {{ $activeMenu == 'validasi-portofolio' ? 'text-success' : 'text-dark' }}"></i>
+                        <span class="nav-link-text ms-1">Validasi Mahasiswa</span>
+                    </a>
+                </li>
+            @endif
         @endauth
         {{-- Menu khusus mahasiswa taruh sini --}}
         @auth('mahasiswa')
@@ -42,17 +56,20 @@
                 </a>
                 <a class="nav-link {{ ($activeMenu ?? 'portofolio') == 'portofolio' ? 'active text-success' : '' }}"
                     href="{{ route('mahasiswa.portofolio.index') }}">
-                    <i class="fa-solid fa-address-card me-2 {{ ($activeMenu ?? '') == 'portofolio' ? 'text-success' : 'text-dark' }}"></i>
+                    <i
+                        class="fa-solid fa-address-card me-2 {{ ($activeMenu ?? '') == 'portofolio' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Portofolio Saya</span>
                 </a>
                 <a class="nav-link {{ $activeMenu == 'magang' ? 'active text-success' : '' }}"
                     href="{{ route('mahasiswa.magang.index') }} ">
-                    <i class="fa-solid fa-chart-simple me-2 {{ $activeMenu == 'magang' ? 'text-success' : 'text-dark' }}"></i>
+                    <i
+                        class="fa-solid fa-chart-simple me-2 {{ $activeMenu == 'magang' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Magang Saya</span>
                 </a>
                 <a class="nav-link {{ ($activeMenu ?? '') == 'logharian' ? 'active text-success' : '' }}"
                     href="{{ route('logHarian.index') }}">
-                    <i class="fa-solid fa-book me-2 {{ ($activeMenu ?? '') == 'logharian' ? 'text-success' : 'text-dark' }}"></i>
+                    <i
+                        class="fa-solid fa-book me-2 {{ ($activeMenu ?? '') == 'logharian' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Log Harian</span>
                 </a>
             </li>
@@ -149,7 +166,8 @@
                     <li class="nav-item">
                         <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'industri' ? 'active text-success' : '' }}"
                             href="{{ route('industri.index') }}">
-                            <i class="fas fa-shop me-2 {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}"></i>
+                            <i
+                                class="fas fa-shop me-2 {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}"></i>
                             <span class="nav-link">Daftar Industri</span>
                         </a>
                     </li>
@@ -236,7 +254,7 @@
     </ul>
 </div>
 @auth('web')
-     <div class="sidenav-footer mx-3">
+    <div class="sidenav-footer mx-3">
         <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
             <div class="full-background"
                 style="background-image: url('{{ asset('softTemplate/assets/img/curved-images/white-curved.jpg') }}')">
