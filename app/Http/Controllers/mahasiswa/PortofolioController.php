@@ -1,16 +1,17 @@
 <?php
-
 namespace App\Http\Controllers\mahasiswa;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\MahasiswaModel;
+use App\Models\DetailSkillModel;
+use App\Models\KategoriSkillModel;
+use App\Models\MahasiswaSkillModel;
+use App\Models\PortofolioMahasiswa;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Models\MahasiswaModel;
-use App\Models\DetailSkillModel;
-use App\Models\MahasiswaSkillModel;
-use App\Models\PortofolioMahasiswa;
+
 // PortofolioSkill model tidak perlu di-use jika menggunakan attach/sync/detach pada relasi BelongsToMany
 
 class PortofolioController extends Controller
@@ -22,28 +23,54 @@ class PortofolioController extends Controller
     {
         $mahasiswa = Auth::user(); // Asumsi Auth::user() adalah instance MahasiswaModel
         if (!$mahasiswa || !($mahasiswa instanceof MahasiswaModel)) {
-            // Handle jika user bukan mahasiswa atau tidak terautentikasi dengan benar
             return redirect()->route('login')->with('error', 'Silakan login sebagai mahasiswa.');
         }
 
+        // 1. Ambil ID skill yang sudah diklaim oleh mahasiswa ini
+        $claimedSkillIds = MahasiswaSkillModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
+            ->pluck('skill_id')
+            ->toArray();
+
+        // 2. Ambil daftar skill yang sudah diklaim untuk ditampilkan
         $claimedSkills = MahasiswaSkillModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
-            ->with('detailSkill', 'linkedPortofolios') // Eager load detail skill dan portofolio terkait
+            ->with(['detailSkill.kategori', 'linkedPortofolios']) // Eager load kategori juga untuk tampilan
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // 3. Ambil item portofolio mahasiswa
         $portfolioItems = PortofolioMahasiswa::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
-            ->with('linkedMahasiswaSkills.detailSkill') // Eager load skill yg terhubung ke portofolio ini
+            ->with('linkedMahasiswaSkills.detailSkill')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $availableSkills = DetailSkillModel::orderBy('skill_nama')->get();
-        $activeMenu = 'portofolio'; // Untuk navigasi aktif jika ada
+        $activeMenu = 'portofolio';
+
+        // 4. Siapkan data skill yang dikategorikan untuk dropdown "Tambah Skill"
+        //    Ini akan berisi KATEGORI dan di dalamnya SKILL yang BELUM DIKLAIM mahasiswa
+        $kategorizedSkills = KategoriSkillModel::with(['skills' => function ($query) use ($claimedSkillIds) {
+            $query->whereNotIn('skill_id', $claimedSkillIds) // Hanya skill yang belum diklaim
+                  ->orderBy('skill_nama', 'asc');
+        }])
+        // Hanya ambil kategori yang memiliki detail skill yang belum diklaim oleh mahasiswa
+        ->whereHas('skills', function ($query) use ($claimedSkillIds) {
+            $query->whereNotIn('skill_id', $claimedSkillIds);
+        })
+        ->orderBy('kategori_nama', 'asc')
+        ->get();
+
+        // Variabel $availableSkills (flat list) mungkin tidak diperlukan lagi jika view
+        // sudah diupdate untuk menggunakan $kategorizedSkills dengan <optgroup>
+        // Jika masih diperlukan untuk bagian lain, Anda bisa memfilternya juga:
+        // $availableSkills = DetailSkillModel::whereNotIn('skill_id', $claimedSkillIds)
+        //                                   ->orderBy('skill_nama')
+        //                                   ->get();
 
         return view('mahasiswa_page.portofolio.index', compact(
             'mahasiswa',
             'claimedSkills',
             'portfolioItems',
-            'availableSkills',
+            // 'availableSkills', // Hapus atau kirim jika masih dipakai di view Anda untuk hal lain
+            'kategorizedSkills', // Ini yang akan digunakan untuk dropdown skill baru
             'activeMenu'
         ));
     }
@@ -55,7 +82,7 @@ class PortofolioController extends Controller
     {
         $mahasiswa = Auth::user();
         $validator = Validator::make($request->all(), [
-            'skill_id' => 'required|exists:m_detail_skill,skill_id',
+            'skill_id'         => 'required|exists:m_detail_skill,skill_id',
             'level_kompetensi' => 'required|string|in:Beginner,Intermediate,Expert',
         ]);
 
@@ -76,9 +103,9 @@ class PortofolioController extends Controller
         }
 
         MahasiswaSkillModel::create([
-            'mahasiswa_id' => $mahasiswa->mahasiswa_id,
-            'skill_id' => $request->skill_id,
-            'level_kompetensi' => $request->level_kompetensi,
+            'mahasiswa_id'      => $mahasiswa->mahasiswa_id,
+            'skill_id'          => $request->skill_id,
+            'level_kompetensi'  => $request->level_kompetensi,
             'status_verifikasi' => 'Pending',
         ]);
 
@@ -107,15 +134,15 @@ class PortofolioController extends Controller
     {
         $mahasiswa = Auth::user();
         $validator = Validator::make($request->all(), [
-            'judul_portofolio' => 'required|string|max:255',
-            'deskripsi_portofolio' => 'nullable|string',
-            'tipe_portofolio' => 'required|string|in:file,url,gambar,video',
+            'judul_portofolio'           => 'required|string|max:255',
+            'deskripsi_portofolio'       => 'nullable|string',
+            'tipe_portofolio'            => 'required|string|in:file,url,gambar,video',
             'lokasi_file_atau_url_input' => 'required_if:tipe_portofolio,url,video|nullable|url|max:500',
-            'lokasi_file_upload' => 'required_if:tipe_portofolio,file,gambar|nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120', // Max 5MB
-            'tanggal_pengerjaan_mulai' => 'nullable|date',
+            'lokasi_file_upload'         => 'required_if:tipe_portofolio,file,gambar|nullable|file|mimes:pdf,doc,docx,zip,jpg,jpeg,png|max:5120', // Max 5MB
+            'tanggal_pengerjaan_mulai'   => 'nullable|date',
             'tanggal_pengerjaan_selesai' => 'nullable|date|after_or_equal:tanggal_pengerjaan_mulai',
-            'linked_mahasiswa_skills'   => 'nullable|array',
-            'linked_mahasiswa_skills.*' => 'exists:mahasiswa_skill,mahasiswa_skill_id', // Validasi setiap ID skill mahasiswa
+            'linked_mahasiswa_skills'    => 'nullable|array',
+            'linked_mahasiswa_skills.*'  => 'exists:mahasiswa_skill,mahasiswa_skill_id', // Validasi setiap ID skill mahasiswa
             'deskripsi_penggunaan_skill' => 'nullable|array',
             // Pastikan jumlah deskripsi penggunaan skill (jika ada) sesuai dengan jumlah skill yang di-link
         ]);
@@ -132,7 +159,7 @@ class PortofolioController extends Controller
         } elseif (($request->tipe_portofolio === 'file' || $request->tipe_portofolio === 'gambar') && $request->hasFile('lokasi_file_upload')) {
             // Simpan file ke storage/app/public/mahasiswa_portofolio/{mahasiswa_id}/
             // Jangan lupa jalankan `php artisan storage:link`
-            $filePath = $request->file('lokasi_file_upload')->store('mahasiswa_portofolio/' . $mahasiswa->mahasiswa_id, 'public');
+            $filePath    = $request->file('lokasi_file_upload')->store('mahasiswa_portofolio/' . $mahasiswa->mahasiswa_id, 'public');
             $lokasiFinal = $filePath;
         } else {
             // Seharusnya tidak terjadi jika validasi benar, tapi sebagai fallback
@@ -140,12 +167,12 @@ class PortofolioController extends Controller
         }
 
         $portfolio = PortofolioMahasiswa::create([
-            'mahasiswa_id' => $mahasiswa->mahasiswa_id,
-            'judul_portofolio' => $request->judul_portofolio,
-            'deskripsi_portofolio' => $request->deskripsi_portofolio,
-            'tipe_portofolio' => $request->tipe_portofolio,
-            'lokasi_file_atau_url' => $lokasiFinal,
-            'tanggal_pengerjaan_mulai' => $request->tanggal_pengerjaan_mulai,
+            'mahasiswa_id'               => $mahasiswa->mahasiswa_id,
+            'judul_portofolio'           => $request->judul_portofolio,
+            'deskripsi_portofolio'       => $request->deskripsi_portofolio,
+            'tipe_portofolio'            => $request->tipe_portofolio,
+            'lokasi_file_atau_url'       => $lokasiFinal,
+            'tanggal_pengerjaan_mulai'   => $request->tanggal_pengerjaan_mulai,
             'tanggal_pengerjaan_selesai' => $request->tanggal_pengerjaan_selesai,
         ]);
 
@@ -153,12 +180,11 @@ class PortofolioController extends Controller
         if ($request->has('linked_mahasiswa_skills') && $portfolio) {
             $skillsToSync = [];
             foreach ($request->linked_mahasiswa_skills as $index => $mahasiswaSkillId) {
-                $deskripsiPenggunaan = $request->deskripsi_penggunaan_skill[$mahasiswaSkillId] ?? null; // Ambil deskripsi berdasarkan mahasiswa_skill_id
+                $deskripsiPenggunaan             = $request->deskripsi_penggunaan_skill[$mahasiswaSkillId] ?? null; // Ambil deskripsi berdasarkan mahasiswa_skill_id
                 $skillsToSync[$mahasiswaSkillId] = ['deskripsi_penggunaan_skill' => $deskripsiPenggunaan];
             }
             $portfolio->linkedMahasiswaSkills()->sync($skillsToSync);
         }
-
 
         return redirect()->route('mahasiswa.portofolio.index')->with('success', 'Portofolio berhasil ditambahkan!');
     }

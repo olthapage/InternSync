@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('m_kota', function (Blueprint $table) {
             $table->id('kota_id');
-            $table->string('kota_kode')->unique();
+            $table->string('kota_kode')->nullable();
             $table->string('kota_nama');
             $table->unsignedBigInteger('provinsi_id');
             $table->timestamp('created_at')->nullable();

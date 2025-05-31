@@ -11,7 +11,7 @@
                             {{-- Menambahkan Status Pendaftaran di Header Card Detail Lowongan --}}
                             @if ($lowongan->pendaftaran_tanggal_mulai && $lowongan->pendaftaran_tanggal_selesai)
                                 <span class="badge badge-{{ $lowongan->status_pendaftaran_badge_class }} mr-3"
-                                      style="font-size: 0.9rem;">
+                                    style="font-size: 0.9rem;">
                                     {{ $lowongan->status_pendaftaran_text }}
                                 </span>
                             @endif
@@ -115,9 +115,13 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <a href="#" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i>
+                                                    {{-- MODIFIKASI TOMBOL AKSI --}}
+                                                    <a href="{{ route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id) }}"
+                                                        class="btn btn-info btn-sm" title="Lihat Profil & Skill Pendaftar">
+                                                        <i class="fas fa-user-check me-1"></i> Review
                                                     </a>
+                                                    {{-- Tambahkan tombol aksi lain jika perlu (misal: Terima, Tolak, Wawancara) --}}
+                                                    {{-- Tombol-tombol ini bisa berupa form POST atau link ke controller action lain --}}
                                                 </td>
                                             </tr>
                                         @endforeach

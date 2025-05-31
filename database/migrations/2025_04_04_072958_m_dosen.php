@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('telepon')->nullable();
             $table->string('foto')->nullable();
             $table->string('nip');
+            $table->enum('role_dosen', ['dpa', 'pembimbing'])->default('pembimbing');
+
             $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
             $table->timestamps();

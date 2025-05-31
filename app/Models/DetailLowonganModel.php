@@ -2,8 +2,10 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use App\Models\KotaModel;
 use App\Models\MagangModel;
 use App\Models\IndustriModel;
+use App\Models\ProvinsiModel;
 use App\Models\PengajuanModel;
 use App\Models\KategoriSkillModel;
 use App\Models\LowonganSkillModel;
@@ -18,19 +20,65 @@ class DetailLowonganModel extends Model
     protected $primaryKey = 'lowongan_id';
     public $timestamps    = false;
 
-    protected $fillable = ['judul_lowongan', 'slot', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai', 'kategori_skill_id', 'pendaftaran_tanggal_mulai', 'pendaftaran_tanggal_selesai'];
+    protected $fillable = ['judul_lowongan', 'slot', 'deskripsi', 'industri_id', 'tanggal_mulai', 'tanggal_selesai', 'kategori_skill_id', 'pendaftaran_tanggal_mulai', 'pendaftaran_tanggal_selesai',
+        'use_specific_location',
+        'lokasi_provinsi_id',
+        'lokasi_kota_id',
+        'lokasi_alamat_lengkap'];
 
     protected $casts = [
         'tanggal_mulai'               => 'date',
         'tanggal_selesai'             => 'date',
         'pendaftaran_tanggal_mulai'   => 'date',
         'pendaftaran_tanggal_selesai' => 'date',
+        'use_specific_location'       => 'boolean',
     ];
 
     public function industri()
     {
         return $this->belongsTo(IndustriModel::class, 'industri_id');
     }
+     // Relasi untuk lokasi spesifik lowongan
+    public function lokasiProvinsi()
+    {
+        return $this->belongsTo(ProvinsiModel::class, 'lokasi_provinsi_id', 'provinsi_id'); // Sesuaikan PK provinsi
+    }
+
+    public function lokasiKota()
+    {
+        return $this->belongsTo(KotaModel::class, 'lokasi_kota_id', 'kota_id'); // Sesuaikan PK kota
+    }
+     // Accessor untuk menampilkan alamat lengkap lowongan secara dinamis
+    public function getAlamatLengkapDisplayAttribute()
+    {
+        if ($this->use_specific_location && $this->lokasi_kota_id) {
+            // Gunakan alamat spesifik lowongan
+            $alamat = $this->lokasi_alamat_lengkap ?? '';
+            $kota = optional($this->lokasiKota)->kota_nama ?? '';
+            $provinsi = optional($this->lokasiProvinsi)->provinsi_nama ?? ''; // Atau dari $this->lokasiKota->provinsi->provinsi_nama
+
+            if ($kota && $provinsi) {
+                return trim("$alamat, $kota, $provinsi", ", ");
+            } elseif ($kota) {
+                return trim("$alamat, $kota", ", ");
+            }
+            return $alamat ?: 'Alamat spesifik belum lengkap';
+        } elseif ($this->industri) {
+            // Gunakan alamat industri
+            $alamatIndustri = $this->industri->alamat_detail ?? ''; // Asumsi IndustriModel punya 'alamat_detail'
+            $kotaIndustri = optional($this->industri->kota)->kota_nama ?? '';
+            $provinsiIndustri = optional(optional($this->industri->kota)->provinsi)->provinsi_nama ?? '';
+
+            if ($kotaIndustri && $provinsiIndustri) {
+                return trim("$alamatIndustri, $kotaIndustri, $provinsiIndustri", ", ");
+            } elseif ($kotaIndustri) {
+                return trim("$alamatIndustri, $kotaIndustri", ", ");
+            }
+            return $alamatIndustri ?: 'Alamat industri tidak tersedia';
+        }
+        return 'Alamat tidak tersedia';
+    }
+    
     public function kriteriaMagang()
     {
         return $this->hasOne(KriteriaMagangModel::class, 'lowongan_id', 'lowongan_id');

@@ -23,6 +23,7 @@ class PengajuanModel extends Model
         'lowongan_id',
         'tanggal_mulai',
         'tanggal_selesai',
+        'alasan_penolakan',
         'status'
     ];
 
