@@ -20,6 +20,7 @@ use App\Http\Controllers\dosen\MahasiswaDpaController;
 use App\Http\Controllers\mahasiswa\VerifikasiController;
 use App\Http\Controllers\admin\KategoriIndustriController;
 use App\Http\Controllers\dosen\MahasiswaBimbinganController;
+use App\Http\Controllers\dosen\LogHarianDosenController;
 use App\Http\Controllers\industri\ManajemenMagangController;
 use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
 use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
@@ -212,6 +213,14 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/', [MahasiswaBimbinganController::class, 'index'])->name('mahasiswa-bimbingan.index');
         Route::get('/list', [MahasiswaBimbinganController::class, 'list'])->name('mahasiswa-bimbingan.list');
         Route::get('/{id}/show', [MahasiswaBimbinganController::class, 'show']);
+    });
+
+    Route::prefix('logharian_dosen')->group(function () {
+        Route::get('/', [LogHarianDosenController::class, 'index'])->name('logharian_dosen.index');
+        Route::post('/list', [LogHarianDosenController::class, 'list'])->name('logharian_dosen.list');
+        Route::get('/{id}/edit', [LogHarianDosenController::class, 'edit'])->name('logharian_dosen.edit');
+        Route::get('/{id}/show', [LogHarianDosenController::class, 'show'])->name('logharian_dosen.show');
+        Route::post('/approval', [LogHarianDosenController::class, 'approval'])->name('logharian_dosen.approval');
     });
 
     Route::prefix('dosen/mahasiswa-dpa')->group(function () {
