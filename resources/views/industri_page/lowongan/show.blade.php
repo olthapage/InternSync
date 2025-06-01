@@ -75,9 +75,13 @@
 
                 {{-- Card Daftar Pendaftar --}}
                 <div class="card border-dark shadow-sm">
-                    <div class="card-header bg-white">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Daftar Pendaftar ({{ $lowongan->pendaftar->count() }})</h5>
+                        <a href="#" class="btn btn-info" data-bs-toggle="modal"
+                            data-bs-target="#rekomendasiSpkModal-{{ $lowongan->lowongan_id }}"
+                            id="btnLihatRekomendasi-{{ $lowongan->lowongan_id }}">Lihat Rekomendasi</a>
                     </div>
+
                     <div class="card-body">
                         @if ($lowongan->pendaftar->isEmpty())
                             <div class="alert alert-secondary text-center">
@@ -135,6 +139,34 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="rekomendasiSpkModal-{{ $lowongan->lowongan_id }}" tabindex="-1"
+        aria-labelledby="rekomendasiSpkModalLabel-{{ $lowongan->lowongan_id }}" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable"> {{-- modal-xl untuk lebih lebar --}}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rekomendasiSpkModalLabel-{{ $lowongan->lowongan_id }}">
+                        <i class="fas fa-cogs me-2"></i> SPK Rekomendasi Pendaftar
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="rekomendasiSpkModalBody-{{ $lowongan->lowongan_id }}">
+                    {{-- Konten kriteria dan hasil akan dimuat di sini via AJAX --}}
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 mb-0">Memuat kriteria SPK...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Tutup
+                    </button>
+                    {{-- Tombol hitung akan ada di dalam form yang di-load AJAX --}}
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('css')
@@ -149,6 +181,109 @@
 @push('js')
     {{-- Jika ada JS tambahan khusus halaman ini --}}
     <script>
-        // Contoh: console.log('Halaman detail lowongan dimuat');
+        $(document).ready(function() {
+            var lowonganId = '{{ $lowongan->lowongan_id }}';
+            var modalId = '#rekomendasiSpkModal-' + lowonganId;
+            var modalBodyId = '#rekomendasiSpkModalBody-' + lowonganId;
+
+            $(modalId).on('show.bs.modal', function(event) {
+                var modal = $(this);
+                var modalBody = $(modalBodyId);
+
+                // Tampilkan spinner default
+                modalBody.html(
+                    '<div class="text-center py-5"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Loading...</span></div><p class="mt-2 mb-0">Memuat kriteria SPK...</p></div>'
+                    );
+
+                $.ajax({
+                    url: '{{ route('industri.lowongan.spk.get_kriteria_form', ['lowongan' => $lowongan->lowongan_id]) }}',
+                    type: 'GET',
+                    success: function(response) {
+                        modalBody.html(response);
+                    },
+                    error: function(xhr) {
+                        modalBody.html(
+                            '<div class="alert alert-danger m-3">Gagal memuat kriteria SPK. Silakan tutup dan coba lagi. Error: ' +
+                            (xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON
+                                .message : xhr.statusText) + '</div>');
+                        console.error(xhr);
+                    }
+                });
+            });
+
+            // Event delegation untuk form submit di dalam modal (karena form di-load AJAX)
+            $(document).on('submit', '#formSpkKriteria-' + lowonganId, function(e) {
+                e.preventDefault(); // Mencegah submit form standar
+
+                var form = $(this);
+                var formData = form.serialize();
+                var resultArea = $('#spkResultArea-' + lowonganId);
+                var submitButton = form.find('button[type="submit"]');
+                var originalButtonText = submitButton.html();
+
+                resultArea.html(
+                    '<div class="text-center mt-3"><div class="spinner-border text-success" role="status"></div><p class="mt-2 mb-0">Menghitung rekomendasi...</p></div>'
+                    );
+                submitButton.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghitung...'
+                    ).prop('disabled', true);
+
+                $.ajax({
+                    url: '{{ route('industri.lowongan.spk.calculate', ['lowongan' => $lowongan->lowongan_id]) }}',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        resultArea.html(response);
+                        submitButton.html(originalButtonText).prop('disabled', false);
+                        // Scroll ke hasil jika perlu
+                        if (resultArea.length) {
+                            $(modalBodyId).animate({
+                                scrollTop: resultArea.offset().top - $(modalBodyId)
+                                    .offset().top + $(modalBodyId).scrollTop() -
+                                    20 // offset 20px
+                            }, 500);
+                        }
+                    },
+                    error: function(xhr) {
+                        var errorMessage = "Terjadi kesalahan.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                            if (xhr.responseJSON.errors) {
+                                let errors = xhr.responseJSON.errors;
+                                errorMessage += "<ul class='text-start ps-3 mt-2 mb-0'>";
+                                for (let key in errors) {
+                                    errors[key].forEach(function(msg) {
+                                        errorMessage += "<li>" + msg + "</li>";
+                                    });
+                                }
+                                errorMessage += "</ul>";
+                            }
+                        } else {
+                            errorMessage = "Gagal menghitung rekomendasi. Status: " + xhr
+                                .statusText;
+                        }
+                        resultArea.html('<div class="alert alert-danger">' + errorMessage +
+                            '</div>');
+                        submitButton.html(originalButtonText).prop('disabled', false);
+                        console.error(xhr);
+                    }
+                });
+            });
+        });
+
+        // Fungsi toggle IPK (didefinisikan global agar bisa dipanggil dari konten AJAX)
+        function toggleIpkWeightDynamic(checkboxElement, lowonganId) {
+            var bobotIpkDiv = document.getElementById('bobot_ipk_div-' + lowonganId);
+            var bobotIpkInput = document.getElementById('bobot_ipk-' + lowonganId);
+            if (bobotIpkDiv && bobotIpkInput) {
+                bobotIpkDiv.style.display = checkboxElement.checked ? 'block' : 'none';
+                if (!checkboxElement.checked) {
+                    bobotIpkInput.value = ''; // Kosongkan nilai jika tidak dicentang
+                    bobotIpkInput.required = false;
+                } else {
+                    bobotIpkInput.required = true; // Jadikan required jika dicentang
+                }
+            }
+        }
     </script>
 @endpush

@@ -102,7 +102,7 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
 
     Route::prefix('mahasiswa')->group(function () {
         Route::get('/', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-        Route::post('/list', [MahasiswaController::class, 'list']);
+        Route::post('/list', [MahasiswaController::class, 'list'])->name('mahasiswa.list');
         Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
         Route::get('/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
         Route::get('{id}/verifikasi', [MahasiswaController::class, 'verifikasi'])->name('mahasiswa.verifikasi');
@@ -281,6 +281,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/pengajuan/{pengajuan}/profil-pendaftar', [IndustriLowonganController::class, 'showPendaftarProfil'])->name('industri.lowongan.pendaftar.show_profil');
         Route::post('/pengajuan/{pengajuan}/terima', [IndustriLowonganController::class, 'terimaPengajuan'])->name('industri.lowongan.pengajuan.terima');
         Route::post('/pengajuan/{pengajuan}/tolak', [IndustriLowonganController::class, 'tolakPengajuan'])->name('industri.lowongan.pengajuan.tolak');
+        Route::get('/{lowongan}/spk-kriteria-form', [IndustriLowonganController::class, 'getSpkModalKriteriaForm'])->name('industri.lowongan.spk.get_kriteria_form');
+        Route::post('/{lowongan}/spk-calculate', [IndustriLowonganController::class, 'calculateSpkRekomendasi'])->name('industri.lowongan.spk.calculate');
     });
     Route::prefix('industri/manajemen')->group(function () {
         Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');

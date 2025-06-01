@@ -43,24 +43,27 @@
         </small>
     </div>
 
-    {{-- Dosen Pembimbing --}}
+    {{-- Dosen DPA --}}
     <div class="mb-3">
-        <label for="dosen_id" class="form-label">Dosen Pembimbing</label>
-        <select name="dosen_id" id="dosen_id" class="form-control">
-            <option value="">-- pilih dosen --</option>
-            @foreach ($dosens as $dosen)
+    <label for="dosen_id" class="form-label">Dosen DPA</label>
+    <select name="dosen_id" id="dosen_id" class="form-control">
+        <option value="">-- pilih dosen --</option>
+        @foreach ($dosens as $dosen)
+            @if ($dosen->role_dosen === 'dpa')
                 <option value="{{ $dosen->dosen_id }}"
                     {{ old('dosen_id', $mahasiswa->dosen_id ?? '') == $dosen->dosen_id ? 'selected' : '' }}>
                     {{ $dosen->nama_lengkap }}
                 </option>
-            @endforeach
-        </select>
-        <small class="text-danger">
-            @error('dosen_id')
-                {{ $message }}
-            @enderror
-        </small>
-    </div>
+            @endif
+        @endforeach
+    </select>
+    <small class="text-danger">
+        @error('dosen_id')
+            {{ $message }}
+        @enderror
+    </small>
+</div>
+
 
     {{-- IPK --}}
     <div class="mb-3">

@@ -1,20 +1,21 @@
 <?php
 namespace App\Http\Controllers\industri;
 
-use App\Http\Controllers\Controller;
-use App\Models\DetailLowonganModel;
-use App\Models\DetailSkillModel;
-use App\Models\IndustriModel;
-use App\Models\KategoriSkillModel;
 use App\Models\KotaModel;
-use App\Models\LowonganSkillModel;
 use App\Models\MagangModel;
-use App\Models\PengajuanModel;
-use App\Models\ProvinsiModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\IndustriModel;
+use App\Models\ProvinsiModel;
+use App\Models\PengajuanModel;
+use App\Models\DetailSkillModel;
+use App\Services\SpkEdasService;
+use App\Models\KategoriSkillModel;
+use App\Models\LowonganSkillModel;
 use Illuminate\Support\Facades\DB;
+use App\Models\DetailLowonganModel;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 // Ditambahkan untuk Request jika diperlukan
@@ -260,142 +261,201 @@ class LowonganController extends Controller
     }
     public function showPendaftarProfil(PengajuanModel $pengajuan)
     {
-        $activeMenu = 'lowongan'; // Atau menu spesifik jika ada
+        $activeMenu = 'lowongan';
+        $loggedInIndustri = Auth::guard('industri')->user(); // Gunakan guard eksplisit
 
-        // Autorisasi: Pastikan industri yang login berhak melihat pengajuan ini
-        // (yaitu pengajuan ini untuk salah satu lowongan milik industri tersebut)
-        $lowonganIndustriId      = $pengajuan->lowongan->industri_id;
-        $authenticatedIndustriId = Auth::id(); // Asumsi Auth::id() mengembalikan industri_id untuk guard industri
+        if (!$loggedInIndustri) {
+            return redirect()->route('login.company.view') // Arahkan ke login industri
+                ->with('error', 'Sesi tidak valid. Silakan login kembali sebagai industri.');
+        }
+        $authenticatedIndustriId = $loggedInIndustri->industri_id; // Asumsi PK IndustriModel adalah industri_id
 
-        // Jika Auth::user() adalah instance IndustriModel, maka:
-        // $authenticatedIndustriId = Auth::user()->industri_id; atau Auth::user()->getKey();
-
-        if ($lowonganIndustriId !== $authenticatedIndustriId) {
-            // Atau jika Anda menggunakan policy/gate: if (Gate::denies('view-pendaftar', $pengajuan)) { ... }
-            return redirect()->route('industri.lowongan.index')->with('error', 'Anda tidak berhak mengakses data pendaftar ini.');
+        if (optional($pengajuan->lowongan)->industri_id !== $authenticatedIndustriId) {
+            return redirect()->route('industri.lowongan.index')
+                ->with('error', 'Anda tidak berhak mengakses data pendaftar ini.');
         }
 
-        // Eager load data yang dibutuhkan untuk mahasiswa dan lowongan terkait
         $pengajuan->load([
             'mahasiswa' => function ($query) {
                 $query->with([
-                    'prodi', // Untuk menampilkan prodi mahasiswa
+                    'prodi',
                     'skills' => function ($skillQuery) {
-                        $skillQuery->with(['detailSkill.kategori', 'linkedPortofolios.portofolio']) // Ambil detail skill, kategori, dan portofolio yang terhubung ke skill
-                            ->where('status_verifikasi', 'Valid');                                      // Opsional: Hanya tampilkan skill yang sudah divalidasi DPA
+                        $skillQuery->with(['detailSkill.kategori', 'linkedPortofolios'])
+                                   // ->where('status_verifikasi', 'Valid'); // Biarkan DPA yang menilai ini, industri lihat semua
+                                   ;
                     },
-                    // 'portofolios' // Jika ingin menampilkan semua portofolio mahasiswa secara umum, bukan hanya yang terlink ke skill
                 ]);
             },
-            'lowongan'  => function ($query) {
-                $query->with(['lowonganSkill.skill', 'kategoriSkill']); // Skill yang dibutuhkan lowongan & kategori lowongan
-            },
+            'lowongan' => function ($query) {
+                $query->with(['lowonganSkill.skill', 'kategoriSkill', 'industri']); // Muat industri juga di sini
+            }
         ]);
 
-        // Ambil semua portofolio mahasiswa secara terpisah jika ingin ditampilkan semua
-        $allPortfolioItems = $pengajuan->mahasiswa->portofolios()->orderBy('created_at', 'desc')->get();
+        $allPortfolioItems = optional($pengajuan->mahasiswa)->portofolios()->orderBy('created_at', 'desc')->get() ?? collect();
 
-        return view('industri_page.lowongan.pendaftar', compact(
+        return view('industri_page.lowongan.pendaftar', compact( // Pastikan path view benar
             'pengajuan',
             'allPortfolioItems',
             'activeMenu'
         ));
     }
+
+
     public function terimaPengajuan(Request $request, PengajuanModel $pengajuan)
     {
-                                                                                            // Autorisasi: Pastikan industri yang login berhak melakukan aksi ini
-        $loggedInIndustri        = Auth::user();                                            // Asumsi Auth::user() adalah IndustriModel atau memiliki industri_id
-        $authenticatedIndustriId = $loggedInIndustri->industri_id ?? $loggedInIndustri->id; // Sesuaikan
+        $loggedInIndustri = Auth::guard('industri')->user();
+        if (!$loggedInIndustri) {
+            return redirect()->back()->with('error', 'Sesi tidak valid.');
+        }
+        $authenticatedIndustriId = $loggedInIndustri->industri_id;
 
         if ($pengajuan->lowongan->industri_id !== $authenticatedIndustriId) {
             return redirect()->back()->with('error', 'Aksi tidak diizinkan untuk pengajuan ini.');
         }
 
-        // Pastikan pengajuan masih dalam status 'belum' (bisa diterima)
         if (strtolower($pengajuan->status) !== 'belum') {
-            return redirect()->back()->with('warning', 'Pengajuan ini sudah diproses sebelumnya.');
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
+                             ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
         }
 
-        // Cek slot tersedia (pastikan method slotTersedia() di DetailLowonganModel sudah benar
-        // dan menghitung MagangModel dengan status 'belum' atau 'sedang')
-        if ($pengajuan->lowongan->slotTersedia() <= 0) {
-            return redirect()->back()->with('error', 'Slot untuk lowongan ini sudah penuh. Tidak dapat menerima pendaftar lagi.');
+        if ($pengajuan->lowongan->slotTersedia() <= 0) { // Pastikan slotTersedia() benar
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
+                             ->with('error', 'Slot untuk lowongan ini sudah penuh.');
         }
 
         DB::beginTransaction();
         try {
-                                             // 1. Update status pengajuan menjadi 'diterima'
-            $pengajuan->status = 'diterima'; // Sesuai ENUM di t_pengajuan
+            $pengajuan->status = 'diterima';
             $pengajuan->save();
 
-            // 2. Tambahkan mahasiswa ke tabel mahasiswa_magang (MagangModel)
-            // Status awal di MagangModel adalah 'belum' (untuk "diterima, belum mulai")
             MagangModel::create([
                 'mahasiswa_id' => $pengajuan->mahasiswa_id,
                 'lowongan_id'  => $pengajuan->lowongan_id,
-                'status'       => 'belum', // Sesuai ENUM ['belum', 'sedang', 'selesai'] di MagangModel
-                                           // 'evaluasi'    => null, // Defaultnya akan null
+                'status'       => 'belum', // Status awal di MagangModel
             ]);
 
             DB::commit();
-            // Redirect kembali ke halaman profil pendaftar dengan pesan sukses
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('success', 'Pengajuan mahasiswa ' . $pengajuan->mahasiswa->nama_lengkap . ' berhasil DITERIMA.');
-
+                             ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error saat menerima pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage() . "\nStack: " . $e->getTraceAsString());
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
+                             ->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
         }
     }
 
-    /**
-     * Menolak pengajuan magang dari mahasiswa.
-     */
     public function tolakPengajuan(Request $request, PengajuanModel $pengajuan)
     {
-        $loggedInIndustri        = Auth::user();
-        $authenticatedIndustriId = $loggedInIndustri->industri_id ?? $loggedInIndustri->id;
+        $loggedInIndustri = Auth::guard('industri')->user();
+        if (!$loggedInIndustri) {
+            return redirect()->back()->with('error', 'Sesi tidak valid.');
+        }
+        $authenticatedIndustriId = $loggedInIndustri->industri_id;
 
         if ($pengajuan->lowongan->industri_id !== $authenticatedIndustriId) {
-            return redirect()->back()->with('error', 'Aksi tidak diizinkan untuk pengajuan ini.');
+            return redirect()->back()->with('error', 'Aksi tidak diizinkan.');
         }
 
         if (strtolower($pengajuan->status) !== 'belum') {
-            return redirect()->back()->with('warning', 'Pengajuan ini sudah diproses sebelumnya.');
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
+                             ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
         }
 
-        // TAMBAHKAN VALIDASI UNTUK ALASAN PENOLAKAN
         $validator = Validator::make($request->all(), [
-            'alasan_penolakan' => 'nullable|string|max:1000', // Opsional, maksimal 1000 karakter
+            'alasan_penolakan' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
                 ->withErrors($validator)
-                ->withInput(); // Agar alasan penolakan yang sudah diketik tidak hilang
+                ->withInput()
+                ->with('error_form_tolak_pengajuan_id', $pengajuan->pengajuan_id); // Agar bisa highlight form yg error
         }
 
-        DB::beginTransaction(); // Gunakan transaksi jika ada operasi DB lain yang terkait
+        DB::beginTransaction();
         try {
             $pengajuan->status = 'ditolak';
-
-            // SIMPAN ALASAN PENOLAKAN JIKA DIISI
             if ($request->filled('alasan_penolakan')) {
-                $pengajuan->alasan_penolakan = $request->alasan_penolakan;
+               $pengajuan->alasan_penolakan = $request->alasan_penolakan;
             } else {
-                $pengajuan->alasan_penolakan = null; // Pastikan null jika kosong
+               $pengajuan->alasan_penolakan = null;
             }
             $pengajuan->save();
 
             DB::commit();
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' telah DITOLAK.');
-
+                             ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' telah DITOLAK.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error saat menolak pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage() . "\nStack: " . $e->getTraceAsString());
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat mencoba menolak pengajuan.');
+            Log::error('Error saat menolak pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage());
+            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
+                             ->with('error', 'Terjadi kesalahan sistem.');
+        }
+    }
+    public function getSpkModalKriteriaForm(DetailLowonganModel $lowongan)
+    {
+        $lowongan->load('lowonganSkill.skill'); // Eager load skill yang dibutuhkan
+        return view('industri_page.lowongan.partials.rekomendasi_kriteria_form', compact('lowongan'));
+    }
+
+    /**
+     * Menghitung dan menampilkan hasil rekomendasi SPK EDAS.
+     */
+    public function calculateSpkRekomendasi(Request $request, DetailLowonganModel $lowongan, SpkEdasService $spkService)
+    {
+        // Validasi input bobot
+        $skillRules = [];
+        if ($request->has('bobot_skill')) {
+            foreach ($request->input('bobot_skill') as $skillId => $bobot) {
+                $skillRules['bobot_skill.' . $skillId] = 'required|numeric|min:0|max:100';
+            }
+        }
+
+        $ipkRules = [];
+        if ($request->boolean('gunakan_ipk')) {
+            $ipkRules['bobot_ipk'] = 'required|numeric|min:0|max:100';
+        }
+
+        $validator = Validator::make($request->all(), array_merge($skillRules, $ipkRules), [
+            'bobot_skill.*.required' => 'Bobot untuk setiap skill wajib diisi.',
+            'bobot_skill.*.numeric' => 'Bobot skill harus berupa angka.',
+            'bobot_skill.*.min' => 'Bobot skill minimal 0.',
+            'bobot_skill.*.max' => 'Bobot skill maksimal 100.',
+            'bobot_ipk.required' => 'Bobot IPK wajib diisi jika IPK digunakan.',
+            'bobot_ipk.numeric' => 'Bobot IPK harus berupa angka.',
+            'bobot_ipk.min' => 'Bobot IPK minimal 0.',
+            'bobot_ipk.max' => 'Bobot IPK maksimal 100.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Input tidak valid.', 'errors' => $validator->errors()], 422);
+        }
+
+        // Kumpulkan bobot kriteria dari request
+        $criteriaWeights = [
+            'bobot_skill' => $request->input('bobot_skill', []),
+            'gunakan_ipk' => $request->boolean('gunakan_ipk'),
+            'bobot_ipk'   => $request->input('bobot_ipk', 0),
+        ];
+
+        // Ambil pendaftar yang relevan (misalnya yang statusnya 'belum')
+        $pendaftar = $lowongan->pendaftar()
+            ->where('status', 'belum') // Filter hanya pendaftar yang statusnya 'belum'
+            ->with('mahasiswa.skills.detailSkill', 'mahasiswa.prodi') // Eager load data mahasiswa dan skill mereka
+            ->get();
+
+        if ($pendaftar->isEmpty()) {
+             $data = ['rankedMahasiswa' => collect(), 'criteriaView' => [], 'message' => 'Tidak ada pendaftar dengan status "belum" pada lowongan ini.'];
+             return view('industri_page.lowongan.partials.rekomendasi_hasil', $data);
+        }
+
+        try {
+            $result = $spkService->calculateRekomendasi($lowongan, $pendaftar, $criteriaWeights);
+            return view('industri_page.lowongan.partials.rekomendasi_hasil', $result);
+        } catch (\Exception $e) {
+            Log::error('SPK EDAS Calculation Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json(['message' => 'Terjadi kesalahan internal saat menghitung rekomendasi: ' . $e->getMessage()], 500);
         }
     }
 }

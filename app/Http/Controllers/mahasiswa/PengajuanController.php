@@ -1,15 +1,16 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
-use App\Http\Controllers\Controller;
-use App\Models\DetailLowonganModel;
+use Illuminate\Http\Request;
 use App\Models\IndustriModel;
-use App\Models\KategoriSkillModel;
 use App\Models\MahasiswaModel;
 use App\Models\PengajuanModel;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\KategoriSkillModel;
+use App\Models\DetailLowonganModel;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PengajuanController extends Controller
@@ -17,15 +18,47 @@ class PengajuanController extends Controller
     public function index()
     {
         $activeMenu = 'pengajuan';
-
-        // Ambil ID mahasiswa langsung dari auth()->user()
-        $mahasiswaId = auth()->user()->mahasiswa_id;
+        $mahasiswa = auth()->user(); // Ambil user yang sedang login
+        $mahasiswaId = $mahasiswa->mahasiswa_id; // Asumsi ada field mahasiswa_id di tabel users atau relasi
 
         $pengajuan = PengajuanModel::with(['lowongan.industri'])
             ->where('mahasiswa_id', $mahasiswaId)
+            ->orderBy('created_at', 'desc') // Urutkan berdasarkan terbaru
             ->get();
 
-        return view('mahasiswa_page.pengajuan.index', compact('activeMenu', 'pengajuan'));
+        // Logika untuk mengecek status pengajuan aktif
+        $statusPengajuanAktif = null; // Default tidak ada pengajuan aktif yang menghalangi
+        $alasanTidakBisaAjukan = '';
+
+        // Cek apakah mahasiswa sudah memiliki pengajuan 'diproses' atau 'diterima'
+        // Asumsi status 'diproses' adalah pengganti 'belum' untuk pengajuan yang sedang berjalan
+        $pengajuanDiproses = $pengajuan->firstWhere('status', 'diproses');
+        $pengajuanDiterima = $pengajuan->firstWhere('status', 'diterima');
+
+        if ($pengajuanDiterima) {
+            $statusPengajuanAktif = 'diterima';
+            $alasanTidakBisaAjukan = 'Anda sudah diterima magang dan tidak dapat membuat pengajuan baru.';
+        } elseif ($pengajuanDiproses) {
+            $statusPengajuanAktif = 'diproses';
+            $alasanTidakBisaAjukan = 'Anda sudah memiliki pengajuan magang yang sedang diproses. Harap tunggu hasilnya sebelum membuat pengajuan baru.';
+        }
+
+        // Cek kelengkapan profil mahasiswa
+        // Anda mungkin perlu mengambil data mahasiswa lengkap jika status_verifikasi ada di tabel mahasiswa, bukan users
+        // Untuk contoh ini, kita asumsikan $mahasiswa dari auth()->user() sudah punya status_verifikasi
+        // Jika tidak, Anda perlu: $mahasiswaModel = MahasiswaModel::find($mahasiswaId);
+        // dan $profilLengkap = $mahasiswaModel && $mahasiswaModel->status_verifikasi == 'valid';
+
+        $profilLengkap = $mahasiswa && $mahasiswa->status_verifikasi == 'valid';
+
+
+        return view('mahasiswa_page.pengajuan.index', compact(
+            'activeMenu',
+            'pengajuan',
+            'profilLengkap', // Kirim juga variabel ini
+            'statusPengajuanAktif',
+            'alasanTidakBisaAjukan'
+        ));
     }
 
     public function create($id = null)
@@ -98,20 +131,56 @@ class PengajuanController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan pengajuan: ' . $e->getMessage())->withInput();
         }
     }
-
     public function show(Request $request, $id)
     {
-        $pengajuan = PengajuanModel::with(['mahasiswa', 'lowongan'])->find($id);
-        $lowongan = DetailLowonganModel::with([
-            'industri.kota',
-            'kategoriSkill',
-            'lowonganSkill.skill',
-        ])->findOrFail($id);
+        Log::info('MahasiswaPengajuanController@show: Method entry. Requested Pengajuan ID: ' . $id . '. AJAX: ' . ($request->ajax() ? 'Yes' : 'No'));
 
+        $pengajuan = PengajuanModel::with([
+            'mahasiswa.prodi',
+            'lowongan.industri',
+            'lowongan.kategoriSkill',
+        ])->find($id);
+
+        if (!$pengajuan) {
+            Log::warning('MahasiswaPengajuanController@show: Pengajuan NOT found for ID: ' . $id . '. Triggering 404.');
+            if ($request->ajax()) {
+                return response()->view('mahasiswa_page.pengajuan.partials.modal_error', ['message' => 'Detail pengajuan tidak ditemukan (ID: '.$id.').'], 404);
+            }
+            return abort(404, 'Detail pengajuan tidak ditemukan.');
+        }
+        Log::info('MahasiswaPengajuanController@show: Pengajuan found. Pengajuan ID: ' . $pengajuan->pengajuan_id . ', Belongs to Mahasiswa ID: ' . $pengajuan->mahasiswa_id);
+
+        $user = Auth::user(); // Ini seharusnya instance MahasiswaModel
+
+        if (!$user || !($user instanceof \App\Models\MahasiswaModel)) {
+            Log::warning('MahasiswaPengajuanController@show: User not authenticated as MahasiswaModel for authorization. User: ' . ($user ? get_class($user) : 'null') . '. Pengajuan ID: ' . $id);
+            if ($request->ajax()) {
+                return response()->view('mahasiswa_page.pengajuan.partials.modal_error', ['message' => 'Sesi tidak valid untuk otorisasi.'], 403);
+            }
+            return abort(403, 'Sesi tidak valid.');
+        }
+
+        // $user adalah instance MahasiswaModel yang sudah terautentikasi
+        $mahasiswaAutentik = $user;
+        Log::info('MahasiswaPengajuanController@show: Authenticated Mahasiswa for authorization. ID: ' . $mahasiswaAutentik->mahasiswa_id . '. Checking against Pengajuan\'s Mahasiswa ID: ' . $pengajuan->mahasiswa_id);
+
+
+        if ($pengajuan->mahasiswa_id !== $mahasiswaAutentik->mahasiswa_id) {
+            Log::warning('MahasiswaPengajuanController@show: Authorization FAILED. Pengajuan ID: ' . $id . ' (belongs to Mhs ID: ' . $pengajuan->mahasiswa_id . ') does not match authenticated Mahasiswa ID: ' . $mahasiswaAutentik->mahasiswa_id . '. Triggering 403.');
+            if ($request->ajax()) {
+                return response()->view('mahasiswa_page.pengajuan.partials.modal_error', ['message' => 'Akses ditolak. Anda hanya dapat melihat pengajuan Anda sendiri.'], 403);
+            }
+            return abort(403, 'Akses Ditolak.');
+        }
+        Log::info('MahasiswaPengajuanController@show: Authorization successful for Pengajuan ID: ' . $id);
 
         if ($request->ajax()) {
-            return view('mahasiswa_page.pengajuan.show', compact('pengajuan', 'lowongan'));
+            Log::info('MahasiswaPengajuanController@show: AJAX request. Returning view mahasiswa_page.pengajuan.show for Pengajuan ID: ' . $id);
+            return view('mahasiswa_page.pengajuan.show', compact('pengajuan'));
         }
+
+        Log::info('MahasiswaPengajuanController@show: Non-AJAX request. Redirecting for Pengajuan ID: ' . $id);
+        return redirect()->route('mahasiswa.pengajuan.index')->with('warning', 'Detail pengajuan hanya bisa dilihat melalui modal.');
     }
 
     public function edit(Request $request, $id)

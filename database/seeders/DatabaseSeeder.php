@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Database\Seeders\IndustriSeeder;
 use Illuminate\Support\Facades\Hash;
 use Database\Seeders\PreferensiLokasiSeeder;
+use Database\Seeders\MahasiswaMagangPengajuanSkillSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -158,89 +159,6 @@ class DatabaseSeeder extends Seeder
             $pembimbingIds = [null]; // Agar array_rand tidak error, tapi hasilnya akan null
         }
 
-        $faker           = Factory::create('id_ID'); // Menggunakan Faker untuk nama yang lebih realistis
-        $mahasiswaData   = [];
-        $jumlahMahasiswa = 50; // Buat 50 data mahasiswa dummy
-
-// Data eksplisit pertama bisa dimodifikasi untuk memiliki DPA dan Pembimbing
-        if (! empty($dpaIds) && ! empty($pembimbingIds) && $pembimbingIds[0] !== null) {
-            $mahasiswaData[] = [
-                'nama_lengkap'      => 'Andi Nugroho Saputro',
-                'email'             => 'andi.nugroho@example.com',
-                'password'          => Hash::make('mahasiswa123'),
-                'nim'               => '2341010001', // Contoh NIM lebih panjang
-                'ipk'               => 3.55,
-                'status'            => 1,                                          // Asumsi 1 = aktif
-                'status_verifikasi' => 'Valid',                                    // Contoh
-                'level_id'          => 2,                                          // MHS
-                'prodi_id'          => rand(1, 5),                                 // Asumsi prodi_id 1-5 ada dan memiliki DPA
-                'dpa_id'            => $dpaIds[array_rand($dpaIds)],               // Assign DPA secara acak
-                'dosen_id'          => $pembimbingIds[array_rand($pembimbingIds)], // Assign Pembimbing secara acak
-                'created_at'        => $now,
-                'updated_at'        => $now,
-            ];
-
-            $mahasiswaData[] = [
-                'nama_lengkap'      => 'Rina Ayu Lestari',
-                'email'             => 'rina.lestari@example.com',
-                'password'          => Hash::make('mahasiswa123'),
-                'nim'               => '2341020002',
-                'ipk'               => 3.82,
-                'status'            => 1,
-                'status_verifikasi' => 'Pending',
-                'level_id'          => 2, // MHS
-                'prodi_id'          => rand(1, 5),
-                'dpa_id'            => $dpaIds[array_rand($dpaIds)],
-                'dosen_id'          => $pembimbingIds[array_rand($pembimbingIds)],
-                'created_at'        => $now,
-                'updated_at'        => $now,
-            ];
-        }
-
-        for ($i = count($mahasiswaData) + 1; $i <= $jumlahMahasiswa; $i++) {
-            $assignedDpaId = null;
-            if (! empty($dpaIds)) {
-                $assignedDpaId = $dpaIds[array_rand($dpaIds)];
-            }
-
-            $assignedPembimbingId = null;
-            if (! empty($pembimbingIds) && $pembimbingIds[0] !== null) {
-                $assignedPembimbingId = $pembimbingIds[array_rand($pembimbingIds)];
-            }
-
-            // Hindari DPA dan Pembimbing menjadi orang yang sama jika memungkinkan
-            if (count($pembimbingIds) > 1 && $assignedDpaId === $assignedPembimbingId && $assignedPembimbingId !== null) {
-                $tempPembimbingIds = array_filter($pembimbingIds, function ($id) use ($assignedDpaId) {
-                    return $id !== $assignedDpaId;
-                });
-                if (! empty($tempPembimbingIds)) {
-                    $assignedPembimbingId = $tempPembimbingIds[array_rand(array_values($tempPembimbingIds))];
-                }
-            }
-
-            $mahasiswaData[] = [
-                'nama_lengkap'      => $faker->name,
-                'email'             => $faker->unique()->safeEmail,
-                'password'          => Hash::make('mahasiswa123'),
-                'nim'               => '22' . str_pad($faker->numberBetween(410000, 410999) + $i, 6, '0', STR_PAD_LEFT), // Membuat NIM lebih variatif
-                'ipk'               => round($faker->randomFloat(2, 2.75, 4.00), 2),
-                'status'            => $faker->boolean(80), // 80% kemungkinan aktif
-                'status_verifikasi' => $faker->randomElement(['Pending', 'Valid', 'Invalid']),
-                'level_id'          => 2,                     // MHS
-                'prodi_id'          => rand(1, 10),           // Asumsi ada 10 prodi
-                'dpa_id'            => $assignedDpaId,        // Semua mahasiswa punya DPA jika $dpaIds tidak kosong
-                'dosen_id'          => $assignedPembimbingId, // Dosen Pembimbing
-                'created_at'        => $now,
-                'updated_at'        => $now,
-            ];
-        }
-
-// Chunk insert untuk performa jika data sangat banyak
-        foreach (array_chunk($mahasiswaData, 20) as $chunk) { // Insert per 20 data
-            DB::table('m_mahasiswa')->insert($chunk);
-        }
-
-        $this->command->info(count($mahasiswaData) . ' data mahasiswa telah ditambahkan.');
 
         // Mahasiswa IDs akan menjadi 1 s/d 10 secara auto-increment
 
@@ -294,83 +212,9 @@ class DatabaseSeeder extends Seeder
             $kategoriIndustriData[] = ['kategori_industri_kode' => 'IND' . $i, 'kategori_nama' => 'Kategori Industri ' . $i, 'created_at' => $now];
         }
         DB::table('m_kategori_industri')->insert($kategoriIndustriData);
-        // Kategori Industri IDs akan menjadi 1 s/d 10 secara auto-increment
-
-
-        // Detail Skill IDs (m_detail_skill_id) akan menjadi 1 s/d 10 secara auto-increment
-
-        // user_preferensi_lokasi (Target: 10 data)
-        // Asumsi mahasiswa_id merujuk pada m_mahasiswa (ID 1-10)
-        // Asumsi kota_id merujuk pada m_kota (ID 1-10)
-        $this->call(PreferensiLokasiSeeder::class);
-
-        // user_skill (Target: 10 data)
-        // Asumsi mahasiswa_id merujuk pada m_mahasiswa (ID 1-10)
-        // Asumsi skill_id merujuk pada m_detail_skill (m_detail_skill_id, ID 1-10)
-        $now   = Carbon::now();
-        $faker = Factory::create('id_ID'); // Inisialisasi Faker untuk data Indonesia
-
-// 1. Ambil semua ID mahasiswa yang ada
-        $mahasiswaIds = DB::table('m_mahasiswa')->pluck('mahasiswa_id')->toArray();
-
-// 2. Ambil semua ID skill yang ada dari m_detail_skill
-        $skillIds = DB::table('m_detail_skill')->pluck('skill_id')->toArray();
-
-// Jika tidak ada mahasiswa atau skill, hentikan seeder untuk tabel ini
-        if (empty($mahasiswaIds)) {
-            $this->command->warn('Tidak ada data mahasiswa ditemukan. Seeder MahasiswaSkill tidak dapat dijalankan.');
-            return;
-        }
-        if (empty($skillIds)) {
-            $this->command->warn('Tidak ada data detail skill ditemukan. Seeder MahasiswaSkill tidak dapat dijalankan.');
-            return;
-        }
-
-        $mahasiswaSkillData = [];
-        $possibleLevels     = ['Beginner', 'Intermediate', 'Expert'];
-
-// Distribusi status verifikasi: lebih banyak Pending dan Valid
-        $verificationStatuses = [
-            'Pending', 'Pending', 'Pending', 'Pending',  // 40% Pending
-            'Valid', 'Valid', 'Valid', 'Valid', 'Valid', // 50% Valid
-            'Invalid',                                   // 10% Invalid
-        ];
-
-        foreach ($mahasiswaIds as $mahasiswaId) {
-            // Setiap mahasiswa akan memiliki antara 2 sampai 5 skill (acak)
-            // Pastikan jumlah skill yang di-assign tidak melebihi jumlah skill yang tersedia
-            $jumlahSkillPerMahasiswa = rand(2, min(5, count($skillIds)));
-
-            // Ambil sejumlah skill unik secara acak untuk mahasiswa ini
-            $assignedSkillIds = $faker->randomElements($skillIds, $jumlahSkillPerMahasiswa, false);
-
-            foreach ($assignedSkillIds as $skillId) {
-                $mahasiswaSkillData[] = [
-                    'mahasiswa_id'      => $mahasiswaId,
-                    'skill_id'          => $skillId,
-                    'level_kompetensi'  => $faker->randomElement($possibleLevels),
-                    'status_verifikasi' => $faker->randomElement($verificationStatuses),
-                    'created_at'        => $now,
-                    // 'updated_at' tidak ada di tabel Anda, jadi tidak perlu diisi
-                ];
-            }
-        }
-
-// Hapus data lama jika perlu (opsional, hati-hati jika sudah ada data penting)
-// DB::table('mahasiswa_skill')->delete();
-
-// Insert data baru secara chunk untuk performa yang lebih baik
-        foreach (array_chunk($mahasiswaSkillData, 100) as $chunk) { // Misal, insert per 100 baris
-            DB::table('mahasiswa_skill')->insert($chunk);
-        }
-
-        $this->command->info(count($mahasiswaSkillData) . ' data relasi skill mahasiswa telah ditambahkan ke tabel mahasiswa_skill.');
 
         $this->call(IndustriSeeder::class);
 
-        // Industri IDs akan menjadi 1 s/d 10 secara auto-increment
-
-        // m_detail_lowongan (Target: 10 data)
         // Asumsi industri_id merujuk pada m_industri (ID 1-10)
         $detailLowonganData = [
             [
@@ -416,62 +260,134 @@ class DatabaseSeeder extends Seeder
             $usedLowonganSkill[$combo] = true;
         }
         DB::table('lowongan_skill')->insert($lowonganSkillData);
-        DB::table('mahasiswa_magang')->insert([
-            [
-                'mahasiswa_id' => 1,
-                'lowongan_id'  => 1,
-                'status'       => 'sedang',
-                'evaluasi'     => '"InternSync sangat membantu saya menemukan magang yang sesuai dengan minat saya di bidang AI. Rekomendasinya akurat dan prosesnya cepat!"',
-                'created_at'   => Carbon::now(),
-                'updated_at'   => Carbon::now(),
-            ],
-            [
-                'mahasiswa_id' => 2,
-                'lowongan_id'  => 2,
-                'status'       => 'belum',
-                'evaluasi'     => '"Saya sangat puas dengan pengalaman magang saya di InternSync. Prosesnya mudah dan banyak pilihan lowongan yang relevan."',
-                'created_at'   => Carbon::now(),
-                'updated_at'   => Carbon::now(),
-            ],
-            [
-                'mahasiswa_id' => 3,
-                'lowongan_id'  => 2,
-                'status'       => 'belum',
-                'evaluasi'     => '"InternSync adalah platform yang sangat membantu dalam mencari magang. Saya menemukan banyak lowongan yang sesuai dengan minat saya."',
-                'created_at'   => Carbon::now(),
-                'updated_at'   => Carbon::now(),
-            ],
-        ]);
 
-        DB::table('t_pengajuan')->insert([
-            [
-                'mahasiswa_id'    => 1,
-                'lowongan_id'     => 1,
-                'tanggal_mulai'   => '2025-07-01',
-                'tanggal_selesai' => '2025-09-30',
-                'status'          => 'belum',
-                'created_at'      => Carbon::now(),
-                'updated_at'      => Carbon::now(),
-            ],
-            [
-                'mahasiswa_id'    => 2,
-                'lowongan_id'     => 2,
-                'tanggal_mulai'   => '2025-08-01',
-                'tanggal_selesai' => '2025-10-31',
-                'status'          => 'belum',
-                'created_at'      => Carbon::now(),
-                'updated_at'      => Carbon::now(),
-            ],
-            [
-                'mahasiswa_id'    => 3,
-                'lowongan_id'     => 1,
-                'tanggal_mulai'   => '2025-06-15',
-                'tanggal_selesai' => '2025-09-15',
-                'status'          => 'belum',
-                'created_at'      => Carbon::now(),
-                'updated_at'      => Carbon::now(),
-            ],
-        ]);
+        $this->call(MahasiswaMagangPengajuanSkillSeeder::class);
+
+        $this->call(PreferensiLokasiSeeder::class);
+
+//         // user_skill (Target: 10 data)
+//         // Asumsi mahasiswa_id merujuk pada m_mahasiswa (ID 1-10)
+//         // Asumsi skill_id merujuk pada m_detail_skill (m_detail_skill_id, ID 1-10)
+//         $now   = Carbon::now();
+//         $faker = Factory::create('id_ID'); // Inisialisasi Faker untuk data Indonesia
+
+// // 1. Ambil semua ID mahasiswa yang ada
+//         $mahasiswaIds = DB::table('m_mahasiswa')->pluck('mahasiswa_id')->toArray();
+
+// // 2. Ambil semua ID skill yang ada dari m_detail_skill
+//         $skillIds = DB::table('m_detail_skill')->pluck('skill_id')->toArray();
+
+// // Jika tidak ada mahasiswa atau skill, hentikan seeder untuk tabel ini
+//         if (empty($mahasiswaIds)) {
+//             $this->command->warn('Tidak ada data mahasiswa ditemukan. Seeder MahasiswaSkill tidak dapat dijalankan.');
+//             return;
+//         }
+//         if (empty($skillIds)) {
+//             $this->command->warn('Tidak ada data detail skill ditemukan. Seeder MahasiswaSkill tidak dapat dijalankan.');
+//             return;
+//         }
+
+//         $mahasiswaSkillData = [];
+//         $possibleLevels     = ['Beginner', 'Intermediate', 'Expert'];
+
+// // Distribusi status verifikasi: lebih banyak Pending dan Valid
+//         $verificationStatuses = [
+//             'Pending', 'Pending', 'Pending', 'Pending',  // 40% Pending
+//             'Valid', 'Valid', 'Valid', 'Valid', 'Valid', // 50% Valid
+//             'Invalid',                                   // 10% Invalid
+//         ];
+
+//         foreach ($mahasiswaIds as $mahasiswaId) {
+//             // Setiap mahasiswa akan memiliki antara 2 sampai 5 skill (acak)
+//             // Pastikan jumlah skill yang di-assign tidak melebihi jumlah skill yang tersedia
+//             $jumlahSkillPerMahasiswa = rand(2, min(5, count($skillIds)));
+
+//             // Ambil sejumlah skill unik secara acak untuk mahasiswa ini
+//             $assignedSkillIds = $faker->randomElements($skillIds, $jumlahSkillPerMahasiswa, false);
+
+//             foreach ($assignedSkillIds as $skillId) {
+//                 $mahasiswaSkillData[] = [
+//                     'mahasiswa_id'      => $mahasiswaId,
+//                     'skill_id'          => $skillId,
+//                     'level_kompetensi'  => $faker->randomElement($possibleLevels),
+//                     'status_verifikasi' => $faker->randomElement($verificationStatuses),
+//                     'created_at'        => $now,
+//                     // 'updated_at' tidak ada di tabel Anda, jadi tidak perlu diisi
+//                 ];
+//             }
+//         }
+
+// // Hapus data lama jika perlu (opsional, hati-hati jika sudah ada data penting)
+// // DB::table('mahasiswa_skill')->delete();
+
+// // Insert data baru secara chunk untuk performa yang lebih baik
+//         foreach (array_chunk($mahasiswaSkillData, 100) as $chunk) { // Misal, insert per 100 baris
+//             DB::table('mahasiswa_skill')->insert($chunk);
+//         }
+
+        // $this->command->info(count($mahasiswaSkillData) . ' data relasi skill mahasiswa telah ditambahkan ke tabel mahasiswa_skill.');
+
+
+        // Industri IDs akan menjadi 1 s/d 10 secara auto-increment
+
+        // m_detail_lowongan (Target: 10 data)
+
+        // DB::table('mahasiswa_magang')->insert([
+        //     [
+        //         'mahasiswa_id' => 1,
+        //         'lowongan_id'  => 1,
+        //         'status'       => 'sedang',
+        //         'evaluasi'     => '"InternSync sangat membantu saya menemukan magang yang sesuai dengan minat saya di bidang AI. Rekomendasinya akurat dan prosesnya cepat!"',
+        //         'created_at'   => Carbon::now(),
+        //         'updated_at'   => Carbon::now(),
+        //     ],
+        //     [
+        //         'mahasiswa_id' => 2,
+        //         'lowongan_id'  => 2,
+        //         'status'       => 'belum',
+        //         'evaluasi'     => '"Saya sangat puas dengan pengalaman magang saya di InternSync. Prosesnya mudah dan banyak pilihan lowongan yang relevan."',
+        //         'created_at'   => Carbon::now(),
+        //         'updated_at'   => Carbon::now(),
+        //     ],
+        //     [
+        //         'mahasiswa_id' => 3,
+        //         'lowongan_id'  => 2,
+        //         'status'       => 'belum',
+        //         'evaluasi'     => '"InternSync adalah platform yang sangat membantu dalam mencari magang. Saya menemukan banyak lowongan yang sesuai dengan minat saya."',
+        //         'created_at'   => Carbon::now(),
+        //         'updated_at'   => Carbon::now(),
+        //     ],
+        // ]);
+
+        // DB::table('t_pengajuan')->insert([
+        //     [
+        //         'mahasiswa_id'    => 1,
+        //         'lowongan_id'     => 1,
+        //         'tanggal_mulai'   => '2025-07-01',
+        //         'tanggal_selesai' => '2025-09-30',
+        //         'status'          => 'belum',
+        //         'created_at'      => Carbon::now(),
+        //         'updated_at'      => Carbon::now(),
+        //     ],
+        //     [
+        //         'mahasiswa_id'    => 2,
+        //         'lowongan_id'     => 2,
+        //         'tanggal_mulai'   => '2025-08-01',
+        //         'tanggal_selesai' => '2025-10-31',
+        //         'status'          => 'belum',
+        //         'created_at'      => Carbon::now(),
+        //         'updated_at'      => Carbon::now(),
+        //     ],
+        //     [
+        //         'mahasiswa_id'    => 3,
+        //         'lowongan_id'     => 1,
+        //         'tanggal_mulai'   => '2025-06-15',
+        //         'tanggal_selesai' => '2025-09-15',
+        //         'status'          => 'belum',
+        //         'created_at'      => Carbon::now(),
+        //         'updated_at'      => Carbon::now(),
+        //     ],
+        // ]);
         $kotaNama = DB::table('m_kota')->where('kota_id', 1101)->value('kota_nama');
 
         DB::table('m_logharian')->insert([

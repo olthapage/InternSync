@@ -84,5 +84,9 @@ class MahasiswaModel extends Authenticatable
     {
         return $this->hasMany(PortofolioMahasiswa::class, 'mahasiswa_id', 'mahasiswa_id');
     }
+    public function pengajuan()
+    {
+        return $this->hasMany(PengajuanModel::class, 'mahasiswa_id', 'mahasiswa_id');
+    }
 
 }

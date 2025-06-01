@@ -184,6 +184,35 @@
             <div class="card-body p-lg-4">
                 {{-- Header Informasi Lowongan dan Mahasiswa --}}
                 <div class="profile-header-clean mb-4">
+                    {{-- Di bagian atas card-body atau halaman --}}
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if (session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    {{-- Untuk error validasi alasan penolakan --}}
+                    @if (session('error_form_tolak_pengajuan_id') == $pengajuan->pengajuan_id && $errors->has('alasan_penolakan'))
+                        <div class="alert alert-danger mt-2 py-2">
+                            <ul class="mb-0">
+                                @foreach ($errors->get('alasan_penolakan') as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="row align-items-center">
                         <div class="col-md-2 text-center mb-3 mb-md-0">
                             <img src="{{ $pengajuan->mahasiswa->foto ? asset('storage/mahasiswa/' . $pengajuan->mahasiswa->foto) : asset('assets/default-profile.png') }}"
@@ -241,37 +270,41 @@
                                             </div>
                                         </div>
 
-                                        @if ($mahasiswaSkill->linkedPortofolios->isNotEmpty())
+                                        @if (optional($mahasiswaSkill->linkedPortofolios)->isNotEmpty())
                                             <p class="mt-2 mb-1 text-xs text-uppercase fw-bold text-muted">Bukti Portofolio
                                                 Terkait:</p>
                                             <ul class="portfolio-list-clean">
-                                                @foreach ($mahasiswaSkill->linkedPortofolios as $portfolioLink)
+                                                {{-- $portfolioItem DI SINI ADALAH INSTANCE PortofolioMahasiswa --}}
+                                                @foreach ($mahasiswaSkill->linkedPortofolios as $portfolioItem)
                                                     <li>
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div>
+                                                                {{-- AKSES ATRIBUT LANGSUNG DARI $portfolioItem --}}
                                                                 <span
-                                                                    class="portfolio-title-clean">{{ optional($portfolioLink->portofolio)->judul_portofolio }}</span>
+                                                                    class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
                                                                 <span class="portfolio-type-clean">
-                                                                    ({{ ucfirst(optional($portfolioLink->portofolio)->tipe_portofolio) }})
-                                                                </span>
+                                                                    ({{ ucfirst($portfolioItem->tipe_portofolio) }})</span>
                                                             </div>
                                                             <span class="portfolio-link-clean">
-                                                                @if (in_array(optional($portfolioLink->portofolio)->tipe_portofolio, ['url', 'video']))
-                                                                    <a href="{{ optional($portfolioLink->portofolio)->lokasi_file_atau_url }}"
+                                                                @if (in_array($portfolioItem->tipe_portofolio, ['url', 'video']))
+                                                                    <a href="{{ $portfolioItem->lokasi_file_atau_url }}"
                                                                         target="_blank"
-                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"><i
+                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"
+                                                                        title="Lihat Link"><i
                                                                             class="fas fa-external-link-alt"></i></a>
-                                                                @elseif(in_array(optional($portfolioLink->portofolio)->tipe_portofolio, ['file', 'gambar']))
-                                                                    <a href="{{ asset('storage/' . optional($portfolioLink->portofolio)->lokasi_file_atau_url) }}"
+                                                                @elseif(in_array($portfolioItem->tipe_portofolio, ['file', 'gambar']))
+                                                                    <a href="{{ asset('storage/' . $portfolioItem->lokasi_file_atau_url) }}"
                                                                         target="_blank"
-                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"><i
+                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"
+                                                                        title="Lihat File"><i
                                                                             class="fas fa-download"></i></a>
                                                                 @endif
                                                             </span>
                                                         </div>
-                                                        @if (optional($portfolioLink->pivot)->deskripsi_penggunaan_skill)
+                                                        {{-- AKSES DATA PIVOT MELALUI ATRIBUT 'pivot' --}}
+                                                        @if ($portfolioItem->pivot && $portfolioItem->pivot->deskripsi_penggunaan_skill)
                                                             <p class="small text-muted mt-1 mb-0 fst-italic">
-                                                                "{{ $portfolioLink->pivot->deskripsi_penggunaan_skill }}"
+                                                                "{{ $portfolioItem->pivot->deskripsi_penggunaan_skill }}"
                                                             </p>
                                                         @endif
                                                     </li>
@@ -317,7 +350,7 @@
                                                 </p>
                                                 @if ($portfolio->tanggal_pengerjaan_selesai)
                                                     <p class="small mb-0 text-muted">Selesai:
-                                                        {{ Carbon::parse($portfolio->tanggal_pengerjaan_selesai)->isoFormat('MMM YYYY') }}
+                                                        {{ $portfolio->tanggal_pengerjaan_selesai->isoFormat('MMM YY') }}
                                                     </p>
                                                 @endif
                                             </div>
