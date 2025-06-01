@@ -27,6 +27,12 @@
                             class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
                         <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
                     </a>
+                    <a class="nav-link {{ $activeMenu == 'logharian_dosen' ? 'active text-success' : '' }}" 
+                        href="{{ route('logharian_dosen.index') }}">
+                        <i 
+                            class="fas fa-users me-2 {{ $activeMenu == 'logharian_dosen' ? 'text-success' : 'text-dark' }}"></i>
+                        <span class="nav-link-text ms-1">Log Harian Mahasiswa</span>
+                    </a>
                 </li>
             @endif
             @if (Auth::user()->role_dosen === 'dpa')
