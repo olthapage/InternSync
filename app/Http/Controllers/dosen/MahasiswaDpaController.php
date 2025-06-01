@@ -96,19 +96,29 @@ class MahasiswaDpaController extends Controller
     }
     public function showValidasiSkillPage(MahasiswaModel $mahasiswa)
     {
-        $dpa = Auth::user();
+        $dpa = Auth::guard('dosen')->user(); // Lebih baik eksplisit dengan guard dosen
         $activeMenu = 'mahasiswa-dpa';
+
+        if (!$dpa || $dpa->role_dosen !== 'dpa') { // Pastikan yang login adalah DPA
+            return redirect()->route('home') // atau dashboard dosen umum
+                ->with('error', 'Anda tidak memiliki akses DPA.');
+        }
 
         // Autorisasi: Pastikan DPA hanya bisa mengakses mahasiswa dari prodinya
         if (is_null($dpa->prodi_id) || $mahasiswa->prodi_id !== $dpa->prodi_id) {
-            // Atau jika DPA tidak punya prodi_id sama sekali
-            return redirect()->route('dosen.mahasiswa-dpa.index')->with('error', 'Akses ditolak atau mahasiswa tidak ditemukan dalam prodi Anda.');
+            return redirect()->route('dosen.mahasiswa-dpa.index')
+                ->with('error', 'Akses ditolak atau mahasiswa tidak ditemukan dalam prodi Anda.');
         }
 
         $skillsForValidation = MahasiswaSkillModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
-            ->with(['detailSkill', 'linkedPortofolios.portofolio']) // Eager load portofolio yang terhubung
-            ->orderBy('created_at', 'asc') // Urutkan agar lebih mudah direview
+            // MODIFIKASI DI SINI: Hapus '.portofolio'
+            ->with(['detailSkill.kategori', 'linkedPortofolios']) // Cukup 'linkedPortofolios'
+            ->orderBy('created_at', 'asc')
             ->get();
+
+        // Jika Anda ingin mengakses data dari tabel pivot (portofolio_skill_pivot) seperti 'deskripsi_penggunaan_skill'
+        // relasi belongsToMany 'linkedPortofolios' sudah menyediakannya melalui atribut 'pivot'
+        // Contoh di view: $portfolioLink->pivot->deskripsi_penggunaan_skill
 
         return view('dosen_page.mahasiswa_dpa.validasi_skill_show', compact(
             'mahasiswa',

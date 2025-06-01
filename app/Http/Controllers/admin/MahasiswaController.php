@@ -23,34 +23,54 @@ class MahasiswaController extends Controller
 
     public function list(Request $request)
     {
-        $users = MahasiswaModel::select(
-            'mahasiswa_id',
-            'nama_lengkap',
-            'email',
-            'ipk',
-            'nim',
-            'status',
-            'level_id',
-            'prodi_id',
-            'dosen_id'
-        )->with(['level', 'prodi', 'dosen']);
+        // Ambil mahasiswa beserta relasi yang dibutuhkan untuk ditampilkan dan difilter
+        $mahasiswaQuery = MahasiswaModel::with([
+            'level',
+            'prodi',
+            'dpa', // Relasi ke DosenModel untuk DPA
+            'dosenPembimbing', // Relasi ke DosenModel untuk Pembimbing Magang
+            'magang' // Relasi ke MagangModel untuk cek status magang
+        ])->select('m_mahasiswa.*'); // Selalu baik untuk select spesifik atau semua dari tabel utama
 
-        if ($request->level_id) {
-            $users->where('level_id', $request->level_id);
+        if ($request->filled('level_id')) { // Jika ada filter level_id
+            $mahasiswaQuery->where('level_id', $request->level_id);
         }
+        // Tambahkan filter lain jika perlu
 
-        return DataTables::of($users)
+        return DataTables::of($mahasiswaQuery)
             ->addIndexColumn()
-            ->addColumn('level', fn($user) => $user->level->level_nama ?? '-')
-            ->addColumn('prodi', fn($user) => $user->prodi->nama_prodi ?? '-')
-            ->addColumn('dosen', fn($user) => $user->dosen->nama_lengkap ?? '-')
-            ->addColumn('aksi', function ($user) {
-                $btn = '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/verifikasi') . '\')" class="btn btn-info btn-sm">Validasi</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/mahasiswa/' . $user->mahasiswa_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+            ->addColumn('nama_lengkap_detail', function ($mahasiswa) {
+                return view('admin_page.mahasiswa.partials.nama_detail', compact('mahasiswa'))->render();
+            })
+            ->addColumn('prodi_nama', fn($mahasiswa) => optional($mahasiswa->prodi)->nama_prodi ?? '-')
+            ->addColumn('dpa_nama', fn($mahasiswa) => optional($mahasiswa->dpa)->nama_lengkap ?? '<span class="text-muted fst-italic">Belum Diatur</span>')
+            ->addColumn('pembimbing_nama', fn($mahasiswa) => optional($mahasiswa->dosenPembimbing)->nama_lengkap ?? '<span class="text-muted fst-italic">Belum Ada</span>')
+            ->addColumn('status_magang_display', function ($mahasiswa) {
+                if ($mahasiswa->magang && in_array(strtolower($mahasiswa->magang->status), ['belum', 'sedang'])) {
+                    return '<span class="badge bg-success">Sedang/Akan Magang</span>';
+                } elseif ($mahasiswa->magang && strtolower($mahasiswa->magang->status) == 'selesai') {
+                    return '<span class="badge bg-info">Magang Selesai</span>';
+                }
+                // Cek juga dari pengajuan jika belum masuk MagangModel tapi sudah diterima
+                $pengajuanDiterima = $mahasiswa->pengajuan()
+                                        ->where('status', 'diterima') // Sesuai ENUM PengajuanModel
+                                        ->first();
+                if($pengajuanDiterima && !$mahasiswa->magang){ // Diterima pengajuan tapi belum jadi magang record
+                     return '<span class="badge bg-primary">Diterima (Menunggu Magang)</span>';
+                }
+
+                return '<span class="badge bg-secondary">Belum Magang</span>';
+            })
+            ->addColumn('status_akun', function($mahasiswa){ // Status aktif/tidak aktif akun mahasiswa
+                 return $mahasiswa->status == 1 ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Tidak Aktif</span>';
+            })
+            ->addColumn('aksi', function ($mahasiswa) {
+                $btn = '<button onclick="modalAction(\'' . route('mahasiswa.verifikasi', $mahasiswa->mahasiswa_id) . '\')" class="btn btn-info btn-sm me-1 mb-1" title="Verifikasi Dokumen"><i class="fas fa-user-check"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('mahasiswa.edit', $mahasiswa->mahasiswa_id) . '\')" class="btn btn-warning btn-sm me-1 mb-1" title="Edit Mahasiswa"><i class="fas fa-edit"></i></button>';
+                $btn .= '<button onclick="modalAction(\'' . route('mahasiswa.deleteModal', $mahasiswa->mahasiswa_id) . '\')" class="btn btn-danger btn-sm mb-1" title="Hapus Mahasiswa"><i class="fas fa-trash"></i></button>';
                 return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['aksi', 'dpa_nama', 'pembimbing_nama', 'status_magang_display', 'status_akun', 'nama_lengkap_detail'])
             ->make(true);
     }
 
@@ -81,6 +101,7 @@ class MahasiswaController extends Controller
                 'level_id'     => 'required',
                 'prodi_id'     => 'required',
                 'dosen_id'     => 'nullable',
+                'dpa_id'       => 'nullable'
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -102,6 +123,7 @@ class MahasiswaController extends Controller
                 'level_id'     => $request->level_id,
                 'prodi_id'     => $request->prodi_id,
                 'dosen_id'     => $request->dosen_id,
+                'dosen_id'     => $request->dpa_id,
             ]);
 
             return response()->json([
@@ -124,171 +146,120 @@ class MahasiswaController extends Controller
         return redirect('/');
     }
 
-    public function edit(Request $request, $id)
+    public function edit(Request $request, $id) // $id adalah mahasiswa_id
     {
-        $mahasiswa = MahasiswaModel::findOrFail($id);
-        $prodi     = ProdiModel::all();
-        $level     = LevelModel::all();
-        $dosen     = DosenModel::all();
+        $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dpa', 'dosenPembimbing', 'magang'])->findOrFail($id);
+        $prodiList = ProdiModel::orderBy('nama_prodi')->get(); // Ganti nama variabel agar tidak bentrok
+        $levelList = LevelModel::whereIn('level_nama', ['Mahasiswa', 'MHS'])->get(); // Hanya level mahasiswa
+
+        // Ambil dosen yang bisa jadi DPA (misal semua dosen atau dosen dengan role 'dpa')
+        $dosenDpaList = DosenModel::where('role_dosen', 'dpa')->orderBy('nama_lengkap')->get();
+        if($dosenDpaList->isEmpty()){ // Fallback jika tidak ada DPA spesifik
+            $dosenDpaList = DosenModel::orderBy('nama_lengkap')->get();
+        }
+
+        // Ambil dosen yang bisa jadi Pembimbing (misal dosen dengan role 'pembimbing')
+        $dosenPembimbingList = DosenModel::where('role_dosen', 'pembimbing')->orderBy('nama_lengkap')->get();
+         if($dosenPembimbingList->isEmpty()){ // Fallback jika tidak ada pembimbing spesifik
+            $dosenPembimbingList = DosenModel::orderBy('nama_lengkap')->get();
+        }
+
+        // Cek status magang mahasiswa
+        $statusMagangMahasiswa = null;
+        if ($mahasiswa->magang) {
+            $statusMagangMahasiswa = $mahasiswa->magang->status; // e.g., 'belum', 'sedang', 'selesai'
+        } else {
+            // Cek juga dari tabel pengajuan jika statusnya 'diterima' tapi belum masuk magangModel
+            $pengajuanDiterima = $mahasiswa->pengajuan()->where('status', 'diterima')->first();
+            if ($pengajuanDiterima) {
+                $statusMagangMahasiswa = 'akan_magang'; // Status custom untuk menandakan sudah diterima tapi belum di magangModel
+            }
+        }
+
 
         if ($request->ajax()) {
-            return view('admin_page.mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen'));
+            return view('admin_page.mahasiswa.edit', compact(
+                'mahasiswa',
+                'prodiList',
+                'levelList',
+                'dosenDpaList',
+                'dosenPembimbingList',
+                'statusMagangMahasiswa'
+            ));
         }
 
+        // Untuk non-AJAX (jika ada), meskipun biasanya modal edit via AJAX
         $activeMenu = 'mahasiswa';
-        return view('admin_page.mahasiswa.edit', compact('mahasiswa', 'prodi', 'level', 'dosen', 'activeMenu'));
+        return view('admin_page.mahasiswa.edit', compact(
+            'mahasiswa',
+            'prodiList',
+            'levelList',
+            'dosenDpaList',
+            'dosenPembimbingList',
+            'statusMagangMahasiswa',
+            'activeMenu'
+        ));
     }
 
-    public function update(Request $request, $id)
+     public function update(Request $request, $id)
     {
-        Log::info('Data received:', $request->all());
-        if ($request->ajax() || $request->wantsJson()) {
-            $rules = [
-                'nama_lengkap' => 'required',
-                'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
-                'ipk'          => 'nullable|numeric|min:0|max:4',
-                'nim'          => 'required|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
-                'status'       => 'required|boolean',
-                'level_id'     => 'required',
-                'prodi_id'     => 'required',
-                'dosen_id'     => 'nullable',
-                'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
-            ];
+        // Logika update Anda yang sudah ada sebelumnya
+        // Tambahkan validasi dan penyimpanan untuk dpa_id dan dosen_id (pembimbing)
 
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi gagal.',
-                    'msgField' => $validator->errors(),
-                ]);
-            }
+        $mahasiswa = MahasiswaModel::findOrFail($id);
 
-            $mahasiswa = MahasiswaModel::find($id);
-            if ($mahasiswa) {
-                $data = $request->only(['nama_lengkap', 'email', 'ipk', 'nim', 'status', 'level_id', 'prodi_id', 'dosen_id']);
+        $rules = [
+            'nama_lengkap' => 'required|string|max:255',
+            'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
+            'nim'          => 'required|string|max:15|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
+            'ipk'          => 'nullable|numeric|min:0|max:4.00',
+            'status'       => 'required|boolean', // Status akun mahasiswa (aktif/tidak)
+            'level_id'     => 'required|exists:m_level_user,level_id',
+            'prodi_id'     => 'required|exists:tabel_prodi,prodi_id', // Pastikan nama tabel prodi benar
+            'foto'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
+            'password'     => 'nullable|string|min:6|max:20',
 
-                if ($request->filled('password')) {
-                    $data['password'] = bcrypt($request->password);
-                }
+            'dpa_id'       => 'nullable|exists:m_dosen,dosen_id', // DPA bisa dipilih dari semua dosen
+            'dosen_id'     => 'nullable|exists:m_dosen,dosen_id', // Dosen Pembimbing bisa dipilih
+        ];
 
-                // Create foto directory if it doesn't exist
-                if (! Storage::disk('public')->exists('foto')) {
-                    Storage::disk('public')->makeDirectory('foto');
-                    Log::info('Created foto directory in storage');
-                }
+        $validator = Validator::make($request->all(), $rules);
 
-                // Debug storage permissions
-                Log::info('Storage permissions check:', [
-                    'public_writable' => is_writable(storage_path('app/public')),
-                    'foto_writable'   => is_writable(storage_path('app/public/foto')),
-                    'storage_path'    => storage_path('app/public/foto'),
-                ]);
-
-                // Detailed logging of file upload request
-                Log::info('File Upload Request Details:', [
-                    'hasFile'        => $request->hasFile('foto'),
-                    'allFiles'       => $request->allFiles(),
-                    'fileInput_name' => 'foto',
-                    'request_method' => $request->method(),
-                    'content_type'   => $request->header('Content-Type'),
-                    'enctype'        => $request->header('Content-Type') ? str_contains($request->header('Content-Type'), 'multipart/form-data') : false,
-                ]);
-
-                // Check if there's a file in the request
-                if ($request->hasFile('foto')) {
-                    $file = $request->file('foto');
-
-                    // Log details about the uploaded file
-                    Log::info('Uploaded File Details:', [
-                        'isValid'       => $file->isValid(),
-                        'originalName'  => $file->getClientOriginalName(),
-                        'extension'     => $file->getClientOriginalExtension(),
-                        'mimeType'      => $file->getMimeType(),
-                        'size'          => $file->getSize(),
-                        'error'         => $file->getError(),
-                        'error_message' => $file->getErrorMessage(),
-                    ]);
-
-                    if ($file->isValid()) {
-                        try {
-                            // Delete old file if exists
-                            if ($mahasiswa->foto && Storage::disk('public')->exists('foto/' . $mahasiswa->foto)) {
-                                Storage::disk('public')->delete('foto/' . $mahasiswa->foto);
-                                Log::info('Old photo deleted', ['old_file' => $mahasiswa->foto]);
-                            }
-
-                            // Generate unique filename
-                            $namaFile = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
-                            // Store file with direct file access to avoid issues
-                            $uploadSuccess = $file->move(storage_path('app/public/foto'), $namaFile);
-
-                            if ($uploadSuccess) {
-                                $data['foto'] = $namaFile;
-                                Log::info('File uploaded successfully using move method', [
-                                    'filename' => $namaFile,
-                                    'path'     => storage_path('app/public/foto/' . $namaFile),
-                                    'exists'   => file_exists(storage_path('app/public/foto/' . $namaFile)),
-                                ]);
-                            } else {
-                                Log::error('Failed to move file');
-                                return response()->json([
-                                    'status'  => false,
-                                    'message' => 'Gagal menyimpan foto (move failed)',
-                                ]);
-                            }
-                        } catch (\Exception $e) {
-                            Log::error('Exception during file upload:', [
-                                'message' => $e->getMessage(),
-                                'code'    => $e->getCode(),
-                                'file'    => $e->getFile(),
-                                'line'    => $e->getLine(),
-                                'trace'   => $e->getTraceAsString(),
-                            ]);
-
-                            return response()->json([
-                                'status'  => false,
-                                'message' => 'Gagal menyimpan foto: ' . $e->getMessage(),
-                            ]);
-                        }
-                    } else {
-                        Log::error('Invalid file upload:', [
-                            'error_code'    => $file->getError(),
-                            'error_message' => $file->getErrorMessage(),
-                        ]);
-
-                        return response()->json([
-                            'status'  => false,
-                            'message' => 'File tidak valid: ' . $file->getErrorMessage(),
-                        ]);
-                    }
-                }
-
-                // Update mahasiswa data
-                $mahasiswa->update($data);
-
-                // Log successful update
-                Log::info('Mahasiswa updated successfully:', [
-                    'mahasiswa_id' => $mahasiswa->mahasiswa_id,
-                    'foto'         => $mahasiswa->foto,
-                    'foto_path'    => $mahasiswa->foto ? asset('storage/foto/' . $mahasiswa->foto) : null,
-                    'raw_data'     => $data,
-                ]);
-
-                return response()->json([
-                    'status'  => true,
-                    'message' => 'Data mahasiswa berhasil diperbarui',
-                ]);
-            }
-
+        if ($validator->fails()) {
             return response()->json([
-                'status'  => false,
-                'message' => 'Data mahasiswa tidak ditemukan',
-            ]);
+                'status'   => false,
+                'message'  => 'Validasi gagal.',
+                'msgField' => $validator->errors()->toArray()
+            ], 422);
         }
 
-        return redirect('/');
+        $dataToUpdate = $request->only([
+            'nama_lengkap', 'email', 'nim', 'ipk', 'status', 'level_id', 'prodi_id',
+            'dpa_id', // Simpan DPA ID
+            'dosen_id' // Simpan Dosen Pembimbing ID (sebelumnya juga dosen_id)
+        ]);
+
+        if ($request->filled('password')) {
+            $dataToUpdate['password'] = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($mahasiswa->foto && Storage::disk('public')->exists('mahasiswa/foto/' . $mahasiswa->foto)) {
+                Storage::disk('public')->delete('mahasiswa/foto/' . $mahasiswa->foto);
+            }
+            // Simpan foto baru
+            $namaFileFoto = time() . '_' . $request->file('foto')->getClientOriginalName();
+            $request->file('foto')->storeAs('mahasiswa/foto', $namaFileFoto, 'public');
+            $dataToUpdate['foto'] = $namaFileFoto;
+        }
+
+        $mahasiswa->update($dataToUpdate);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Data mahasiswa berhasil diperbarui.'
+        ]);
     }
 
     public function deleteModal(Request $request, $id)
