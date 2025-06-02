@@ -1,13 +1,18 @@
 <?php
 namespace App\Http\Controllers\industri;
 
-use App\Http\Controllers\Controller;
-use App\Models\DetailLowonganModel;
-use App\Models\MagangModel;
 use Carbon\Carbon;
+use App\Models\MagangModel;
 use Illuminate\Http\Request;
+use App\Models\IndustriModel;
+use App\Models\LogHarianModel;
+use App\Models\DetailLowonganModel;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\LogHarianDetailModel;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 class ManajemenMagangController extends Controller
 {
@@ -151,18 +156,295 @@ class ManajemenMagangController extends Controller
                 return '<span class="badge ' . $badgeBgClass . ' ' . $textClass . '">' . ucfirst(htmlspecialchars($status)) . '</span>';
             })
             ->addColumn('aksi', function ($row) {
-                $detailUrl   = '#'; // Contoh: route('industri.manajemen_magang.show', $row->mahasiswa_magang_id)
-                $evaluasiUrl = '#'; // Contoh: route('industri.manajemen_magang.evaluasi', $row->mahasiswa_magang_id)
+                // $row adalah instance dari MagangModel
+                $actionUrl = route('industri.magang.action', $row->mahasiswa_magang_id);
 
                 $buttons = '<div class="btn-group" role="group">';
-                $buttons .= '<a href="' . $detailUrl . '" class="btn btn-xs btn-outline-info" title="Lihat Detail"><i class="fas fa-eye"></i></a>';
-                if ($row->status !== 'Selesai' && $row->status !== 'Lulus' && $row->status !== 'Dibatalkan') { // Contoh kondisi kapan tombol evaluasi muncul
-                                                                                                                   // $buttons .= '<a href="' . $evaluasiUrl . '" class="btn btn-xs btn-outline-success ms-1" title="Beri/Update Evaluasi"><i class="fas fa-edit"></i></a>';
-                }
+                // Tombol ini akan mengarah ke halaman action baru
+                $buttons .= '<a href="' . $actionUrl . '" class="btn btn-xs btn-outline-primary" title="Kelola Magang"><i class="fas fa-tasks"></i> Kelola</a>';
+                // Anda bisa tambahkan tombol lain jika perlu, misal lihat profil mahasiswa
+                // $buttons .= '<a href="#" class="btn btn-xs btn-outline-info ms-1" title="Lihat Profil Mahasiswa"><i class="fas fa-user"></i></a>';
                 $buttons .= '</div>';
                 return $buttons;
             })
             ->rawColumns(['mahasiswa_detail', 'status_magang', 'aksi'])
             ->make(true);
+    }
+    public function action($mahasiswa_magang_id)
+    {
+        $activeMenu   = 'manajemen';
+        $userIndustri = Auth::user();
+        $industriId   = null; // Sesuaikan cara Anda mendapatkan industriId dari userIndustri
+        if (property_exists($userIndustri, 'industri_id')) {
+            $industriId = $userIndustri->industri_id;
+        } elseif (method_exists($userIndustri, 'getKey')) { // Jika userIndustri adalah model Industri itu sendiri
+            $industriId = $userIndustri->getKey();
+        }
+
+        $magang = MagangModel::with([
+            'mahasiswa.prodi',
+            'lowongan.industri',
+            'mahasiswa.pengajuan' => function ($query) {
+                $query->where('status', 'diterima')->orderBy('created_at', 'desc');
+            },
+        ])
+            ->where('mahasiswa_magang_id', $mahasiswa_magang_id)
+            ->whereHas('lowongan', function ($q) use ($industriId) {
+                $q->where('industri_id', $industriId);
+            })
+            ->firstOrFail();
+
+        $pengajuanDiterima = $magang->mahasiswa->pengajuan()
+            ->where('lowongan_id', $magang->lowongan_id)
+            ->where('status', 'diterima')
+            ->first();
+
+        if (! $pengajuanDiterima) {
+            $pengajuanDiterima = PengajuanModel::where('mahasiswa_id', $magang->mahasiswa_id)
+                ->where('lowongan_id', $magang->lowongan_id)
+                ->where('status', 'diterima')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        $progres              = 0;
+        $tanggalMulaiMagang   = null;
+        $tanggalSelesaiMagang = null;
+        $pesanProgress        = "Tanggal mulai/selesai magang belum ditentukan dari pengajuan.";
+
+        // Ambil tanggal mulai dan selesai dari PengajuanModel yang diterima
+        if ($pengajuanDiterima && $pengajuanDiterima->tanggal_mulai && $pengajuanDiterima->tanggal_selesai) {
+            $tanggalMulaiMagang   = Carbon::parse($pengajuanDiterima->tanggal_mulai);
+            $tanggalSelesaiMagang = Carbon::parse($pengajuanDiterima->tanggal_selesai);
+            $hariIni              = Carbon::now();
+
+            if ($tanggalMulaiMagang->gt($tanggalSelesaiMagang)) {
+                $pesanProgress = "Tanggal mulai tidak boleh melewati tanggal selesai.";
+            } elseif ($hariIni->lt($tanggalMulaiMagang) && $magang->status == 'belum') {
+                $progres       = 0;
+                $pesanProgress = "Magang belum dimulai.";
+            } elseif ($magang->status == 'selesai' || ($hariIni->gt($tanggalSelesaiMagang) && $magang->status != 'belum')) {
+                $progres       = 100;
+                $pesanProgress = "Periode magang telah selesai.";
+                if ($magang->status == 'sedang' && $hariIni->gt($tanggalSelesaiMagang)) {
+                    // Otomatis update status ke selesai jika periode terlewati dan masih 'sedang'
+                    // $magang->status = 'selesai';
+                    // $magang->save();
+                    // Atau biarkan industri yang mengubahnya manual
+                }
+            } elseif ($magang->status == 'sedang' || ($hariIni->gte($tanggalMulaiMagang) && $hariIni->lte($tanggalSelesaiMagang))) {
+                if ($magang->status == 'belum' && $hariIni->gte($tanggalMulaiMagang)) {
+                    // Jika status masih 'belum' tapi tanggal sudah masuk periode,
+                    // bisa dipertimbangkan untuk otomatis update ke 'sedang' atau biarkan industri.
+                    // Untuk saat ini, progress tetap dihitung.
+                }
+                $totalDurasi    = $tanggalMulaiMagang->diffInDays($tanggalSelesaiMagang);
+                $durasiBerjalan = $tanggalMulaiMagang->diffInDays($hariIni);
+                if ($totalDurasi > 0) {
+                    $progres = ($durasiBerjalan / $totalDurasi) * 100;
+                } else if ($totalDurasi == 0 && $hariIni->isSameDay($tanggalMulaiMagang)) {
+                    $progres = 100;
+                } else {
+                    $progres = 0;
+                }
+                $progres       = round(min(100, max(0, $progres)));
+                $pesanProgress = $progres . "% berjalan";
+            } else if ($magang->status == 'belum') {
+                $progres       = 0;
+                $pesanProgress = "Magang belum dimulai atau menunggu tindakan.";
+            }
+
+        } else if ($magang->status == 'selesai') { // Jika pengajuan tidak ada tapi status magang sudah selesai
+            $progres       = 100;
+            $pesanProgress = "Magang telah selesai.";
+        }
+
+        $logHarian = LogHarianModel::with(['detail' => function ($query) {
+            $query->orderBy('tanggal_kegiatan', 'desc')->orderBy('created_at', 'desc');
+        }])
+            ->where('mahasiswa_magang_id', $mahasiswa_magang_id)
+            ->orderBy('tanggal', 'desc')
+            ->paginate(5);
+
+        // Daftar status yang bisa dipilih industri, sesuai dengan enum di database
+        $statusOptions = [
+            'belum'   => 'Belum Mulai',
+            'sedang'  => 'Sedang Berjalan',
+            'selesai' => 'Selesai',
+        ];
+
+        return view('industri_page.magang.action', compact(
+            'activeMenu',
+            'userIndustri',
+            'magang',
+            'pengajuanDiterima',
+            'progres',
+            'pesanProgress',
+            'tanggalMulaiMagang',
+            'tanggalSelesaiMagang',
+            'logHarian',
+            'statusOptions' // Ganti $listStatusMagangIndustri dengan $statusOptions
+        ));
+    }
+
+    public function updateStatus(Request $request, $mahasiswa_magang_id)
+    {
+        $validStatuses = ['belum', 'sedang', 'selesai']; // Status yang valid sesuai enum DB
+        $validator     = Validator::make($request->all(), [
+            'status_magang_baru' => 'required|string|in:' . implode(',', $validStatuses),
+        ], [
+            'status_magang_baru.in' => 'Status yang dipilih tidak valid.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()->with('error', 'Gagal memperbarui status: ' . $validator->errors()->first());
+        }
+
+        $userIndustri = Auth::user();
+        $industriId   = null; // Sesuaikan cara Anda mendapatkan industriId
+        if (property_exists($userIndustri, 'industri_id')) {
+            $industriId = $userIndustri->industri_id;
+        } elseif (method_exists($userIndustri, 'getKey')) {
+            $industriId = $userIndustri->getKey();
+        }
+
+        $magang = MagangModel::where('mahasiswa_magang_id', $mahasiswa_magang_id)
+            ->whereHas('lowongan', function ($q) use ($industriId) {
+                $q->where('industri_id', $industriId);
+            })
+            ->firstOrFail();
+
+        $statusLama    = $magang->status;
+        $statusRequest = $request->status_magang_baru;
+
+        // Logika tambahan untuk transisi status (opsional, tapi baik untuk UX)
+        // if ($statusLama == 'belum' && !in_array($statusRequest, ['sedang'])) {
+        //     return redirect()->back()->with('error', 'Dari "Belum Mulai", status hanya bisa diubah menjadi "Sedang Berjalan".');
+        // }
+        // if ($statusLama == 'sedang' && !in_array($statusRequest, ['selesai'])) {
+        //     return redirect()->back()->with('error', 'Dari "Sedang Berjalan", status hanya bisa diubah menjadi "Selesai".');
+        // }
+        // if ($statusLama == 'selesai' && $statusRequest != 'selesai') {
+        //      return redirect()->back()->with('error', 'Status "Selesai" tidak dapat diubah lagi.');
+        // }
+
+        $magang->status = $statusRequest;
+        $magang->save();
+
+        // Ambil label status yang user-friendly
+        $statusOptionsLabels = [
+            'belum'   => 'Belum Mulai',
+            'sedang'  => 'Sedang Berjalan',
+            'selesai' => 'Selesai',
+        ];
+        $statusLabel = $statusOptionsLabels[$statusRequest] ?? ucfirst($statusRequest);
+
+        return redirect()->route('industri.magang.action', $mahasiswa_magang_id)
+            ->with('success', 'Status magang mahasiswa berhasil diperbarui menjadi "' . $statusLabel . '".');
+    }
+
+    public function approveLogHarian(Request $request, $logHarianDetail_id)
+    {
+        Log::info("Attempting to approve logHarianDetail_id: {$logHarianDetail_id}");
+
+        $userIndustri = Auth::user(); // Ini SEHARUSNYA instance dari App\Models\IndustriModel
+
+        // Validasi bahwa user yang login adalah instance dari IndustriModel
+        if (!$userIndustri || !($userIndustri instanceof IndustriModel)) {
+            Log::error("CRITICAL: Authenticated user is not an instance of IndustriModel as expected. Class: " . ($userIndustri ? get_class($userIndustri) : 'null') . ". Check auth guard configuration for industry routes.");
+            return redirect()->back()->with('error', 'Sesi tidak valid atau otentikasi industri gagal.');
+        }
+
+        // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
+        $industriIdAuth = $userIndustri->getKey(); // Ini akan mengambil nilai dari 'industri_id'
+        Log::info("Authenticated user is IndustriModel. Industri ID Auth: {$industriIdAuth}");
+
+        if (!$industriIdAuth) {
+            // Ini seharusnya tidak terjadi jika user terautentikasi dengan benar sebagai IndustriModel
+            Log::error("Failed to determine industriIdAuth even though user is confirmed as IndustriModel instance. User PK: " . ($userIndustri ? $userIndustri->getKey() : 'N/A'));
+            return redirect()->back()->with('error', 'Tidak dapat mengidentifikasi ID industri Anda.');
+        }
+
+        // Eager load dengan path relasi yang benar
+        $logDetail = LogHarianDetailModel::with('logHarian.mahasiswaMagang.lowongan.industri')
+            ->findOrFail($logHarianDetail_id);
+
+        // Otorisasi: Pastikan log harian ini milik mahasiswa yang magang di industri yang login
+        $industriPemilikLog = optional(optional(optional(optional($logDetail->logHarian)->mahasiswaMagang)->lowongan)->industri)->getKey();
+        Log::info("Industri pemilik log (from logDetail): {$industriPemilikLog}");
+
+        if ($industriPemilikLog != $industriIdAuth) {
+            Log::warning("Authorization failed for approving log. Authenticated Industri ID: {$industriIdAuth}, Log's Industri ID: {$industriPemilikLog}");
+            return redirect()->back()->with('error', 'Anda tidak berhak melakukan aksi ini karena log tidak terkait dengan industri Anda.');
+        }
+
+        $logDetail->status_approval_industri = 'Disetujui';
+        $logDetail->catatan_industri = $request->input('catatan_industri_approve_' . $logHarianDetail_id);
+        $logDetail->save();
+
+        Log::info("LogHarianDetail_id: {$logHarianDetail_id} approved successfully by Industri ID: {$industriIdAuth}");
+        return redirect()->back()->with('success', 'Log harian berhasil disetujui.');
+    }
+
+   public function rejectLogHarian(Request $request, $logHarianDetail_id)
+    {
+        Log::info("Attempting to reject logHarianDetail_id: {$logHarianDetail_id}");
+        $catatanFieldName = 'catatan_industri_reject_' . $logHarianDetail_id;
+
+        $validator = Validator::make($request->all(), [
+            $catatanFieldName => 'required|string|min:5',
+        ], [
+            $catatanFieldName . '.required' => 'Catatan penolakan wajib diisi.',
+            $catatanFieldName . '.min' => 'Catatan penolakan minimal 5 karakter.',
+        ]);
+
+        if ($validator->fails()) {
+            Log::warning("Validation failed for rejecting logHarianDetail_id: {$logHarianDetail_id}", $validator->errors()->toArray());
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error_reject_id_key', $logHarianDetail_id)
+                ->with('error_reject_' . $logHarianDetail_id, $validator->errors()->first());
+        }
+
+        $userIndustri = Auth::user(); // Ini SEHARUSNYA instance dari App\Models\IndustriModel
+
+        // Validasi bahwa user yang login adalah instance dari IndustriModel
+        if (!$userIndustri || !($userIndustri instanceof IndustriModel)) {
+            Log::error("CRITICAL: Authenticated user is not an instance of IndustriModel as expected. Class: " . ($userIndustri ? get_class($userIndustri) : 'null') . ". Check auth guard configuration for industry routes.");
+            return redirect()->back()->with('error', 'Sesi tidak valid atau otentikasi industri gagal.');
+        }
+
+        // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
+        $industriIdAuth = $userIndustri->getKey(); // Ini akan mengambil nilai dari 'industri_id'
+        Log::info("Authenticated user is IndustriModel. Industri ID Auth: {$industriIdAuth}");
+
+        if (!$industriIdAuth) {
+            // Ini seharusnya tidak terjadi jika user terautentikasi dengan benar sebagai IndustriModel
+            Log::error("Failed to determine industriIdAuth even though user is confirmed as IndustriModel instance. User PK: " . ($userIndustri ? $userIndustri->getKey() : 'N/A'));
+            return redirect()->back()->with('error', 'Tidak dapat mengidentifikasi ID industri Anda.');
+        }
+
+        // Eager load dengan path relasi yang benar
+        $logDetail = LogHarianDetailModel::with('logHarian.mahasiswaMagang.lowongan.industri')
+            ->findOrFail($logHarianDetail_id);
+
+        // Otorisasi
+        $industriPemilikLog = optional(optional(optional(optional($logDetail->logHarian)->mahasiswaMagang)->lowongan)->industri)->getKey();
+        Log::info("Industri pemilik log (from logDetail): {$industriPemilikLog}");
+
+        if ($industriPemilikLog != $industriIdAuth) {
+            Log::warning("Authorization failed for rejecting log. Authenticated Industri ID: {$industriIdAuth}, Log's Industri ID: {$industriPemilikLog}");
+            return redirect()->back()->with('error', 'Anda tidak berhak melakukan aksi ini karena log tidak terkait dengan industri Anda.');
+        }
+
+        $logDetail->status_approval_industri = 'Ditolak';
+        $logDetail->catatan_industri = $request->input($catatanFieldName);
+        $logDetail->save();
+
+        Log::info("LogHarianDetail_id: {$logHarianDetail_id} rejected successfully by Industri ID: {$industriIdAuth}");
+        return redirect()->back()->with('success', 'Log harian berhasil ditolak.');
     }
 }

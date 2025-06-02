@@ -288,6 +288,10 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
     Route::prefix('industri/manajemen')->group(function () {
         Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');
         Route::post('/list', [ManajemenMagangController::class, 'list'])->name('industri.magang.list');
+        Route::get('/magang/{mahasiswa_magang_id}/action', [ManajemenMagangController::class, 'action'])->name('industri.magang.action');
+        Route::post('/magang/{mahasiswa_magang_id}/update-status', [ManajemenMagangController::class, 'updateStatus'])->name('industri.magang.updateStatus');
+        Route::post('/log-harian/{logHarianDetail_id}/approve', [ManajemenMagangController::class, 'approveLogHarian'])->name('industri.logHarian.approve');
+        Route::post('/log-harian/{logHarianDetail_id}/reject', [ManajemenMagangController::class, 'rejectLogHarian'])->name('industri.logHarian.reject');
     });
     Route::prefix('logharian_industri')->group(function () {
         Route::get('/', [LogHarianIndustriController::class, 'index'])->name('logharian_industri.index');

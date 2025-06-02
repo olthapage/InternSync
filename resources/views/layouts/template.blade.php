@@ -57,6 +57,9 @@
             background-color: #fafafa;
             color: #0f0f0f;
         }
+        .bg-light {
+            background-color:#fafafa;
+        }
     </style>
     <!-- Nepcha Analytics (nepcha.com) -->
     <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
@@ -64,7 +67,7 @@
     @stack('css')
 </head>
 
-<body class="g-sidenav-show  bg-gray-100">
+<body class="g-sidenav-show  bg-gray-50">
     <aside
         class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl fixed-start ms-3 my-3 bg-white"
         id="sidenav-main" style="overflow-y: hidden;">

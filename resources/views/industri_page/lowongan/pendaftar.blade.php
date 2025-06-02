@@ -240,82 +240,83 @@
                 <div class="row">
                     {{-- Kolom Kiri: Skill Mahasiswa & Portofolio Terkait --}}
                     <div class="col-lg-7 border-end-lg pe-lg-4">
-                        <h4 class="section-title-clean">Keahlian yang Diajukan Mahasiswa</h4>
-                        @if ($pengajuan->mahasiswa->skills->isEmpty())
+                        <h4 class="section-title-clean">Keahlian yang Diajukan Mahasiswa (Valid)</h4>
+                        @php
+                            // Filter skill yang valid saja untuk dihitung dan ditampilkan
+                            $validSkills = $pengajuan->mahasiswa->skills->filter(function ($skill) {
+                                return $skill->status_verifikasi === 'Valid';
+                            });
+                        @endphp
+
+                        @if ($validSkills->isEmpty())
                             <div class="alert alert-secondary text-center">Mahasiswa ini belum mencantumkan skill atau belum
                                 ada skill yang tervalidasi.</div>
                         @else
-                            @foreach ($pengajuan->mahasiswa->skills as $mahasiswaSkill)
-                                <div class="card detail-card"> {{-- Menggunakan class .detail-card --}}
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="mb-0 me-2">
-                                                {{ optional($mahasiswaSkill->detailSkill)->skill_nama ?? 'Skill tidak diketahui' }}
-                                            </h6>
-                                            <div>
-                                                <span
-                                                    class="badge custom-badge bg-level me-1">{{ $mahasiswaSkill->level_kompetensi }}</span>
-                                                @php
-                                                    $statusClass = 'bg-default'; // Default
-                                                    if ($mahasiswaSkill->status_verifikasi === 'Valid') {
-                                                        $statusClass = 'bg-valid';
-                                                    } elseif ($mahasiswaSkill->status_verifikasi === 'Pending') {
-                                                        $statusClass = 'bg-pending';
-                                                    } elseif ($mahasiswaSkill->status_verifikasi === 'Invalid') {
-                                                        $statusClass = 'bg-invalid';
-                                                    }
-                                                @endphp
-                                                <span
-                                                    class="badge custom-badge {{ $statusClass }}">{{ $mahasiswaSkill->status_verifikasi }}</span>
+                            @foreach ($validSkills as $mahasiswaSkill)
+                                {{-- Tampilkan hanya skill yang status_verifikasinya 'Valid' --}}
+                                {{-- @if ($mahasiswaSkill->status_verifikasi === 'Valid') --}} {{-- Tidak perlu if lagi karena sudah difilter --}}
+                                    <div class="card detail-card"> {{-- Menggunakan class .detail-card --}}
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0 me-2">
+                                                    {{ optional($mahasiswaSkill->detailSkill)->skill_nama ?? 'Skill tidak diketahui' }}
+                                                </h6>
+                                                <div>
+                                                    <span
+                                                        class="badge custom-badge bg-level me-1">{{ $mahasiswaSkill->level_kompetensi }}</span>
+                                                    {{-- Badge status verifikasi akan selalu 'Valid' di sini --}}
+                                                    <span
+                                                        class="badge custom-badge bg-valid">{{ $mahasiswaSkill->status_verifikasi }}</span>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        @if (optional($mahasiswaSkill->linkedPortofolios)->isNotEmpty())
-                                            <p class="mt-2 mb-1 text-xs text-uppercase fw-bold text-muted">Bukti Portofolio
-                                                Terkait:</p>
-                                            <ul class="portfolio-list-clean">
-                                                {{-- $portfolioItem DI SINI ADALAH INSTANCE PortofolioMahasiswa --}}
-                                                @foreach ($mahasiswaSkill->linkedPortofolios as $portfolioItem)
-                                                    <li>
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                {{-- AKSES ATRIBUT LANGSUNG DARI $portfolioItem --}}
-                                                                <span
-                                                                    class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
-                                                                <span class="portfolio-type-clean">
-                                                                    ({{ ucfirst($portfolioItem->tipe_portofolio) }})</span>
+                                            @if (optional($mahasiswaSkill->linkedPortofolios)->isNotEmpty())
+                                                <p class="mt-2 mb-1 text-xs text-uppercase fw-bold text-muted">Bukti Portofolio
+                                                    Terkait:</p>
+                                                <ul class="portfolio-list-clean">
+                                                    {{-- $portfolioItem DI SINI ADALAH INSTANCE PortofolioMahasiswa --}}
+                                                    @foreach ($mahasiswaSkill->linkedPortofolios as $portfolioItem)
+                                                        <li>
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    {{-- AKSES ATRIBUT LANGSUNG DARI $portfolioItem --}}
+                                                                    <span
+                                                                        class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
+                                                                    <span class="portfolio-type-clean">
+                                                                        ({{ ucfirst($portfolioItem->tipe_portofolio) }})</span>
+                                                                </div>
+                                                                <span class="portfolio-link-clean">
+                                                                    @if (in_array($portfolioItem->tipe_portofolio, ['url', 'video']))
+                                                                        <a href="{{ $portfolioItem->lokasi_file_atau_url }}"
+                                                                            target="_blank"
+                                                                            class="btn btn-sm btn-outline-dark py-0 px-1"
+                                                                            title="Lihat Link"><i
+                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                    @elseif(in_array($portfolioItem->tipe_portofolio, ['file', 'gambar']))
+                                                                        <a href="{{ asset('storage/' . $portfolioItem->lokasi_file_atau_url) }}"
+                                                                            target="_blank"
+                                                                            class="btn btn-sm btn-outline-dark py-0 px-1"
+                                                                            title="Lihat File"><i
+                                                                                class="fas fa-download"></i></a>
+                                                                    @endif
+                                                                </span>
                                                             </div>
-                                                            <span class="portfolio-link-clean">
-                                                                @if (in_array($portfolioItem->tipe_portofolio, ['url', 'video']))
-                                                                    <a href="{{ $portfolioItem->lokasi_file_atau_url }}"
-                                                                        target="_blank"
-                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"
-                                                                        title="Lihat Link"><i
-                                                                            class="fas fa-external-link-alt"></i></a>
-                                                                @elseif(in_array($portfolioItem->tipe_portofolio, ['file', 'gambar']))
-                                                                    <a href="{{ asset('storage/' . $portfolioItem->lokasi_file_atau_url) }}"
-                                                                        target="_blank"
-                                                                        class="btn btn-sm btn-outline-dark py-0 px-1"
-                                                                        title="Lihat File"><i
-                                                                            class="fas fa-download"></i></a>
-                                                                @endif
-                                                            </span>
-                                                        </div>
-                                                        {{-- AKSES DATA PIVOT MELALUI ATRIBUT 'pivot' --}}
-                                                        @if ($portfolioItem->pivot && $portfolioItem->pivot->deskripsi_penggunaan_skill)
-                                                            <p class="small text-muted mt-1 mb-0 fst-italic">
-                                                                "{{ $portfolioItem->pivot->deskripsi_penggunaan_skill }}"
-                                                            </p>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @else
-                                            <p class="small text-muted fst-italic mt-2 mb-0">Tidak ada portofolio yang
-                                                dikaitkan untuk skill ini.</p>
-                                        @endif
+                                                            {{-- AKSES DATA PIVOT MELALUI ATRIBUT 'pivot' --}}
+                                                            @if ($portfolioItem->pivot && $portfolioItem->pivot->deskripsi_penggunaan_skill)
+                                                                <p class="small text-muted mt-1 mb-0 fst-italic">
+                                                                    "{{ $portfolioItem->pivot->deskripsi_penggunaan_skill }}"
+                                                                </p>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p class="small text-muted fst-italic mt-2 mb-0">Tidak ada portofolio yang
+                                                    dikaitkan untuk skill ini.</p>
+                                            @endif
+                                        </div>
                                     </div>
-                                </div>
+                                {{-- @endif --}} {{-- Tidak perlu endif lagi --}}
                             @endforeach
                         @endif
 
