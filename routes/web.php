@@ -22,6 +22,7 @@ use App\Http\Controllers\admin\KategoriIndustriController;
 use App\Http\Controllers\dosen\MahasiswaBimbinganController;
 use App\Http\Controllers\dosen\LogHarianDosenController;
 use App\Http\Controllers\industri\ManajemenMagangController;
+use App\Http\Controllers\industri\LogHarianIndustriController;
 use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
 use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
 use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
@@ -287,5 +288,11 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
     Route::prefix('industri/manajemen')->group(function () {
         Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');
         Route::post('/list', [ManajemenMagangController::class, 'list'])->name('industri.magang.list');
+    });
+    Route::prefix('logharian_industri')->group(function () {
+        Route::get('/', [LogHarianIndustriController::class, 'index'])->name('logharian_industri.index');
+        Route::post('/list', [LogHarianIndustriController::class, 'list'])->name('logharian_industri.list');
+        Route::get('/{id}/show', [LogHarianIndustriController::class, 'show'])->name('logharian_industri.show');
+        Route::post('/approval', [LogHarianIndustriController::class, 'approval'])->name('logharian_industri.approval');
     });
 });
