@@ -1,3 +1,5 @@
+show.blade dosen 
+
 @empty($logharian)
 <div class="modal-dialog modal-xl" style="max-width:60%;">
     <div class="modal-content">
@@ -22,35 +24,56 @@
             <button type="button" class="btn-close" onclick="$('#myModal').modal('hide')" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <table class="table table-bordered table-sm mb-3">
-                <tr><th>ID Log</th>         <td>{{ $logharian->logHarian_id }}</td></tr>
-                <tr><th>Mahasiswa</th>     <td>{{ $logharian->mahasiswa->nama_lengkap ?? '-' }}</td></tr>
-                <tr><th>Tanggal Log</th>   <td>{{ $logharian->tanggal }}</td></tr>
-                <tr><th>Lokasi</th>        <td>{{ $logharian->lokasi_kegiatan->kota_nama ?? '-' }}</td></tr>
-                <tr><th>Dibuat pada</th>   <td>{{ $logharian->created_at }}</td></tr>
-                <tr><th>Diupdate pada</th> <td>{{ $logharian->updated_at }}</td></tr>
+            <table class="table table-bordered mb-4">
+                <tbody>
+                    <tr>
+                        <th style="width: 20%;">ID Log</th>
+                        <td>{{ $logharian->logHarian_id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mahasiswa</th>
+                        <td>{{ $logharian->mahasiswa->nama_lengkap ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Tanggal Log</th>
+                        <td>{{ $logharian->tanggal }}</td>
+                    </tr>
+                    <tr>
+                        <th>Lokasi</th>
+                        <td>{{ $logharian->lokasi_kegiatan->kota_nama ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dibuat pada</th>
+                        <td>{{ $logharian->created_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>Diupdate pada</th>
+                        <td>{{ $logharian->updated_at }}</td>
+                    </tr>
+                </tbody>
             </table>
 
-            <h6 class="fw-bold">Daftar Aktivitas</h6>
-            <table class="table table-bordered table-striped table-hover table-sm">
-                <thead>
-                    <tr>
-                        <th style="width:20%;">Isi</th>
-                        <th style="width:15%;">Tanggal Aktivitas</th> 
-                        <th style="width:15%;">Lokasi</th>
-                        <th style="width:15%;">Approval Dosen</th>
-                        <th style="width:15%;">Approval Industri</th>
-                        <th style="width:10%;">Catatan Dosen</th>
-                        <th style="width:10%;">Catatan Industri</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($logharian->detail as $detail)
+            <h6 class="fw-bold mb-3">Daftar Aktivitas</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light text-center">
                         <tr>
-                           <td>{{ $detail->isi }}</td>
-                            <td>{{ $detail->tanggal_kegiatan }}</td> 
-                            <td>{{ $detail->lokasi ?? '-' }}</td>
-                            <td>
+                            <th style="width:20%;">Isi</th>
+                            <th style="width:15%;">Tanggal Aktivitas</th>
+                            <th style="width:15%;">Lokasi</th>
+                            <th style="width:15%;">Approval Dosen</th>
+                            <th style="width:15%;">Approval Industri</th>
+                            <th style="width:10%;">Catatan Dosen</th>
+                            <th style="width:10%;">Catatan Industri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($logharian->detail as $detail)
+                        <tr>
+                            <td>{{ $detail->isi }}</td>
+                            <td class="text-center">{{ $detail->tanggal_kegiatan }}</td>
+                            <td class="text-center">{{ $detail->lokasi ?? '-' }}</td>
+                            <td class="text-center">
                                 @switch($detail->status_approval_dosen)
                                     @case('disetujui')
                                         <span class="badge bg-success">Disetujui</span>
@@ -62,7 +85,7 @@
                                         <span class="badge bg-warning text-dark">Pending</span>
                                 @endswitch
                             </td>
-                            <td class="status-approval-industri" data-status="{{ $detail->status_approval_industri }}">
+                            <td class="text-center status-approval-industri" data-status="{{ $detail->status_approval_industri }}">
                                 @switch($detail->status_approval_industri)
                                     @case('disetujui')
                                         <span class="badge bg-success">Disetujui</span>
@@ -77,23 +100,25 @@
                             <td>{{ $detail->catatan_dosen ?? '-' }}</td>
                             <td>{{ $detail->catatan_industri ?? '-' }}</td>
                         </tr>
-                    @empty
-                     <tr>
+                        @empty
+                        <tr>
                             <td colspan="7" class="text-center text-muted">Belum ada aktivitas tercatat.</td>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="modal-footer">
             <button id="btnApprovalDosen" type="button" class="btn btn-warning">Isi Form Approval Dosen</button>
-            
             <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
         </div>
     </div>
 </div>
+
 <script>
 document.getElementById('btnApprovalDosen').addEventListener('click', function () {
+    $('#myModal').modal('hide');
     let statusIndustri = null;
     const statusCells = document.querySelectorAll('.status-approval-industri');
     if (statusCells.length > 0) {
@@ -104,28 +129,35 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
         Swal.fire({
             title: 'Form Approval Dosen',
             html:
-                `<select id="swal-status" class="form-control mb-3">
-                    <option value="">-- Pilih Status --</option>
-                    <option value="disetujui">Disetujui</option>
-                    <option value="ditolak">Ditolak</option>
-                    <option value="pending">Pending</option>
-                </select>
+                `<div class="mb-2">
+                    <select id="swal-status" class="form-select">
+                        <option value="">-- Pilih Status --</option>
+                        <option value="disetujui">Disetujui</option>
+                        <option value="ditolak">Ditolak</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
                 <textarea id="swal-catatan" class="form-control" rows="4" placeholder="Masukkan catatan atau feedback..."></textarea>`,
             showCancelButton: true,
             confirmButtonText: 'Kirim',
             cancelButtonText: 'Batal',
+            focusConfirm: false, 
+            didOpen: () => {
+                document.getElementById('swal-status').focus();
+            },
             preConfirm: () => {
                 const status = document.getElementById('swal-status').value;
                 const catatan = document.getElementById('swal-catatan').value;
+
                 if (!status) {
                     Swal.showValidationMessage('Status harus dipilih');
                     return false;
                 }
+
                 return { status, catatan };
             }
-         }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-                // Kirim via AJAX
                 const data = {
                     _token: '{{ csrf_token() }}',
                     status: result.value.status,
@@ -145,8 +177,7 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
                 .then(res => {
                     if (res.success) {
                         Swal.fire('Berhasil!', res.message, 'success').then(() => {
-                            $('#myModal').modal('hide');
-                            $('#datatable').DataTable().ajax.reload();
+                            location.reload();
                         });
                     } else {
                         Swal.fire('Gagal', res.message, 'error');
@@ -158,7 +189,7 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
                 });
             }
         });
-     } else if (statusIndustri === 'pending') {
+    } else if (statusIndustri === 'pending') {
         Swal.fire('Menunggu Persetujuan', 'Mohon maaf masih menunggu status disetujui oleh industri.', 'info');
     } else if (statusIndustri === 'ditolak') {
         Swal.fire('Tidak Disetujui', 'Log tidak disetujui oleh industri. Anda tidak dapat mengisi form approval.', 'error');
@@ -167,5 +198,4 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
     }
 });
 </script>
-
 @endempty

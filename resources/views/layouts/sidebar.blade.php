@@ -94,6 +94,12 @@
                         class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'manajemen' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Manajemen Magang</span>
                 </a>
+                <a class="nav-link {{ $activeMenu == 'logharian_industri' ? 'active text-success' : '' }}" 
+                    href="{{ route('logharian_industri.index') }}">
+                    <i  
+                        class="fas fa-users me-2 {{ $activeMenu == 'logharian_industri' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Log Harian Mahasiswa</span>
+                </a>
             </li>
         @endauth
 
