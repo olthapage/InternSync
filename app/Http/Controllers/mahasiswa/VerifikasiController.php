@@ -18,7 +18,7 @@ class VerifikasiController extends Controller
         // Validasi input dengan nama tabel yang benar
         $validated = $request->validate([
             'prodi_id'              => 'required|exists:tabel_prodi,prodi_id',  // Sesuaikan dengan nama tabel yang benar
-            'dosen_id'              => 'nullable|exists:m_dosen,dosen_id',  // Sesuaikan dengan nama tabel yang benar
+            'dpa_id'              => 'nullable|exists:m_dosen,dosen_id',  // Sesuaikan dengan nama tabel yang benar
             'ipk'                   => 'nullable|numeric|min:0|max:4',
             'sertifikat_kompetensi' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'pakta_integritas'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -35,7 +35,7 @@ class VerifikasiController extends Controller
         // Menyimpan data non-file (prodi, dosen, dan ipk)
         $dataToUpdate = [
             'prodi_id' => $request->prodi_id,
-            'dosen_id' => $request->dosen_id,
+            'dpa_id' => $request->dpa_id,
             'ipk'      => $request->ipk,
         ];
 
@@ -72,7 +72,7 @@ class VerifikasiController extends Controller
         }
 
         $dataToUpdate['status_verifikasi'] = 'pending';
-        
+
         MahasiswaModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
             ->update($dataToUpdate);
 

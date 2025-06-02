@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Http\Controllers\dosen; // Pastikan namespace ini benar
 
 use App\Http\Controllers\Controller;
-use App\Models\MahasiswaModel;
-use App\Models\DosenModel; // Untuk mendapatkan info DPA yang login
+use App\Models\MahasiswaModel; // Untuk mendapatkan info DPA yang login
+use App\Models\MahasiswaSkillModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
-use App\Models\MahasiswaSkillModel;
+use Yajra\DataTables\Facades\DataTables;
 
 class MahasiswaDpaController extends Controller
 {
@@ -18,9 +16,9 @@ class MahasiswaDpaController extends Controller
      */
     public function index()
     {
-        $activeMenu = 'mahasiswa-dpa'; // Untuk menandai menu aktif di sidebar
-        $dpa = Auth::user(); // Mendapatkan data DPA yang sedang login (instance DosenModel)
-        $prodiName = $dpa->prodi->nama_prodi ?? 'Semua Prodi'; // Mendapatkan nama prodi DPA
+        $activeMenu = 'mahasiswa-dpa';                          // Untuk menandai menu aktif di sidebar
+        $dpa        = Auth::user();                             // Mendapatkan data DPA yang sedang login (instance DosenModel)
+        $prodiName  = $dpa->prodi->nama_prodi ?? 'Semua Prodi'; // Mendapatkan nama prodi DPA
         $activeMenu = 'validasi-portofolio';
 
         // Jika DPA tidak memiliki prodi_id, Anda bisa memutuskan apa yang ditampilkan.
@@ -40,48 +38,49 @@ class MahasiswaDpaController extends Controller
     {
         $dpa = Auth::user(); // DosenModel instance
 
-        // Jika DPA tidak memiliki prodi_id, kembalikan data kosong atau sesuai kebijakan.
-        // Untuk contoh ini, kita akan tampilkan mahasiswa yang prodinya sama dengan DPA.
-        // Jika DPA tidak punya prodi_id, maka tidak ada mahasiswa yang ditampilkan berdasarkan filter ini.
         if (is_null($dpa->prodi_id)) {
-            return DataTables::of(collect([])) // Mengembalikan koleksi kosong
+            return DataTables::of(collect([]))
                 ->addIndexColumn()
-                ->addColumn('nama_lengkap_mahasiswa', function ($row) { return ''; }) // Kolom dummy
-                ->addColumn('prodi_mahasiswa', function ($row) { return ''; })
-                ->addColumn('skill_pending_count', function ($row) { return ''; })
-                ->addColumn('aksi', function ($row) { return ''; })
+                ->addColumn('nama_lengkap_mahasiswa', function ($row) {return '';})
+                ->addColumn('prodi_mahasiswa', function ($row) {return '';})
+                ->addColumn('skill_pending_count', function ($row) {return '';})
+                ->addColumn('aksi', function ($row) {return '';})
                 ->make(true);
         }
 
-        // Ambil mahasiswa yang memiliki prodi_id sama dengan prodi_id DPA
-        // dan eager load relasi yang dibutuhkan
         $query = MahasiswaModel::with([
-                'prodi', // Untuk menampilkan nama prodi mahasiswa
-                'skills' => function ($q_skill) { // Untuk menghitung skill yang statusnya 'Pending'
-                    $q_skill->where('status_verifikasi', 'Pending');
-                }
-            ])
+            'prodi',
+            'skills' => function ($q_skill) {
+                $q_skill->where('status_verifikasi', 'Pending'); // Ini untuk status verifikasi skill
+            },
+        ])
             ->where('prodi_id', $dpa->prodi_id)
-            ->select('m_mahasiswa.*'); // Pastikan memilih semua kolom dari tabel utama
+            ->where('m_mahasiswa.status_verifikasi', 'valid') // <-- TAMBAHKAN BARIS INI
+                                                          // Jika nama tabel di MahasiswaModel adalah 'm_mahasiswa', maka 'm_mahasiswa.status_verifikasi' sudah tepat.
+                                                          // Jika tidak, dan Eloquent mengenali tabelnya secara otomatis, cukup gunakan 'status_verifikasi'.
+                                                          // Namun, karena ada ->select('m_mahasiswa.*'), penggunaan 'm_mahasiswa.status_verifikasi' lebih eksplisit.
+            ->select('m_mahasiswa.*');
 
         return DataTables::of($query)
-            ->addIndexColumn() // Menambahkan kolom nomor urut DT_RowIndex
+            ->addIndexColumn()
             ->addColumn('nama_lengkap_mahasiswa', function ($row) {
-                $foto = $row->foto ? asset('storage/foto/' . $row->foto) : asset('assets/default-profile.png'); // Sesuaikan path foto default
+                $foto = $row->foto ? asset('storage/foto/' . $row->foto) : asset('assets/default-profile.png');
                 return '
-                <div class="d-flex align-items-center">
-                    <img src="' . htmlspecialchars($foto) . '" class="avatar avatar-sm me-3 rounded-circle" alt="foto_mahasiswa">
-                    <div>
-                        <h6 class="mb-0 text-sm">' . htmlspecialchars($row->nama_lengkap) . '</h6>
-                        <p class="text-xs text-secondary mb-0">NIM: ' . htmlspecialchars($row->nim) . '</p>
-                    </div>
-                </div>';
+            <div class="d-flex align-items-center">
+                <img src="' . htmlspecialchars($foto) . '" class="avatar avatar-sm me-3 rounded-circle" alt="foto_mahasiswa">
+                <div>
+                    <h6 class="mb-0 text-sm">' . htmlspecialchars($row->nama_lengkap) . '</h6>
+                    <p class="text-xs text-secondary mb-0">NIM: ' . htmlspecialchars($row->nim) . '</p>
+                </div>
+            </div>';
             })
             ->addColumn('prodi_mahasiswa', function ($row) {
                 return $row->prodi->nama_prodi ?? '-';
             })
             ->addColumn('skill_pending_count', function ($row) {
-                $count = $row->skills->count(); // Mengambil hasil count dari eager loading dengan kondisi
+                // $count = $row->skills->count(); // Ini sudah benar karena 'skills' di-load dengan kondisi
+                // Untuk lebih eksplisit dan memastikan kita menghitung relasi yang sudah difilter saat eager loading:
+                $count = $row->relationLoaded('skills') ? $row->skills->count() : 0;
                 if ($count > 0) {
                     return '<span class="badge bg-warning text-dark">' . $count . ' Skill Menunggu Verifikasi</span>';
                 }
@@ -96,11 +95,11 @@ class MahasiswaDpaController extends Controller
     }
     public function showValidasiSkillPage(MahasiswaModel $mahasiswa)
     {
-        $dpa = Auth::guard('dosen')->user(); // Lebih baik eksplisit dengan guard dosen
+        $dpa        = Auth::guard('dosen')->user(); // Lebih baik eksplisit dengan guard dosen
         $activeMenu = 'mahasiswa-dpa';
 
-        if (!$dpa || $dpa->role_dosen !== 'dpa') { // Pastikan yang login adalah DPA
-            return redirect()->route('home') // atau dashboard dosen umum
+        if (! $dpa || $dpa->role_dosen !== 'dpa') { // Pastikan yang login adalah DPA
+            return redirect()->route('home')           // atau dashboard dosen umum
                 ->with('error', 'Anda tidak memiliki akses DPA.');
         }
 
@@ -111,7 +110,7 @@ class MahasiswaDpaController extends Controller
         }
 
         $skillsForValidation = MahasiswaSkillModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
-            // MODIFIKASI DI SINI: Hapus '.portofolio'
+                                                              // MODIFIKASI DI SINI: Hapus '.portofolio'
             ->with(['detailSkill.kategori', 'linkedPortofolios']) // Cukup 'linkedPortofolios'
             ->orderBy('created_at', 'asc')
             ->get();
@@ -131,8 +130,8 @@ class MahasiswaDpaController extends Controller
     {
         $dpa = Auth::user();
 
-        // Autorisasi: Pastikan DPA hanya bisa memvalidasi skill mahasiswa dari prodinya
-        // dan mahasiswaSkill yang diupdate memang milik mahasiswa di prodi DPA
+                                                        // Autorisasi: Pastikan DPA hanya bisa memvalidasi skill mahasiswa dari prodinya
+                                                        // dan mahasiswaSkill yang diupdate memang milik mahasiswa di prodi DPA
         $mahasiswaTerkait = $mahasiswaSkill->mahasiswa; // Akses relasi mahasiswa dari mahasiswaSkill
         if (is_null($dpa->prodi_id) || is_null($mahasiswaTerkait) || $mahasiswaTerkait->prodi_id !== $dpa->prodi_id) {
             return redirect()->back()->with('error', 'Aksi tidak diizinkan.');
@@ -140,7 +139,7 @@ class MahasiswaDpaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'status_verifikasi' => 'required|string|in:Pending,Valid,Invalid',
-            'level_kompetensi' => 'required|string|in:Beginner,Intermediate,Expert',
+            'level_kompetensi'  => 'required|string|in:Beginner,Intermediate,Expert',
             // 'catatan_dpa' => 'nullable|string|max:500' // Jika ada field catatan
         ]);
 
@@ -152,8 +151,8 @@ class MahasiswaDpaController extends Controller
         }
 
         $mahasiswaSkill->status_verifikasi = $request->status_verifikasi;
-        $mahasiswaSkill->level_kompetensi = $request->level_kompetensi; // DPA bisa menyesuaikan level
-        // $mahasiswaSkill->catatan_dpa = $request->catatan_dpa; // Jika ada
+        $mahasiswaSkill->level_kompetensi  = $request->level_kompetensi; // DPA bisa menyesuaikan level
+                                                                         // $mahasiswaSkill->catatan_dpa = $request->catatan_dpa; // Jika ada
         $mahasiswaSkill->save();
 
         return redirect()->route('dosen.mahasiswa-dpa.validasi.skill.show', $mahasiswaSkill->mahasiswa_id)

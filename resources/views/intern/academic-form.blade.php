@@ -46,7 +46,7 @@
     {{-- Dosen DPA --}}
     <div class="mb-3">
     <label for="dosen_id" class="form-label">Dosen DPA</label>
-    <select name="dosen_id" id="dosen_id" class="form-control">
+    <select name="dpa_id" id="dpa_id" class="form-control">
         <option value="">-- pilih dosen --</option>
         @foreach ($dosens as $dosen)
             @if ($dosen->role_dosen === 'dpa')
@@ -58,7 +58,7 @@
         @endforeach
     </select>
     <small class="text-danger">
-        @error('dosen_id')
+        @error('dpa_id')
             {{ $message }}
         @enderror
     </small>
