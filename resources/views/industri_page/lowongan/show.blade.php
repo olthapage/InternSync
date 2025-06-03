@@ -193,7 +193,7 @@
                 // Tampilkan spinner default
                 modalBody.html(
                     '<div class="text-center py-5"><div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"><span class="visually-hidden">Loading...</span></div><p class="mt-2 mb-0">Memuat kriteria SPK...</p></div>'
-                    );
+                );
 
                 $.ajax({
                     url: '{{ route('industri.lowongan.spk.get_kriteria_form', ['lowongan' => $lowongan->lowongan_id]) }}',
@@ -223,10 +223,10 @@
 
                 resultArea.html(
                     '<div class="text-center mt-3"><div class="spinner-border text-success" role="status"></div><p class="mt-2 mb-0">Menghitung rekomendasi...</p></div>'
-                    );
+                );
                 submitButton.html(
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghitung...'
-                    ).prop('disabled', true);
+                ).prop('disabled', true);
 
                 $.ajax({
                     url: '{{ route('industri.lowongan.spk.calculate', ['lowongan' => $lowongan->lowongan_id]) }}',
@@ -269,6 +269,55 @@
                     }
                 });
             });
+
+            // Event listener untuk tombol "Lihat Langkah Perhitungan" (menggunakan event delegation)
+            $(document).on('click', '[id^="btnLihatLangkahEdas-"]', function() {
+                const lowonganId = $(this).data('lowongan-id'); // Ambil lowongan_id dari data attribute
+                const stepsContainer = $('#edasStepsContainer-' + lowonganId);
+                const stepsContent = $('#edasStepsContent-' + lowonganId);
+                const formKriteria = $('#formSpkKriteria-' + lowonganId); // Ambil form kriteria
+
+                if (!lowonganId || !formKriteria.length) {
+                    console.error(
+                        "Lowongan ID atau Form Kriteria tidak ditemukan untuk mengambil langkah SPK.");
+                    stepsContent.html(
+                        '<p class="text-danger">Gagal memuat langkah: ID Lowongan tidak ditemukan.</p>');
+                    stepsContainer.slideDown();
+                    return;
+                }
+
+                // Kumpulkan data bobot yang saat ini ada di form
+                const formData = formKriteria.serialize();
+
+                stepsContent.html(
+                    '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><p class="mt-2 mb-0 small">Memuat langkah perhitungan...</p></div>'
+                    );
+                stepsContainer.slideToggle(); // Toggle tampilan
+
+                if (stepsContainer.is(':visible')) {
+                    $.ajax({
+                        url: '{{ route('industri.lowongan.spk.get_langkah_edas', ['lowongan' => ':lowonganIdPlaceholder']) }}'
+                            .replace(':lowonganIdPlaceholder', lowonganId),
+                        type: 'POST', // Gunakan POST untuk mengirim data bobot
+                        data: formData, // Kirim bobot yang sedang digunakan
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                'content') // Jangan lupa CSRF token
+                        },
+                        success: function(response) {
+                            stepsContent.html(response);
+                        },
+                        error: function(xhr) {
+                            stepsContent.html(
+                                '<div class="alert alert-warning small">Gagal memuat detail langkah perhitungan. (' +
+                                (xhr.responseJSON ? xhr.responseJSON.message : xhr
+                                    .statusText) + ')</div>');
+                            console.error("Error fetching EDAS steps:", xhr);
+                        }
+                    });
+                }
+            });
+
         });
 
         // Fungsi toggle IPK (didefinisikan global agar bisa dipanggil dari konten AJAX)

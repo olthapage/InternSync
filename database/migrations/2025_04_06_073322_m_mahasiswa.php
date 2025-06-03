@@ -47,6 +47,13 @@ return new class extends Migration
             $table->string('bpjs')->nullable();
             $table->string('sktm_kip')->nullable();
             $table->string('proposal')->nullable();
+            $table->integer('skor_ais')->default(0)->nullable();
+            $table->enum('organisasi', ['aktif', 'sangat_aktif', 'tidak_ikut' ])->default('tidak_ikut')->nullable();
+            $table->enum('lomba', ['aktif', 'sangat_aktif', 'tidak_ikut' ])->default('tidak_ikut')->nullable();
+            $table->enum('kasus', ['ada', 'tidak_ada'])->default('tidak_ada');
+
+            $table->string('sertifikat_organisasi')->nullable();
+            $table->string('sertifikat_lomba')->nullable();
         });
     }
 

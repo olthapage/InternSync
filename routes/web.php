@@ -1,33 +1,33 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\InternController;
-use App\Http\Controllers\LokasiController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\LogHarianController;
 use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\DaftarSkillController;
 use App\Http\Controllers\admin\DosenController;
-use App\Http\Controllers\admin\MagangController;
 use App\Http\Controllers\admin\IndustriController;
+use App\Http\Controllers\admin\KategoriIndustriController;
 use App\Http\Controllers\admin\LowonganController;
+use App\Http\Controllers\admin\MagangController;
 use App\Http\Controllers\admin\MahasiswaController;
 use App\Http\Controllers\admin\PengajuanController;
-use App\Http\Controllers\admin\DaftarSkillController;
 use App\Http\Controllers\admin\ProgramStudiController;
-use App\Http\Controllers\dosen\MahasiswaDpaController;
-use App\Http\Controllers\mahasiswa\VerifikasiController;
-use App\Http\Controllers\admin\KategoriIndustriController;
-use App\Http\Controllers\dosen\MahasiswaBimbinganController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dosen\LogHarianDosenController;
-use App\Http\Controllers\industri\ManajemenMagangController;
+use App\Http\Controllers\dosen\MahasiswaBimbinganController;
+use App\Http\Controllers\dosen\MahasiswaDpaController;
 use App\Http\Controllers\industri\LogHarianIndustriController;
-use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
 use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
+use App\Http\Controllers\industri\ManajemenMagangController;
+use App\Http\Controllers\InternController;
+use App\Http\Controllers\LogHarianController;
+use App\Http\Controllers\LokasiController;
 use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
+use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
 use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
 use App\Http\Controllers\mahasiswa\PortofolioController as MahasiswaPortofolioController;
+use App\Http\Controllers\mahasiswa\VerifikasiController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,6 +258,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
 
     Route::prefix('mahasiswa/verifikasi')->group(function () {
         Route::post('/store', [VerifikasiController::class, 'store'])->name('mahasiswa.verifikasi.store');
+        Route::get('/get-dosen-by-prodi/{prodi_id}', [VerifikasiController::class, 'getDosenByProdi'])
+            ->name('mahasiswa.verifikasi.getDosenByProdi');
     });
 
     Route::prefix('mahasiswa/magang')->group(function () {
@@ -284,6 +286,7 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::post('/pengajuan/{pengajuan}/tolak', [IndustriLowonganController::class, 'tolakPengajuan'])->name('industri.lowongan.pengajuan.tolak');
         Route::get('/{lowongan}/spk-kriteria-form', [IndustriLowonganController::class, 'getSpkModalKriteriaForm'])->name('industri.lowongan.spk.get_kriteria_form');
         Route::post('/{lowongan}/spk-calculate', [IndustriLowonganController::class, 'calculateSpkRekomendasi'])->name('industri.lowongan.spk.calculate');
+        Route::post('/{lowongan}/spk-langkah-edas', [IndustriLowonganController::class, 'getSpkLangkahEdas'])->name('industri.lowongan.spk.get_langkah_edas');
     });
     Route::prefix('industri/manajemen')->group(function () {
         Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');

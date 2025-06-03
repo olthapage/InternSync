@@ -395,67 +395,168 @@ class LowonganController extends Controller
     }
     public function getSpkModalKriteriaForm(DetailLowonganModel $lowongan)
     {
-        $lowongan->load('lowonganSkill.skill'); // Eager load skill yang dibutuhkan
+        $lowongan->load('lowonganSkill.skill');
         return view('industri_page.lowongan.partials.rekomendasi_kriteria_form', compact('lowongan'));
     }
 
-    /**
-     * Menghitung dan menampilkan hasil rekomendasi SPK EDAS.
-     */
     public function calculateSpkRekomendasi(Request $request, DetailLowonganModel $lowongan, SpkEdasService $spkService)
     {
-        // Validasi input bobot
+        $rules = [];
+        $messages = [];
+
+        // Validasi untuk bobot skill
+        if ($request->has('bobot_skill')) {
+            foreach ($request->input('bobot_skill') as $skillId => $bobot) {
+                $rules['bobot_skill.' . $skillId] = 'required|numeric|min:0|max:100';
+                $messages['bobot_skill.' . $skillId . '.required'] = 'Bobot untuk skill wajib diisi.';
+                $messages['bobot_skill.' . $skillId . '.numeric'] = 'Bobot skill harus angka.';
+                $messages['bobot_skill.' . $skillId . '.min'] = 'Bobot skill min 0.';
+                $messages['bobot_skill.' . $skillId . '.max'] = 'Bobot skill maks 100.';
+            }
+        }
+
+        // Validasi untuk kriteria tambahan jika checkbox-nya dicentang
+        $criteriaTambahan = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
+        $criteriaTambahanLabels = [
+            'ipk' => 'IPK',
+            'organisasi' => 'Aktivitas Organisasi',
+            'lomba' => 'Aktivitas Lomba',
+            'skor_ais' => 'Skor AIS',
+            'kasus' => 'Status Kasus'
+        ];
+
+        foreach ($criteriaTambahan as $kriteria) {
+            if ($request->boolean('gunakan_' . $kriteria)) {
+                $rules['bobot_' . $kriteria] = 'required|numeric|min:0|max:100';
+                $messages['bobot_' . $kriteria . '.required'] = 'Bobot untuk ' . $criteriaTambahanLabels[$kriteria] . ' wajib diisi jika kriteria ini digunakan.';
+                $messages['bobot_' . $kriteria . '.numeric'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' harus angka.';
+                $messages['bobot_' . $kriteria . '.min'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' minimal 0.';
+                $messages['bobot_' . $kriteria . '.max'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' maksimal 100.';
+            }
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Input tidak valid. Periksa kembali semua bobot yang Anda masukkan.', 'errors' => $validator->errors()], 422);
+        }
+
+        // Kumpulkan bobot kriteria dari request
+        $criteriaWeights = [
+            'bobot_skill' => $request->input('bobot_skill', []),
+        ];
+        foreach ($criteriaTambahan as $kriteria) {
+            $criteriaWeights['gunakan_' . $kriteria] = $request->boolean('gunakan_' . $kriteria);
+            $criteriaWeights['bobot_' . $kriteria]   = $request->input('bobot_' . $kriteria, 0);
+        }
+
+        // Ambil pendaftar yang relevan
+        $pendaftar = $lowongan->pendaftar()
+            ->where('status', 'belum') // Hanya pendaftar dengan status 'belum'
+            ->with([
+                'mahasiswa.skills' => function($query) { // Eager load skills mahasiswa
+                    $query->where('status_verifikasi', 'Valid'); // Hanya skill yang valid
+                },
+                'mahasiswa.prodi'
+            ])
+            ->get();
+
+        if ($pendaftar->isEmpty()) {
+             $data = ['rankedMahasiswa' => collect(), 'criteriaView' => [], 'message' => 'Tidak ada pendaftar dengan status "belum" yang memenuhi syarat untuk dievaluasi pada lowongan ini.'];
+             return view('industri_page.lowongan.partials.rekomendasi_hasil', $data);
+        }
+
+        try {
+        $result = $spkService->calculateRekomendasi($lowongan, $pendaftar, $criteriaWeights);
+
+        // Tambahkan $lowongan ke array $result sebelum dikirim ke view
+        $result['lowongan'] = $lowongan;
+
+        return view('industri_page.lowongan.partials.rekomendasi_hasil', $result);
+    } catch (\Exception $e) {
+        Log::error('SPK EDAS Calculation Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+        // Saat error, mungkin juga perlu mengirim $lowongan jika view membutuhkannya untuk ID modal
+        // return response()->json(['message' => 'Terjadi kesalahan internal saat menghitung rekomendasi: ' . $e->getMessage()], 500);
+        // Jika mengembalikan view error:
+        return view('industri_page.lowongan.partials.rekomendasi_hasil', [
+            'error_message' => 'Terjadi kesalahan internal: ' . $e->getMessage(),
+            'lowongan' => $lowongan // Kirim $lowongan agar ID modal tetap benar
+        ]);
+    }
+    }
+    public function getSpkLangkahEdas(Request $request, DetailLowonganModel $lowongan, SpkEdasService $spkService)
+    {
+        Log::info('Memulai getSpkLangkahEdas untuk Lowongan ID: ' . $lowongan->lowongan_id);
+        Log::debug('Request data untuk getSpkLangkahEdas:', $request->all());
+
+        // Validasi input bobot (sama seperti di calculateSpkRekomendasi)
         $skillRules = [];
         if ($request->has('bobot_skill')) {
             foreach ($request->input('bobot_skill') as $skillId => $bobot) {
                 $skillRules['bobot_skill.' . $skillId] = 'required|numeric|min:0|max:100';
             }
         }
-
-        $ipkRules = [];
-        if ($request->boolean('gunakan_ipk')) {
-            $ipkRules['bobot_ipk'] = 'required|numeric|min:0|max:100';
+        // Inisialisasi rules untuk kriteria tambahan
+        $additionalCriteriaRules = [];
+        $criteriaTambahan = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
+        foreach ($criteriaTambahan as $kriteria) {
+            if ($request->boolean('gunakan_' . $kriteria)) {
+                $additionalCriteriaRules['bobot_' . $kriteria] = 'required|numeric|min:0|max:100';
+            }
         }
 
-        $validator = Validator::make($request->all(), array_merge($skillRules, $ipkRules), [
-            'bobot_skill.*.required' => 'Bobot untuk setiap skill wajib diisi.',
-            'bobot_skill.*.numeric' => 'Bobot skill harus berupa angka.',
-            'bobot_skill.*.min' => 'Bobot skill minimal 0.',
-            'bobot_skill.*.max' => 'Bobot skill maksimal 100.',
-            'bobot_ipk.required' => 'Bobot IPK wajib diisi jika IPK digunakan.',
-            'bobot_ipk.numeric' => 'Bobot IPK harus berupa angka.',
-            'bobot_ipk.min' => 'Bobot IPK minimal 0.',
-            'bobot_ipk.max' => 'Bobot IPK maksimal 100.',
-        ]);
+        $validator = Validator::make($request->all(), array_merge($skillRules, $additionalCriteriaRules));
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Input tidak valid.', 'errors' => $validator->errors()], 422);
+            Log::warning('Validasi gagal untuk getSpkLangkahEdas Lowongan ID: ' . $lowongan->lowongan_id, $validator->errors()->toArray());
+            // Untuk AJAX, kembalikan JSON error agar bisa ditangani di front-end
+            return response()->json(['message' => 'Input bobot tidak valid.', 'errors' => $validator->errors()], 422);
         }
 
-        // Kumpulkan bobot kriteria dari request
         $criteriaWeights = [
             'bobot_skill' => $request->input('bobot_skill', []),
-            'gunakan_ipk' => $request->boolean('gunakan_ipk'),
-            'bobot_ipk'   => $request->input('bobot_ipk', 0),
         ];
+        foreach ($criteriaTambahan as $kriteria) {
+            $criteriaWeights['gunakan_' . $kriteria] = $request->boolean('gunakan_' . $kriteria);
+            // Ambil bobot hanya jika kriteria digunakan, jika tidak, service harus handle default atau mengabaikannya
+            $criteriaWeights['bobot_' . $kriteria]   = $request->boolean('gunakan_' . $kriteria) ? $request->input('bobot_' . $kriteria, 0) : 0;
+        }
+        Log::debug('CriteriaWeights yang dikirim ke service:', $criteriaWeights);
 
-        // Ambil pendaftar yang relevan (misalnya yang statusnya 'belum')
         $pendaftar = $lowongan->pendaftar()
-            ->where('status', 'belum') // Filter hanya pendaftar yang statusnya 'belum'
-            ->with('mahasiswa.skills.detailSkill', 'mahasiswa.prodi') // Eager load data mahasiswa dan skill mereka
+            ->where('status', 'belum') // Sesuaikan status ini jika perlu
+            ->with([
+                'mahasiswa.skills' => function($query) {
+                    $query->with('detailSkill')->where('status_verifikasi', 'Valid'); // Hanya skill valid
+                },
+                'mahasiswa.prodi'
+            ])
             ->get();
 
+        Log::info('Jumlah pendaftar yang akan diproses untuk langkah EDAS: ' . $pendaftar->count(), ['lowongan_id' => $lowongan->lowongan_id]);
+
         if ($pendaftar->isEmpty()) {
-             $data = ['rankedMahasiswa' => collect(), 'criteriaView' => [], 'message' => 'Tidak ada pendaftar dengan status "belum" pada lowongan ini.'];
-             return view('industri_page.lowongan.partials.rekomendasi_hasil', $data);
+            return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', [
+                'error_message' => 'Tidak ada pendaftar dengan status "belum" untuk ditampilkan langkah perhitungannya.'
+            ]);
         }
 
         try {
-            $result = $spkService->calculateRekomendasi($lowongan, $pendaftar, $criteriaWeights);
-            return view('industri_page.lowongan.partials.rekomendasi_hasil', $result);
+            Log::info('Memanggil SpkEdasService->getEdasCalculationSteps', ['lowongan_id' => $lowongan->lowongan_id]);
+            $edasSteps = $spkService->getEdasCalculationSteps($lowongan, $pendaftar, $criteriaWeights);
+
+            if(isset($edasSteps['error_message'])){
+                Log::warning('Error dari SpkEdasService saat getEdasCalculationSteps:', ['error' => $edasSteps['error_message'], 'lowongan_id' => $lowongan->lowongan_id]);
+                 return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', ['error_message' => $edasSteps['error_message']]);
+            }
+
+            Log::info('Berhasil mendapatkan langkah EDAS, merender view.', ['lowongan_id' => $lowongan->lowongan_id]);
+            return view('industri_page.lowongan.partials.rekomendasi_langkah_edas', $edasSteps);
+
         } catch (\Exception $e) {
-            Log::error('SPK EDAS Calculation Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-            return response()->json(['message' => 'Terjadi kesalahan internal saat menghitung rekomendasi: ' . $e->getMessage()], 500);
+            Log::error('EXCEPTION di getSpkLangkahEdas untuk Lowongan ID ' . $lowongan->lowongan_id . ': ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            // Mengembalikan view dengan pesan error agar bisa ditampilkan di modal
+            return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', ['error_message' => 'Terjadi kesalahan internal saat memuat langkah perhitungan. Silakan coba lagi atau hubungi administrator.']);
         }
     }
 }

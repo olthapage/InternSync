@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
+use App\Models\DosenModel;
+use App\Models\ProdiModel;
 use Illuminate\Http\Request;
 use App\Models\MahasiswaModel;
-use App\Models\ProdiModel;
-use App\Models\DosenModel;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class VerifikasiController extends Controller
 {
@@ -20,7 +21,11 @@ class VerifikasiController extends Controller
             'prodi_id'              => 'required|exists:tabel_prodi,prodi_id',  // Sesuaikan dengan nama tabel yang benar
             'dpa_id'              => 'nullable|exists:m_dosen,dosen_id',  // Sesuaikan dengan nama tabel yang benar
             'ipk'                   => 'nullable|numeric|min:0|max:4',
+            'organisasi'            => 'required|string|in:tidak_ikut,aktif,sangat_aktif',
+            'lomba'                 => 'required|string|in:tidak_ikut,aktif,sangat_aktif',
             'sertifikat_kompetensi' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'sertifikat_organisasi' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'sertifikat_lomba'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'pakta_integritas'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'daftar_riwayat_hidup'  => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'khs'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -42,6 +47,8 @@ class VerifikasiController extends Controller
         // Definisi field file yang akan diupload
         $fileFields = [
             'sertifikat_kompetensi',
+            'sertifikat_organisasi',
+            'sertifikat_lomba',
             'pakta_integritas',
             'daftar_riwayat_hidup',
             'khs',
@@ -56,20 +63,23 @@ class VerifikasiController extends Controller
         // Proses upload untuk setiap file
         foreach ($fileFields as $field) {
             if ($request->hasFile($field) && $request->file($field)->isValid()) {
-                $file      = $request->file($field);
-                $extension = $file->getClientOriginalExtension();
+                // Hapus file lama jika ada dan file baru diunggah
+                if ($mahasiswa->$field && Storage::disk('public')->exists($mahasiswa->$field)) {
+                    Storage::disk('public')->delete($mahasiswa->$field);
+                }
 
-                // Simpan file di direktori verifikasi sesuai dengan model
+                $file = $request->file($field);
+                $extension = $file->getClientOriginalExtension();
+                // Path penyimpanan: verifikasi/{NIM}/nama_field.extensi
                 $path = $file->storeAs(
-                    "verifikasi/{$field}",
-                    "{$nim}_{$field}.{$extension}",
+                    "verifikasi/{$nim}",
+                    "{$field}_" . time() . ".{$extension}", // Tambahkan timestamp untuk keunikan jika diupload ulang
                     'public'
                 );
-
-                // Update path file di array data yang akan diupdate
                 $dataToUpdate[$field] = $path;
             }
         }
+
 
         $dataToUpdate['status_verifikasi'] = 'pending';
 
@@ -77,5 +87,19 @@ class VerifikasiController extends Controller
             ->update($dataToUpdate);
 
         return back()->with('success', 'Data berhasil disimpan.');
+    }
+
+    public function getDosenByProdi(Request $request, $prodi_id)
+    {
+        if (!$request->ajax()) {
+            abort(404);
+        }
+
+        $dosens = DosenModel::where('prodi_id', $prodi_id)
+                            ->where('role_dosen', 'dpa') // Hanya dosen dengan peran DPA
+                            ->orderBy('nama_lengkap', 'asc')
+                            ->get(['dosen_id', 'nama_lengkap']); // Hanya ambil kolom yang dibutuhkan
+
+        return response()->json($dosens);
     }
 }
