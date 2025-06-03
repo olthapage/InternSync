@@ -52,11 +52,9 @@ class DatabaseSeeder extends Seeder
             ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
             ['level_kode' => 'MHS', 'level_nama' => 'Mahasiswa', 'created_at' => $now],
             ['level_kode' => 'DSN', 'level_nama' => 'Dosen', 'created_at' => $now],
+            ['level_kode' => 'IND', 'level_nama' => 'Industri', 'created_at' => $now],
         ];
-        $additionalLevels = ['STF', 'GAA', 'SPV', 'HRD', 'FIN', 'CSO', 'OPR'];
-        foreach ($additionalLevels as $kode) {
-            $levelUserData[] = ['level_kode' => $kode, 'level_nama' => 'Level ' . $kode, 'created_at' => $now];
-        }
+
         DB::table('m_level_user')->insert($levelUserData);
         // Level User IDs akan menjadi 1 s/d 10 secara auto-increment
 
@@ -187,18 +185,6 @@ class DatabaseSeeder extends Seeder
                 'created_at'   => $now,
             ],
         ];
-        for ($i = 3; $i <= 10; $i++) {
-            $levelId    = rand(1, 10);                                           // Bisa level apa saja dari m_level_user
-            $prodiId    = ($levelId == 2 || $levelId == 3) ? rand(1, 10) : null; // Prodi hanya jika mahasiswa atau dosen
-            $userData[] = [
-                'nama_lengkap' => 'User ' . Str::ucfirst(Str::random(6)),
-                'email'        => 'user' . $i . '@example.com',
-                'password'     => Hash::make('password'),
-                'level_id'     => $levelId,
-                'prodi_id'     => $prodiId,
-                'created_at'   => $now,
-            ];
-        }
         DB::table('m_user')->insert($userData);
         // User IDs akan menjadi 1 s/d 10 secara auto-increment
 

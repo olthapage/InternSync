@@ -264,6 +264,7 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
 
     Route::prefix('mahasiswa/magang')->group(function () {
         Route::get('/', [MahasiswaMagangController::class, 'index'])->name('mahasiswa.magang.index');
+        Route::post('/{magang_id}/evaluasi', [MahasiswaMagangController::class, 'storeEvaluasi'])->name('mahasiswa.magang.evaluasi.store');
     });
 
     Route::prefix('mahasiswa/portofolio')->group(function () {

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Models\KotaModel;
-use App\Models\KategoriIndustriModel;
+use App\Models\LevelModel;
 use App\Models\LowonganDetailModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\KategoriIndustriModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class IndustriModel extends Authenticatable
@@ -16,7 +17,7 @@ class IndustriModel extends Authenticatable
     protected $primaryKey = 'industri_id';
     public $timestamps = false;
 
-    protected $fillable = ['industri_nama', 'kota_id', 'kategori_industri_id', 'email', 'telepon', 'password', 'logo'];
+    protected $fillable = ['industri_nama', 'kota_id', 'kategori_industri_id', 'email', 'telepon', 'password', 'logo', 'level_id'];
 
     protected $hidden = ['password'];
 
@@ -33,5 +34,9 @@ class IndustriModel extends Authenticatable
     public function detail_lowongan()
     {
         return $this->hasMany(DetailLowonganModel::class, 'industri_id');
+    }
+    public function level()
+    {
+        return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
     }
 }

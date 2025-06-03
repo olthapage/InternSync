@@ -90,15 +90,13 @@ class InternController extends Controller
 
     public function getKotaByProvinsi(Request $request)
     {
+        $request->validate(['provinsi_id' => 'required|integer|exists:m_provinsi,provinsi_id']); // Tambahkan validasi
+
         $provinsiId = $request->provinsi_id;
 
-        if (!$provinsiId) {
-            return response()->json([], 400);
-        }
-
         $kotas = KotaModel::where('provinsi_id', $provinsiId)
-                    ->orderBy('kota_nama')
-                    ->get(['kota_id', 'kota_nama']);
+                         ->orderBy('kota_nama')
+                         ->get(['kota_id', 'kota_nama']); // Pastikan nama kolom ini sesuai dengan database Anda
 
         return response()->json($kotas);
     }
