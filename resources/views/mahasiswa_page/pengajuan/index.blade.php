@@ -8,7 +8,7 @@
                 untuk mendapatkan peluang diterima yang lebih besar!</p>
 
                 @if (!$profilLengkap)
-                    <div class="alert alert-danger p-3 mb-3 rounded-xl shadow-sm w-100">
+                    <div class="p-3 mb-3 rounded-xl shadow-sm w-100">
                         <strong>Profil belum lengkap atau invalid!</strong> Silakan lengkapi data verifikasi seperti KTP, KHS, Surat
                         Izin Orang Tua, dan CV sebelum mengajukan magang.
                         <p class="text-secondary mb-0">Lengkapi juga portofolio beserta skill yang kamu kuasai pada halaman <a href="{{ route('mahasiswa.portofolio.index') }}" class="text-info">Portofolio Saya</a></p>

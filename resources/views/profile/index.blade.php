@@ -14,7 +14,11 @@
                     </div>
                     <div>
                         <h5 class="mb-1 text-white font-weight-bolder">
+                        @if(Auth::guard('industri')->check())
+                            {{ Auth::user()->industri_nama }}
+                        @else
                             {{ Auth::user()->nama_lengkap }}
+                        @endif
                         </h5>
                         <p class="mb-0 text-white text-sm">
                             {{ Auth::user()->level->level_nama ?? '-' }}
@@ -74,7 +78,7 @@
             <div class="col-12 col-xl-4">
                 @php $level = auth()->user()->level->level_kode; @endphp
 
-                @if (in_array($level, ['ADM', 'DSN']))
+                @if (in_array($level, ['ADM', 'DSN', 'IND']))
                     <div class="card mb-3">
                         <div class="card-header pb-0 p-3">
                             <h6 class="mb-0">⚙ Status Sistem</h6>
@@ -135,7 +139,7 @@
             </div>
 
             {{-- Quick Action (hanya untuk non-ADM/DSN) --}}
-            @unless (in_array(auth()->user()->level->level_kode, ['ADM', 'DSN']))
+            @unless (in_array(auth()->user()->level->level_kode, ['ADM', 'DSN', 'IND']))
                 <div class="col-12 col-xl-4">
                     <div class="card h-100">
                         <div class="card-header pb-0 p-3">
