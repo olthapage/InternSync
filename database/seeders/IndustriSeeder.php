@@ -53,7 +53,8 @@ class IndustriSeeder extends Seeder
                 'kategori_industri_id' => $ind['kategori_preset'],
                 'email'                => $ind['email_prefix'] . ($index + 1) . '@example.com',
                 'telepon'              => $faker->unique()->numerify('081#########'),
-                'password'             => Hash::make('password123'),                       // Password seragam untuk data eksplisit
+                'password'             => Hash::make('password123'),
+                'level_id'             => 4,
                 'created_at'           => $now,
             ];
         }
@@ -67,7 +68,8 @@ class IndustriSeeder extends Seeder
                 'kategori_industri_id' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)],
                 'email'                => Str::slug(explode(' ', $namaPerusahaan)[0], '') . $i . '@example.net', // Email unik berbasis nama
                 'telepon'              => $faker->unique()->numerify('08##########'),
-                'password'             => Hash::make('industriPass'),            // Password seragam untuk yang di-generate
+                'password'             => Hash::make('industriPass'),
+                'level_id'             => 4,            
                 'created_at'           => $now,
                 // 'updated_at'        => $now, // Jika ada
             ];

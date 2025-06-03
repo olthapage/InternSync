@@ -20,11 +20,13 @@ return new class extends Migration
             $table->string('telepon')->nullable();
             $table->string('password')->nullable();
             $table->string('logo')->nullable();
+            $table->unsignedBigInteger('level_id')->nullable();
             $table->timestamp('created_at')->nullable();
 
 
             $table->foreign('kota_id')->references('kota_id')->on('m_kota')->onDelete('cascade');
             $table->foreign('kategori_industri_id')->references('kategori_industri_id')->on('m_kategori_industri')->onDelete('cascade');
+            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');
         });
 
     }

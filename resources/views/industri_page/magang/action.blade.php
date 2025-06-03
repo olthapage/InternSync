@@ -89,7 +89,7 @@
                             </p>
                         @endif
 
-                        <div class="mt-3">
+                        {{-- <div class="mt-3">
                             <p class="mb-1 progress-bar-label">Progres Magang: {{ $pesanProgress }}</p>
                             <div class="progress" style="height: 20px; border-radius: 0.5rem; overflow: hidden;">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated
@@ -100,7 +100,7 @@
                                     {{ $progres }}%
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
 
 
 

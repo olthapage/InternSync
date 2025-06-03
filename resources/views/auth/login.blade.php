@@ -26,6 +26,7 @@
                 <option value="mahasiswa">Mahasiswa</option>
                 <option value="dosen">Dosen</option>
                 <option value="web">Admin</option>
+                <option value="industri">Industri</option>
             </select>
         </div>
 

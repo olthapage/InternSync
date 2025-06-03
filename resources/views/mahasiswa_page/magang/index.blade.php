@@ -2,9 +2,36 @@
 
 @section('content')
     <div class="card card-outline card-primary">
+        <div class="card-header"> {{-- Menggunakan class card-header standar --}}
+            <h3>Magang Saya</h3>
+        </div>
         <div class="card-body text-sm">
-            <h2>Status Magang Saya</h2>
-            <hr>
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
 
             @if ($magang->isEmpty())
                 <div class="alert alert-info text-center" role="alert">
@@ -12,67 +39,291 @@
                     <p>Anda saat ini belum terdaftar atau diterima pada program magang manapun.</p>
                     <p class="mb-0">Silakan coba untuk mengajukan diri (apply) pada lowongan yang tersedia.</p>
                     <a href="{{ route('mahasiswa.lowongan.index') }}" class="btn btn-primary mt-3">Lihat Lowongan Magang</a>
-                    {{-- Ganti href="#" dengan route yang sesuai untuk melihat lowongan --}}
                 </div>
             @else
-                <div class="card">
-                    <div class="card-header">
-                        Detail Magang Anda
-                    </div>
-                    <div class="card-body">
-                        @foreach ($magang as $item)
-                            <div class="mb-4 p-3 border rounded">
-                                <h5>
-                                    @if ($item->lowongan && $item->lowongan->lowongan)
-                                        {{-- Asumsi DetailLowonganModel punya relasi ke LowonganModel yang punya nama_lowongan --}}
-                                        {{-- Atau jika DetailLowonganModel langsung punya judul/nama lowongan --}}
-                                        Posisi: {{ $item->lowongan->judul_lowongan ?? 'Informasi Lowongan Tidak Tersedia' }}
-                                        {{-- Sesuaikan dengan atribut yang benar di DetailLowonganModel untuk nama/judul lowongan --}}
-                                    @else
-                                        Informasi Lowongan Tidak Tersedia
-                                    @endif
-                                </h5>
+                {{-- Tidak perlu div card lagi di sini karena sudah ada di luar --}}
+                @foreach ($magang as $item)
+                    <div class="mb-4 mt-2 p-3 border rounded"> {{-- Memberi sedikit background --}}
+                        <h5>
+                            @if ($item->lowongan && $item->lowongan->judul_lowongan)
+                                Posisi: {{ $item->lowongan->judul_lowongan }}
+                            @else
+                                Informasi Lowongan Tidak Tersedia
+                            @endif
+                        </h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
                                 <p>
-                                    <strong>Status:</strong>
-                                    @if ($item->status == 'diterima')
-                                        <span class="badge bg-success text-capitalize">{{ $item->status }}</span>
+                                    <strong>Status Magang:</strong>
+                                    @if ($item->status == 'diterima' || $item->status == 'sedang')
+                                        <span
+                                            class="badge bg-success text-capitalize">{{ $item->status == 'diterima' ? 'Diterima (Akan Berjalan)' : 'Sedang Berjalan' }}</span>
+                                    @elseif ($item->status == 'selesai')
+                                        <span class="badge bg-primary text-capitalize">Selesai</span>
                                     @elseif ($item->status == 'ditolak')
                                         <span class="badge bg-danger text-capitalize">{{ $item->status }}</span>
-                                    @elseif ($item->status == 'pending' || $item->status == 'diajukan')
-                                        <span class="badge bg-warning text-capitalize">{{ $item->status }}</span>
+                                    @elseif ($item->status == 'pending' || $item->status == 'diajukan' || $item->status == 'belum')
+                                        <span class="badge bg-warning text-capitalize">Belum Mulai</span>
                                     @else
                                         <span
                                             class="badge bg-secondary text-capitalize">{{ $item->status ?? 'Belum ada status' }}</span>
                                     @endif
                                 </p>
 
-                                {{-- Menampilkan detail mahasiswa (jika perlu, tapi biasanya tidak di halaman status magang sendiri) --}}
-                                {{-- <p><strong>Mahasiswa:</strong> {{ $item->mahasiswa->nama_lengkap ?? 'N/A' }}</p> --}}
+                                @if ($item->lowongan)
+                                    <p><strong>Perusahaan:</strong> {{ $item->lowongan->industri->industri_nama ?? 'N/A' }}
+                                    </p>
+                                    {{-- Periode Magang dari Pengajuan --}}
+                                    @if ($item->pengajuan)
+                                        <p><strong>Periode Magang:</strong>
+                                            {{ $item->pengajuan->tanggal_mulai ? \Carbon\Carbon::parse($item->pengajuan->tanggal_mulai)->isoFormat('D MMMM YYYY') : 'N/A' }}
+                                            -
+                                            {{ $item->pengajuan->tanggal_selesai ? \Carbon\Carbon::parse($item->pengajuan->tanggal_selesai)->isoFormat('D MMMM YYYY') : 'N/A' }}
+                                        </p>
+                                    @else
+                                        <p><strong>Periode Magang:</strong> Informasi periode dari pengajuan tidak
+                                            ditemukan.</p>
+                                    @endif
+                                    <p><strong>Kategori Keahlian:</strong>
+                                        {{ $item->lowongan->kategoriSkill->kategori_nama ?? 'N/A' }}</p>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                @if ($item->lowongan)
+                                    <p><strong>Lokasi:</strong>
+                                        {{ $item->lowongan->alamat_lengkap_display ?? 'Lokasi tidak ditentukan.' }}</p>
+                                    <p><strong>Deskripsi Magang:</strong></p>
+                                    <div style="max-height: 100px; overflow-y: auto; padding: 5px; border: 1px solid #eee;">
+                                        {!! nl2br(e($item->lowongan->deskripsi ?? 'Tidak ada deskripsi.')) !!}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <hr>
 
-                                @if ($item->evaluasi)
-                                    <p><strong>Evaluasi:</strong></p>
-                                    <div class="p-2 bg-light border rounded">
+                        {{-- Bagian Evaluasi --}}
+                        @if ($item->status == 'selesai')
+                            @if ($item->evaluasi)
+                                <div class="mt-3">
+                                    <p><strong>Evaluasi Anda:</strong></p>
+                                    <div class="p-3 bg-white border rounded shadow-sm">
                                         {!! nl2br(e($item->evaluasi)) !!}
                                     </div>
-                                @else
-                                    <p><strong>Evaluasi:</strong> Belum ada evaluasi.</p>
-                                @endif
-
-                                {{-- Anda bisa menambahkan informasi lain dari $item->lowongan di sini --}}
-                                {{-- Contoh:
-                                @if ($item->lowongan)
-                                    <p><strong>Perusahaan:</strong> {{ $item->lowongan->perusahaan->nama_perusahaan ?? 'N/A' }}</p>
-                                    <p><strong>Durasi:</strong> {{ $item->lowongan->durasi ?? 'N/A' }}</p>
-                                @endif
-                                --}}
-                            </div>
-                            @if (!$loop->last)
-                                <hr>
+                                </div>
+                            @else
+                                <div class="mt-3">
+                                    <p><strong>Magang Anda telah selesai. Silakan isi evaluasi Anda:</strong></p>
+                                    <form method="POST"
+                                        action="{{ route('mahasiswa.magang.evaluasi.store', $item->mahasiswa_magang_id) }}">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis Evaluasi
+                                                Anda</label>
+                                            <textarea class="form-control @error('evaluasi', 'evaluasi_' . $item->mahasiswa_magang_id) is-invalid @enderror"
+                                                id="evaluasi-{{ $item->mahasiswa_magang_id }}" name="evaluasi" rows="5" required>{{ old('evaluasi') }}</textarea>
+                                            @error('evaluasi', 'evaluasi_' . $item->mahasiswa_magang_id)
+                                                {{-- Error bag specific to this form --}}
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-2">Kirim Evaluasi</button>
+                                    </form>
+                                </div>
                             @endif
-                        @endforeach
+                        @elseif ($item->evaluasi)
+                            <div class="mt-3">
+                                <p><strong>Evaluasi Telah Diberikan:</strong></p>
+                                <div class="p-3 bg-white border rounded shadow-sm">
+                                    {!! nl2br(e($item->evaluasi)) !!}
+                                </div>
+                            </div>
+                        @endif
+                        {{-- Akhir Bagian Evaluasi --}}
+
                     </div>
-                </div>
+                    @if (!$loop->last)
+                        {{-- <hr class="my-4"> --}} {{-- Memberi jarak lebih antar item jika perlu --}}
+                    @endif
+                @endforeach
             @endif
         </div>
     </div>
+    @if ($magang->isEmpty())
+        <div class="text-center mt-4" role="alert">
+            <small><em>Semangat !</em></small>
+        </div>
+    @else
+        <div class="card card-outline card-primary mt-4">
+            <div class="card-body text-sm">
+                <h4 class="mb-4">Log Harian</h4>
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <input type="date" id="tanggal" class="form-control" placeholder="Filter tanggal...">
+                    </div>
+                    <div class="col-md-9 d-flex justify-content-end">
+                        <button onclick="modalAction('{{ route('logHarian.create') }}')"
+                            class="btn btn-sm btn-primary me-2">
+                            Tambah Log Harian
+                        </button>
+                        <a href="{{ route('logHarian.export_pdf') }}" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-file-pdf"></i> Export Log Book (pdf)
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-center" id="table_logharian" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th class="text-start">Tanggal</th>
+                                <th>Isi Log</th>
+                                <th>Lokasi Kegiatan</th>
+                                <th>Status</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false"
+            aria-hidden="true"></div>
+    @endif
 @endsection
+
+@push('css')
+    {{-- Tambahkan CSS jika perlu --}}
+    <style>
+        .card-title {
+            /* Memastikan judul kartu konsisten */
+            float: left;
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin: 0;
+        }
+    </style>
+@endpush
+
+@push('js')
+    <script>
+        function modalAction(url = '') {
+            $('#myModal').load(url, function() {
+                $('#myModal').modal('show');
+            });
+        }
+
+        function deleteLog(id) {
+            Swal.fire({
+                title: 'Yakin ingin menghapus log ini?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/log-harian/' + id + '/delete',
+                        type: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            $('#table_logharian').DataTable().ajax.reload();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: response.message || 'Log berhasil dihapus.'
+                            });
+                        },
+                        error: function(xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: 'Terjadi kesalahan saat menghapus log.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            const tableLogHarian = $('#table_logharian').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('logHarian.list') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d.tanggal = $('#tanggal').val();
+                    }
+                },
+                columns: [{
+                        data: 'tanggal',
+                        name: 'tanggal',
+                        className: 'text-start'
+                    },
+                    {
+                        data: 'isi',
+                        name: 'isi',
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'lokasi_kegiatan',
+                        name: 'lokasi_kegiatan'
+                    },
+                    {
+                        data: 'status_approval_dosen',
+                        name: 'status_approval_dosen',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'aksi',
+                        name: 'aksi',
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center'
+                    }
+                ],
+                language: {
+                    search: "Cari:",
+                    searchPlaceholder: "Isi log...",
+                    lengthMenu: "Tampilkan _MENU_ data per halaman",
+                    zeroRecords: "Tidak ada data log ditemukan",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                    infoFiltered: "(disaring dari _MAX_ total data)",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
+                },
+                order: [
+                    [0, 'desc']
+                ]
+            });
+
+            $('#tanggal').on('change', function() {
+                tableLogHarian.ajax.reload(null, false);
+            });
+        });
+    </script>
+@endpush

@@ -249,7 +249,7 @@
     <main>
         {{-- Hero Section --}}
         <section id="hero"
-            class="relative min-h-screen flex flex-col items-center justify-center text-center overflow-hidden pt-20 md:pt-0 bg-gradient-to-br from-sky-100 via-indigo-50 to-purple-100">
+            class="relative min-h-screen flex flex-col items-center justify-center text-center overflow-hidden pt-20 md:pt-0 bg-white">
             {{-- Floating Icons - Disesuaikan untuk tema magang --}}
             <div
                 class="absolute top-[15%] left-[10%] md:top-[30%] md:left-[15%] w-16 h-16 md:w-20 md:h-20 glassmorphism-light rounded-lg flex items-center justify-center animate-pulse transform -rotate-6 opacity-80">
@@ -283,18 +283,18 @@
             <div class="container mx-auto px-6 py-16 relative z-10 flex flex-col items-center">
                 <a href="#features"
                     class="inline-block bg-sky-500/20 text-sky-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-sky-500/30 transition duration-300 mb-6 reveal">
-                    Temukan Peluang Magang Terbaikmu <i class="fas fa-arrow-right ml-2"></i>
+                    Lihat Mitra yang terafiliasi <i class="fas fa-arrow-right ml-2"></i>
                 </a>
                 <h1
-                    class="text-4xl sm:text-5xl md:text-6xl lg:text-4xl font-extrabold text-slate-900 mb-6 reveal animation-delay-100 text-center">
-                    Intern
+                    class="text-4xl sm:text-5xl md:text-6xl lg:text-4xl font-bold text-slate-900 mb-6 reveal animation-delay-100 text-center">
+                    <em>Intern</em>
                     <span
                         style="
 background: linear-gradient(to right, #3b82f6, #06b6d4);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
 display: inline-block;">
-                        Sync
+                    <em>Sync</em>
                     </span>
                     <br class="hidden md:block">
                     Jembatan Menuju Karir Impian
@@ -317,7 +317,7 @@ display: inline-block;">
                 {{-- Enhanced Image Carousel --}}
                 <div class="mt-8 max-w-5xl w-full mx-auto reveal animation-delay-400 relative mb-20"
                     id="imageCarouselContainer">
-                    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl relative overflow-hidden">
+                    <div class="bg-white p-6 sm:p-8 rounded-xl border border-sm relative overflow-hidden">
                         {{-- Carousel Wrapper --}}
                         <div class="carousel-wrapper flex transition-transform duration-700 ease-in-out"
                             id="carouselWrapper">
@@ -453,15 +453,15 @@ display: inline-block;">
 
                 {{-- Stats section --}}
                 <div class="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
-                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="p-6 bg-white rounded-xl border border-sm hover:shadow-xl transition-shadow duration-300">
                         <div class="text-3xl font-bold text-sky-600 mb-2">20+</div>
                         <div class="text-slate-600 text-sm">Perusahaan Partner</div>
                     </div>
-                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="p-6 bg-white rounded-xl border border-sm hover:shadow-xl transition-shadow duration-300">
                         <div class="text-3xl font-bold text-purple-600 mb-2">2K+</div>
                         <div class="text-slate-600 text-sm">Mahasiswa JTI Kompeten</div>
                     </div>
-                    <div class="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="p-6 bg-white rounded-xl border border-sm hover:shadow-xl transition-shadow duration-300">
                         <div class="text-3xl font-bold text-amber-600 mb-2">24/7</div>
                         <div class="text-slate-600 text-sm">Dukungan Aktif</div>
                     </div>
@@ -612,7 +612,7 @@ display: inline-block;">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12 md:mb-16 reveal">
                     <h2 class="text-3xl md:text-3xl font-bold text-slate-900 mb-4">
-                        <em class="pr-2">Behind</em> InternSync
+                        Tim Kami
                     </h2>
                     <p class="text-sm text-slate-600 max-w-2xl mx-auto">
                         Bertemu dengan para profesional di balik InternSync yang berdedikasi untuk kesuksesan Anda.
