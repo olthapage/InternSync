@@ -290,30 +290,80 @@ class MahasiswaController extends Controller
     }
     public function verifikasi(Request $request, $id)
     {
-        $mahasiswa = MahasiswaModel::findOrFail($id);
-        $prodi     = ProdiModel::all();
-        $level     = LevelModel::all();
-        $dosen     = DosenModel::all();
+        $mahasiswa = MahasiswaModel::with(['prodi', 'dpa', 'dosenPembimbing']) // Eager load relasi yang mungkin ditampilkan
+                                   ->findOrFail($id);
+        // Data prodi, level, dosen untuk dropdown di form edit, mungkin tidak semua relevan untuk modal verifikasi
+        // tapi tidak masalah jika dikirim.
+        // $prodiList = ProdiModel::all(); // Ganti nama variabel agar tidak bentrok
+        // $levelList = LevelModel::all();
+        // $dosenList = DosenModel::all();
 
         if ($request->ajax()) {
-            return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodi', 'level', 'dosen'));
+            // Untuk modal, kita hanya perlu $mahasiswa
+            return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa'));
         }
 
+        // Untuk halaman penuh (jika ada)
         $activeMenu = 'mahasiswa';
-        return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodi', 'level', 'dosen', 'activeMenu'));
+        // return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodiList', 'levelList', 'dosenList', 'activeMenu'));
+        // Karena ini modal, baris di atas mungkin tidak akan pernah tereksekusi jika selalu AJAX
+        // Jika Anda punya halaman verifikasi non-modal, sesuaikan variabel yang di-pass.
+        // Untuk modal, cukup:
+        return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa'));
     }
-    public function updateVerifikasi(Request $request, $id)
+   public function updateVerifikasi(Request $request, $id)
     {
-        $request->validate([
-            'status_verifikasi' => 'required|in:valid,invalid',
-            'alasan'            => 'required_if:status_verifikasi,invalid',
-        ]);
+        $mahasiswa = MahasiswaModel::findOrFail($id);
 
-        $mahasiswa                    = MahasiswaModel::findOrFail($id);
-        $mahasiswa->status_verifikasi = $request->status_verifikasi;
-        $mahasiswa->alasan            = $request->status_verifikasi === 'invalid' ? $request->alasan : null;
-        $mahasiswa->save();
+        $rules = [
+            'status_verifikasi' => 'required|string|in:pending,valid,invalid',
+            'alasan'            => 'required_if:status_verifikasi,invalid|nullable|string|max:1000',
+            'skor_ais'          => 'nullable|integer|min:0|max:1000', // Sesuaikan max jika perlu
+            'kasus'             => 'required|string|in:ada,tidak_ada',
+            // Mahasiswa yang input organisasi dan lomba, admin hanya verifikasi profil secara umum
+            // 'organisasi'        => 'required|string|in:aktif,sangat_aktif,tidak_ikut',
+            // 'lomba'             => 'required|string|in:aktif,sangat_aktif,tidak_ikut',
+        ];
 
-        return response()->json(['success' => true, 'message' => 'Status verifikasi berhasil diperbarui.']);
+        $messages = [
+            'status_verifikasi.required' => 'Status verifikasi wajib dipilih.',
+            'status_verifikasi.in'       => 'Status verifikasi tidak valid.',
+            'alasan.required_if'         => 'Alasan penolakan wajib diisi jika status verifikasi adalah Invalid.',
+            'skor_ais.integer'           => 'Skor AIS harus berupa angka.',
+            'skor_ais.min'               => 'Skor AIS minimal 0.',
+            'kasus.required'             => 'Status kasus mahasiswa wajib dipilih.',
+            'kasus.in'                   => 'Status kasus tidak valid.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $mahasiswa->status_verifikasi = $request->status_verifikasi;
+            $mahasiswa->alasan            = $request->status_verifikasi === 'invalid' ? $request->alasan : null;
+            $mahasiswa->skor_ais          = $request->input('skor_ais', $mahasiswa->skor_ais); // Jika tidak diisi, jangan ubah skor_ais yg ada
+            $mahasiswa->kasus             = $request->kasus;
+
+            // Kolom organisasi dan lomba diisi oleh mahasiswa, jadi tidak diupdate di sini oleh admin
+            // kecuali jika memang ada kebutuhan admin untuk meng-override.
+            // Jika admin bisa override, tambahkan ke $request->only() dan $fillable di model.
+            // $mahasiswa->organisasi = $request->organisasi;
+            // $mahasiswa->lomba = $request->lomba;
+
+            $mahasiswa->save();
+
+            return response()->json(['success' => true, 'message' => 'Status verifikasi dan data mahasiswa berhasil diperbarui.']);
+
+        } catch (\Exception $e) {
+            Log::error("Error updating verifikasi mahasiswa ID {$id}: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan pada server.'], 500);
+        }
     }
 }

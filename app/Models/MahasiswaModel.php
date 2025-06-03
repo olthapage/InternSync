@@ -41,6 +41,12 @@ class MahasiswaModel extends Authenticatable
         'bpjs',
         'sktm_kip',
         'proposal',
+        'skor_ais',
+        'organisasi',
+        'lomba',
+        'kasus',
+        'sertifikat_organisasi',
+        'sertifikat_lomba'
     ];
 
     protected $hidden = ['password'];
