@@ -49,7 +49,7 @@
                     { data: 'prodi', name: 'prodi.nama_prodi', className: 'text-center' },
                     { data: 'tempat_magang', name: 'magang.lowongan.industri.nama_industri', className: 'text-center' },
                     { data: 'judul_lowongan', name: 'magang.lowongan.judul_lowongan', className: 'text-center' },
-                    { data: 'status', name: 'magang.status', className: 'text-center' },
+                    { data: 'status_magang', name: 'magang.status', className: 'text-center' },
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' },
                 ],
                 language: {
