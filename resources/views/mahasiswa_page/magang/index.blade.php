@@ -229,25 +229,46 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Menggunakan helper route() dari Blade untuk URL yang lebih aman
+                    let deleteUrl = '{{ route('logHarian.delete', ['id' => ':id_placeholder']) }}';
+                    deleteUrl = deleteUrl.replace(':id_placeholder', id);
+
+                    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
                     $.ajax({
-                        url: '/log-harian/' + id + '/delete',
+                        url: deleteUrl, // Menggunakan URL yang di-generate dari nama route
                         type: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            'X-CSRF-TOKEN': csrfToken
                         },
                         success: function(response) {
-                            $('#table_logharian').DataTable().ajax.reload();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message || 'Log berhasil dihapus.'
-                            });
+                            // ... (sama seperti sebelumnya)
+                            if (response.status) {
+                                $('#table_logharian').DataTable().ajax.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message || 'Log berhasil dihapus.'
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: response.message || 'Gagal menghapus log.'
+                                });
+                            }
                         },
                         error: function(xhr) {
+                            let errorMessage = 'Terjadi kesalahan saat menghapus log.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            } else if (xhr.statusText && xhr.status) {
+                                errorMessage = `Error ${xhr.status}: ${xhr.statusText}`;
+                            }
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat menghapus log.'
+                                text: errorMessage
                             });
                         }
                     });
@@ -275,7 +296,7 @@
                 columns: [{
                         data: 'tanggal',
                         name: 'tanggal',
-                        className: 'text-start'
+                        className: 'text-center'
                     },
                     {
                         data: 'isi',
@@ -302,19 +323,20 @@
                     }
                 ],
                 language: {
-                    search: "Cari:",
-                    searchPlaceholder: "Isi log...",
-                    lengthMenu: "Tampilkan _MENU_ data per halaman",
-                    zeroRecords: "Tidak ada data log ditemukan",
-                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
-                    infoFiltered: "(disaring dari _MAX_ total data)",
+                    search: "", // Kosongkan default label
+                    searchPlaceholder: "Cari Log...",
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    zeroRecords: "Tidak ditemukan log yang sesuai",
+                    info: "Menampilkan _START_-_END_ dari _TOTAL_ entri",
+                    infoEmpty: "Data tidak tersedia",
+                    infoFiltered: "(disaring dari _MAX_ total entri)",
                     paginate: {
-                        first: "Pertama",
-                        last: "Terakhir",
-                        next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    }
+                        first: "<i class='fas fa-angle-double-left'></i>",
+                        last: "<i class='fas fa-angle-double-right'></i>",
+                        next: "<i class='fas fa-angle-right'></i>",
+                        previous: "<i class='fas fa-angle-left'></i>"
+                    },
+                    processing: '<div class="d-flex justify-content-center"><i class="fas fa-spinner fa-pulse fa-2x fa-fw text-primary"></i><span class="ms-2">Memuat data...</span></div>'
                 },
                 order: [
                     [0, 'desc']

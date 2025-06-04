@@ -13,8 +13,8 @@
             <form id="formTambahLog" action="{{ route('logHarian.store') }}" method="POST" autocomplete="off">
                 @csrf
 
-                {{-- Hidden input mahasiswa_magang_id --}}
-                <input type="hidden" name="mahasiswa_magang_id" value="{{ auth()->user()->mahasiswaMagang->mahasiswa_magang_id ?? '' }}">
+                {{-- Hidden input mahasiswa_magang_id tidak diperlukan lagi di sini jika diambil dari Auth di controller --}}
+                {{-- <input type="hidden" name="mahasiswa_magang_id" value="{{ auth()->user()->mahasiswaMagang->mahasiswa_magang_id ?? '' }}"> --}}
 
                 <div class="mb-3">
                     <label for="tanggal" class="form-label">Tanggal Log <span class="text-danger">*</span></label>
@@ -39,11 +39,12 @@
                                 <textarea name="aktivitas[0][deskripsi]" class="form-control" rows="2" required>{{ old('aktivitas.0.deskripsi') }}</textarea>
                             </td>
                             <td>
+                                {{-- Pastikan name konsisten dengan validasi dan store method: aktivitas[0][tanggal] atau aktivitas[0][tanggal_kegiatan] --}}
                                 <input type="date" name="aktivitas[0][tanggal]" class="form-control" required value="{{ old('aktivitas.0.tanggal', date('Y-m-d')) }}">
                             </td>
                             <td>
-                                <input type="hidden" name="aktivitas[0][lokasi]" value="{{ $lokasi->kota_nama ?? '' }}">
-                                <input type="text" class="form-control" value="{{ $lokasi->kota_nama ?? '-' }}" readonly>
+                                {{-- Input lokasi sekarang bisa diedit, value diisi default lokasi magang --}}
+                                <input type="text" name="aktivitas[0][lokasi]" class="form-control" value="{{ old('aktivitas.0.lokasi', $defaultLokasiMagang ?? '') }}" required>
                             </td>
                             <td>
                                 <select name="aktivitas[0][status_approval]" class="form-select" disabled>
@@ -72,7 +73,8 @@
 <script>
     $(function () {
         let aktivitasIndex = 1;
-        const lokasiNama = @json($lokasi->kota_nama ?? '');
+        // Mengambil default lokasi magang dari controller untuk baris baru
+        const defaultLokasiMagangJs = @json($defaultLokasiMagang ?? 'Alamat tidak tersedia');
 
         // Tambah baris aktivitas
         $('#addAktivitas').click(function () {
@@ -86,8 +88,7 @@
                         <input type="date" name="aktivitas[${aktivitasIndex}][tanggal]" class="form-control" required value="${today}">
                     </td>
                     <td>
-                        <input type="hidden" name="aktivitas[${aktivitasIndex}][lokasi]" value="${lokasiNama}">
-                        <input type="text" class="form-control" value="${lokasiNama}" readonly>
+                        <input type="text" name="aktivitas[${aktivitasIndex}][lokasi]" class="form-control" value="${defaultLokasiMagangJs}" required>
                     </td>
                     <td>
                         <select name="aktivitas[${aktivitasIndex}][status_approval_dosen]" class="form-select" disabled>
@@ -120,10 +121,12 @@
                 method: 'POST',
                 data: form.serialize(),
                 success: function (response) {
-                    $('#myModal').modal('hide');
-                    $('#table_logharian').DataTable().ajax.reload();
+                    $('#myModal').modal('hide'); // Asumsi modal Anda memiliki id="myModal"
+                    if (typeof $('#table_logharian').DataTable === 'function') {
+                        $('#table_logharian').DataTable().ajax.reload();
+                    }
 
-                    // TOAST - Berhasil Simpan
+
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -139,15 +142,32 @@
                     });
                 },
                 error: function (xhr) {
-                    if (xhr.status === 422) {
+                    if (xhr.status === 422) { // Validation error
                         const errors = xhr.responseJSON.errors;
                         $('#alert-errors').removeClass('d-none');
                         $.each(errors, function (key, messages) {
+                            // Menangani error untuk field array (misal: aktivitas.0.deskripsi)
+                            let fieldName = key;
+                            if (key.includes('.')) {
+                                // Ambil bagian terakhir setelah titik untuk tampilan yang lebih ramah
+                                // atau sesuaikan cara Anda menampilkan pesan error untuk field array
+                                fieldName = key.split('.').slice(1).join(' ');
+                                fieldName = fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Capitalize
+                            }
                             messages.forEach(msg => {
-                                $('#list-errors').append('<li>' + msg + '</li>');
+                                $('#list-errors').append('<li>' + msg.replace(key, fieldName) + '</li>');
                             });
                         });
-                    } else {
+                    } else if (xhr.responseJSON && xhr.responseJSON.error) { // Custom error dari controller
+                         $('#alert-errors').removeClass('d-none');
+                         $('#list-errors').append('<li>' + xhr.responseJSON.error + '</li>');
+                         Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: xhr.responseJSON.error || 'Terjadi kesalahan saat menyimpan log.',
+                        });
+                    }
+                    else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
@@ -158,54 +178,10 @@
             });
         });
 
-        // Hapus data (contoh jika ada tombol hapus AJAX di luar form)
-        $('#table_logharian').on('click', '.btn-hapus', function () {
-            const id = $(this).data('id');
-            Swal.fire({
-                title: 'Yakin ingin menghapus?',
-                text: "Data log harian ini akan dihapus permanen.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, hapus!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/logHarian/' + id,
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (response) {
-                            $('#table_logharian').DataTable().ajax.reload();
-
-                            // TOAST - Berhasil Hapus
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: response.success || 'Log harian berhasil dihapus.',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                                didOpen: (toast) => {
-                                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                                }
-                            });
-                        },
-                        error: function () {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal!',
-                                text: 'Terjadi kesalahan saat menghapus log.'
-                            });
-                        }
-                    });
-                }
-            });
-        });
+        // Hapus data (AJAX untuk tombol hapus di tabel utama, jika ada)
+        // Anda sudah memiliki fungsi deleteLog() global, pastikan itu menangani AJAX atau sesuaikan ini.
+        // Jika deleteLog() sudah ada dan berfungsi, bagian ini mungkin tidak diperlukan di sini.
+        // $('#table_logharian').on('click', '.btn-hapus', function () { ... }); // (Kode AJAX hapus Anda)
 
     });
 </script>
