@@ -16,7 +16,9 @@ class MagangModel extends Model
         'mahasiswa_id',
         'lowongan_id',
         'status',
-        'evaluasi'
+        'evaluasi',
+        'feedback_dosen',
+        'feedback_industri'
     ];
     public $timestamps = true;
 

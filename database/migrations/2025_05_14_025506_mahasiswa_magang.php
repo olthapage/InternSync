@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('lowongan_id');
             $table->enum('status', ['belum', 'sedang', 'selesai'])->default('belum'); // status magang mahasiswa
-            $table->text('evaluasi')->nullable(); // evaluasi dari industri
+            $table->text('evaluasi')->nullable(); //mahasiswa
+            $table->text('feedback_dosen')->nullable();
+            $table->text('feedback_industri')->nullable();
             $table->timestamps();
 
             $table->foreign('mahasiswa_id')->references('mahasiswa_id')->on('m_mahasiswa')->onDelete('cascade');

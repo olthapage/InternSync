@@ -217,7 +217,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
     Route::prefix('dosen/mahasiswa-bimbingan')->group(function () {
         Route::get('/', [MahasiswaBimbinganController::class, 'index'])->name('mahasiswa-bimbingan.index');
         Route::get('/list', [MahasiswaBimbinganController::class, 'list'])->name('mahasiswa-bimbingan.list');
-        Route::get('/{id}/show', [MahasiswaBimbinganController::class, 'show']);
+        Route::get('/{id}/show', [MahasiswaBimbinganController::class, 'show'])->name('mahasiswa-bimbingan.show');
+        Route::post('/feedback/{mahasiswa_magang_id}', [MahasiswaBimbinganController::class, 'updateFeedback'])->name('mahasiswa-bimbingan.feedback.update');
     });
 
     Route::prefix('logharian_dosen')->group(function () {
