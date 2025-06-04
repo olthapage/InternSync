@@ -8,7 +8,7 @@
                 <div class="alert alert-danger">
                     <h5><i class="icon fas fa-ban"></i> Data kota tidak tersedia.</h5>
                 </div>
-                <button class="btn btn-warning" onclick="$('#ajaxModal').modal('hide')">Tutup</button>
+                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="$('#ajaxModal').modal('hide')">Batal</button>
+                    <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                         contentType: false, // penting agar browser mengatur Content-Type sesuai file
                         success: function(res) {
                             if (res.status) {
-                                $('#ajaxModal').modal('hide');
+                                $('#myModal').modal('hide');
                                 Swal.fire('Berhasil', res.message, 'success');
                                 dataTable.ajax.reload();
                             } else {

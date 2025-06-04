@@ -7,6 +7,7 @@ use App\Models\LevelModel;
 use App\Models\LowonganDetailModel;
 use App\Models\KategoriIndustriModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -38,5 +39,12 @@ class IndustriModel extends Authenticatable
     public function level()
     {
         return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
+    }
+        public function getLogoUrlAttribute()
+    {
+        if ($this->logo && Storage::disk('public')->exists('logo_industri/' . $this->logo)) {
+            return asset('storage/logo_industri/' . $this->logo);
+        }
+        return asset('assets/default-industri.png'); // Pastikan path ini benar
     }
 }

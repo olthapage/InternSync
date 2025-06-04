@@ -49,7 +49,7 @@
 @endsection
 
 @section('bottom-link')
-    <a href="{{ route('landing') }}" class="mt-3 d-block text-center text-decoration-none hover-blue">Kembali ke home</a>
+    <a href="{{ route('landing') }}" class="mt-3 d-block text-center text-decoration-none hover-blue">Kembali ke Beranda</a>
 @endsection
 
 @section('scripts')

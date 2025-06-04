@@ -27,9 +27,9 @@
                             class="fas fa-users me-2 {{ $activeMenu == 'mahasiswa-bimbingan' ? 'text-success' : 'text-dark' }}"></i>
                         <span class="nav-link-text ms-1">Mahasiswa Bimbingan</span>
                     </a>
-                    <a class="nav-link {{ $activeMenu == 'logharian_dosen' ? 'active text-success' : '' }}" 
+                    <a class="nav-link {{ $activeMenu == 'logharian_dosen' ? 'active text-success' : '' }}"
                         href="{{ route('logharian_dosen.index') }}">
-                        <i 
+                        <i
                             class="fas fa-users me-2 {{ $activeMenu == 'logharian_dosen' ? 'text-success' : 'text-dark' }}"></i>
                         <span class="nav-link-text ms-1">Log Harian Mahasiswa</span>
                     </a>
@@ -94,9 +94,9 @@
                         class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'manajemen' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Manajemen Magang</span>
                 </a>
-                <a class="nav-link {{ $activeMenu == 'logharian_industri' ? 'active text-success' : '' }}" 
+                <a class="nav-link {{ $activeMenu == 'logharian_industri' ? 'active text-success' : '' }}"
                     href="{{ route('logharian_industri.index') }}">
-                    <i  
+                    <i
                         class="fas fa-users me-2 {{ $activeMenu == 'logharian_industri' ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Log Harian Mahasiswa</span>
                 </a>
@@ -203,35 +203,6 @@
                             <i
                                 class="fas fa-list-alt me-2 {{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'text-success' : 'text-dark' }}"></i>
                             <span class="nav-link">Daftar Skill</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle {{ in_array($activeMenu, ['provinsi', 'kota']) ? 'active text-success' : '' }}"
-                    href="#" id="navbarDropdownLokasi" role="button" data-bs-toggle="collapse"
-                    data-bs-target="#dropdownMenuLokasi"
-                    aria-expanded="{{ in_array($activeMenu, ['provinsi', 'kota']) ? 'true' : 'false' }}"
-                    aria-controls="dropdownMenuLokasi">
-                    <i
-                        class="fas fa-list-alt me-2 {{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'text-success' : 'text-dark' }}"></i>
-                    <span class="nav-link-text ms-1">Lokasi</span>
-                </a>
-                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['provinsi', 'kota']) ? 'show' : '' }}"
-                    id="dropdownMenuLokasi">
-                    <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'provinsi' ? 'active text-success' : '' }}"
-                            href="{{ route('mahasiswa.index') }}"> {{-- Mengganti route() --}}
-                            <i
-                                class="fas fa-map-marked-alt me-2 {{ $activeMenu == 'provinsi' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Provinsi</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'kota' ? 'active text-success' : '' }}"
-                            href="{{ route('mahasiswa.index') }}"> {{-- Mengganti route() --}}
-                            <i class="fas fa-city me-2 {{ $activeMenu == 'kota' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Kota</span>
                         </a>
                     </li>
                 </ul>

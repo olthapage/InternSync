@@ -51,7 +51,23 @@
                     { data: 'judul_lowongan', name: 'magang.lowongan.judul_lowongan', className: 'text-center' },
                     { data: 'status', name: 'magang.status', className: 'text-center' },
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' },
-                ]
+                ],
+                language: {
+                    search: "", // Kosongkan default label
+                    searchPlaceholder: "Cari Mahasiswa Bimbingan...",
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    zeroRecords: "Tidak ditemukan mahasiswa bimbingan yang sesuai",
+                    info: "Menampilkan _START_-_END_ dari _TOTAL_ entri",
+                    infoEmpty: "Data tidak tersedia",
+                    infoFiltered: "(disaring dari _MAX_ total entri)",
+                    paginate: {
+                        first: "<i class='fas fa-angle-double-left'></i>",
+                        last: "<i class='fas fa-angle-double-right'></i>",
+                        next: "<i class='fas fa-angle-right'></i>",
+                        previous: "<i class='fas fa-angle-left'></i>"
+                    },
+                    processing: '<div class="d-flex justify-content-center"><i class="fas fa-spinner fa-pulse fa-2x fa-fw text-primary"></i><span class="ms-2">Memuat data...</span></div>'
+                },
             });
         });
     </script>

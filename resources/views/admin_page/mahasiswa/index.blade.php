@@ -33,14 +33,17 @@
         </div>
     </div>
     {{-- Modal container --}}
-    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true"></div>
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-hidden="true"></div>
 @endsection
 
 @push('js')
     <script>
         function modalAction(url = '') {
             // Kosongkan modal dulu untuk menghindari konten lama muncul saat loading
-            $('#myModal').html('<div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Memuat konten...</p></div></div></div>').modal('show');
+            $('#myModal').html(
+                '<div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Memuat konten...</p></div></div></div>'
+                ).modal('show');
             $('#myModal').load(url, function() {
                 // Modal sudah ditampilkan oleh .modal('show') di atas.
                 // Jika Anda menggunakan instance Bootstrap 5 manual:
@@ -54,7 +57,9 @@
 
         $(document).ready(function() {
             $.ajaxSetup({
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
             });
 
             dataTableInstance = $('#table_mahasiswa').DataTable({ // Simpan instance ke variabel yang benar
@@ -69,19 +74,61 @@
                         // d.level_id = $('#level_id_filter').val(); // Jika ada filter
                     }
                 },
-                columns: [
-                    { data: "DT_RowIndex", name: "DT_RowIndex", className: "text-center", orderable: false, searchable: false },
-                    { data: "nama_lengkap_detail", name: "nama_lengkap", className: "text-start" }, // nama_lengkap untuk searching/ordering
-                    { data: "email", name: "email", className: "text-start", render: function(data, type, row){
-                        return `${row.email}<br><small class="text-muted">${row.prodi_nama}</small>`;
-                    }},
-                    { data: "dpa_nama", name: "dpa.nama_lengkap", className: "text-start", orderable: false, searchable: false}, // 'dpa.nama_lengkap' untuk sort jika relasi 'dpa'
-                    { data: "pembimbing_nama", name: "dosenPembimbing.nama_lengkap", className: "text-start", orderable: false, searchable: false}, // 'dosenPembimbing.nama_lengkap'
-                    { data: "status_magang_display", name: "status_magang_display", className: "text-center", orderable: false, searchable: false },
-                    { data: "status_akun", name: "status", className: "text-center" }, // 'status' untuk sorting by status akun
-                    { data: "aksi", className: "text-center", orderable: false, searchable: false }
+                columns: [{
+                        data: "DT_RowIndex",
+                        name: "DT_RowIndex",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "nama_lengkap_detail",
+                        name: "nama_lengkap",
+                        className: "text-start"
+                    }, // nama_lengkap untuk searching/ordering
+                    {
+                        data: "email",
+                        name: "email",
+                        className: "text-start",
+                        render: function(data, type, row) {
+                            return `${row.email}<br><small class="text-muted">${row.prodi_nama}</small>`;
+                        }
+                    },
+                    {
+                        data: "dpa_nama",
+                        name: "dpa.nama_lengkap",
+                        className: "text-start",
+                        orderable: false,
+                        searchable: false
+                    }, // 'dpa.nama_lengkap' untuk sort jika relasi 'dpa'
+                    {
+                        data: "pembimbing_nama",
+                        name: "dosenPembimbing.nama_lengkap",
+                        className: "text-start",
+                        orderable: false,
+                        searchable: false
+                    }, // 'dosenPembimbing.nama_lengkap'
+                    {
+                        data: "status_magang_display",
+                        name: "status_magang_display",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: "status_akun",
+                        name: "status",
+                        className: "text-center"
+                    }, // 'status' untuk sorting by status akun
+                    {
+                        data: "aksi",
+                        className: "text-center",
+                        orderable: false,
+                        searchable: false
+                    }
                 ],
-                language: { /* ... Kustomisasi bahasa DataTables Anda ... */
+                language: {
+                    /* ... Kustomisasi bahasa DataTables Anda ... */
                     search: "_INPUT_",
                     searchPlaceholder: "Cari Mahasiswa...",
                     lengthMenu: "Tampilkan _MENU_ entri",
@@ -90,7 +137,12 @@
                     infoFiltered: "(disaring dari _MAX_ total entri)",
                     zeroRecords: "Tidak ditemukan data yang cocok",
                     processing: '<i class="fas fa-spinner fa-spin fa-2x fa-fw text-primary"></i><span class="ms-2">Memuat...</span>',
-                    paginate: { first: "<i class='fas fa-angle-double-left'></i>", last: "<i class='fas fa-angle-double-right'></i>", next: "<i class='fas fa-angle-right'></i>", previous: "<i class='fas fa-angle-left'></i>" }
+                    paginate: {
+                        first: "<i class='fas fa-angle-double-left'></i>",
+                        last: "<i class='fas fa-angle-double-right'></i>",
+                        next: "<i class='fas fa-angle-right'></i>",
+                        previous: "<i class='fas fa-angle-left'></i>"
+                    }
                 },
                 // Contoh order default jika perlu
                 // order: [[1, 'asc']],
@@ -104,9 +156,19 @@
 @endpush
 
 @push('css')
-<style>
-    /* ... (CSS Anda yang sudah ada) ... */
-    .table th, .table td { white-space: normal; word-break: break-word; } /* Agar teks bisa wrap */
-    .avatar-sm-table { width: 32px; height: 32px; object-fit: cover; }
-</style>
+    <style>
+        /* ... (CSS Anda yang sudah ada) ... */
+        .table th,
+        .table td {
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* Agar teks bisa wrap */
+        .avatar-sm-table {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+        }
+    </style>
 @endpush
