@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Route;
 Route::pattern('id', '[0-9]+');
 
 Route::get('/', [WelcomeController::class, 'landing'])->name('landing');
+Route::get('/mitra-industri', [WelcomeController::class, 'industri'])->name('industri.landing');
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::get('company', [AuthController::class, 'loginCompany']);
@@ -54,6 +55,9 @@ Route::post('login', [AuthController::class, 'postlogin'])->name('login');
 Route::post('company', [AuthController::class, 'companylogin'])->name('companylogin');
 Route::get('signup', [AuthController::class, 'signup'])->name('signup');
 Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup');
+Route::get('syaratketentuan', function () {
+    return view('auth.syaratketentuan');
+})->name('syaratketentuan');
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,mahasiswa,dosen,industri');
 
 Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\PreventBackHistory::class])->group(function () {

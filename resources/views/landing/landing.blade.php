@@ -138,21 +138,25 @@
 
         @keyframes marquee {
             0% {
-                transform: translate3d(100%, 0, 0);
+                transform: translate3d(0, 0, 0);
+                /* Diubah dari 100% menjadi 0 */
             }
 
             100% {
                 transform: translate3d(-100%, 0, 0);
+                /* Tetap agar bergerak ke kiri */
             }
         }
 
         @keyframes marquee2 {
             0% {
-                transform: translate3d(200%, 0, 0);
+                transform: translate3d(100%, 0, 0);
+                /* Diubah dari 200% menjadi 100% */
             }
 
             100% {
                 transform: translate3d(0%, 0, 0);
+                /* Tetap agar mengisi ruang yang ditinggalkan marquee pertama */
             }
         }
 
@@ -281,7 +285,7 @@
             </div>
 
             <div class="container mx-auto px-6 py-16 relative z-10 flex flex-col items-center">
-                <a href="#features"
+                <a href="{{ route('industri.landing') }}"
                     class="inline-block bg-sky-500/20 text-sky-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-sky-500/30 transition duration-300 mb-6 reveal">
                     Lihat Mitra yang terafiliasi <i class="fas fa-arrow-right ml-2"></i>
                 </a>
@@ -294,7 +298,7 @@ background: linear-gradient(to right, #3b82f6, #06b6d4);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
 display: inline-block;">
-                    <em>Sync</em>
+                        <em>Sync</em>
                     </span>
                     <br class="hidden md:block">
                     Jembatan Menuju Karir Impian
@@ -380,78 +384,35 @@ display: inline-block;">
                     </p>
                 </div>
 
+                @if(isset($industriesForMarquee) && $industriesForMarquee->isNotEmpty())
                 <div class="relative flex overflow-x-hidden group">
                     {{-- First marquee row --}}
-                    <div class="py-8 animate-marquee whitespace-nowrap flex group-hover:pause-animation">
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-sky-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-microsoft"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-google"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-orange-500 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-amazon"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-gray-800 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-apple"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-blue-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-meta"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-blue-700 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-linkedin"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-gray-900 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-github"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-purple-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-slack"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-indigo-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-atlassian"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-green-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-spotify"></i></span>
+                    <div class="py-8 animate-marquee whitespace-nowrap flex items-center group-hover:pause-animation">
+                        @foreach ($industriesForMarquee as $industry)
+                            <div class="mx-6 flex-shrink-0 flex items-center justify-center h-16 w-auto sm:h-20" title="{{ $industry->industri_nama }}">
+                                <img src="{{ $industry->logo_url }}" alt="{{ $industry->industri_nama }} Logo"
+                                     class="max-h-full max-w-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 transform hover:scale-110 cursor-pointer">
+                            </div>
+                        @endforeach
                     </div>
 
                     {{-- Second marquee row (duplicate for seamless loop) --}}
-                    <div
-                        class="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex group-hover:pause-animation">
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-sky-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-microsoft"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-google"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-orange-500 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-amazon"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-gray-800 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-apple"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-blue-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-meta"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-blue-700 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-linkedin"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-gray-900 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-github"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-purple-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-slack"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-indigo-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-atlassian"></i></span>
-                        <span
-                            class="mx-8 text-6xl sm:text-7xl md:text-8xl text-slate-400 hover:text-green-600 transition-colors duration-300 transform hover:scale-110"><i
-                                class="fab fa-spotify"></i></span>
+                    <div class="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex items-center group-hover:pause-animation">
+                        @foreach ($industriesForMarquee as $industry)
+                            <div class="mx-6 flex-shrink-0 flex items-center justify-center h-16 w-auto sm:h-20" title="{{ $industry->industri_nama }}">
+                                <img src="{{ $industry->logo_url }}" alt="{{ $industry->industri_nama }} Logo"
+                                     class="max-h-full max-w-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 transform hover:scale-110 cursor-pointer">
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+                @else
+                <div class="text-center py-8">
+                    <p class="text-slate-500 text-sm">Mitra industri akan segera ditampilkan di sini.</p>
+                </div>
+                @endif
 
-                {{-- Stats section --}}
+                {{-- Stats section (tidak berubah) --}}
                 <div class="mt-16 grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
                     <div class="p-6 bg-white rounded-xl border border-sm hover:shadow-xl transition-shadow duration-300">
                         <div class="text-3xl font-bold text-sky-600 mb-2">20+</div>
@@ -482,7 +443,7 @@ display: inline-block;">
                 </div>
                 <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
                     <div class="reveal">
-                        <img src="{{ asset('assets/kolaborasi.jpg') }}" alt="Kolaborasi InternSync"
+                        <img src="{{ asset('images/slide2.jpg') }}" alt="Kolaborasi InternSync"
                             class="rounded-lg shadow-lg w-full">
                     </div>
                     <div class="text-slate-700 space-y-6 reveal animation-delay-200">
@@ -973,382 +934,390 @@ display: inline-block;">
     </footer>
 
     <script>
-    {{-- Mobile Menu Toggle --}}
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
+        {{-- Mobile Menu Toggle --}}
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        {{-- Set Current Year in Footer --}}
+        const currentYearElement = document.getElementById('currentYear');
+        if (currentYearElement) {
+            currentYearElement.textContent = new Date().getFullYear();
+        }
+
+        {{-- Simple Scroll Reveal Animation --}}
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            revealElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 80) { // Adjusted threshold for earlier reveal
+                    el.classList.add('visible');
+                }
+            });
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+
+        {{-- Smooth scroll for anchor links --}}
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                {{-- Pastikan targetId bukan hanya '#' (link kosong) --}}
+                if (targetId.length > 1 && document.querySelector(targetId)) {
+                    const targetElement = document.querySelector(targetId);
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    {{-- Close mobile menu if open after click --}}
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                } else if (targetId === '#') {
+                    {{-- Untuk link seperti #getstarted-header yang mungkin belum ada sectionnya --}}
+                    console.warn(`Anchor link "${targetId}" points to a non-existent or empty target.`);
+                }
+            });
         });
-    }
 
-    {{-- Set Current Year in Footer --}}
-    const currentYearElement = document.getElementById('currentYear');
-    if (currentYearElement) {
-        currentYearElement.textContent = new Date().getFullYear();
-    }
+        {{-- Modal Functionality --}}
+        const teamCards = document.querySelectorAll('.team-card');
+        const modals = document.querySelectorAll('.modal');
+        const closeButtons = document.querySelectorAll('.modal-close-button');
 
-    {{-- Simple Scroll Reveal Animation --}}
-    const revealElements = document.querySelectorAll('.reveal');
-    const revealOnScroll = () => {
-        const windowHeight = window.innerHeight;
-        revealElements.forEach(el => {
-            const elementTop = el.getBoundingClientRect().top;
-            if (elementTop < windowHeight - 80) { // Adjusted threshold for earlier reveal
-                el.classList.add('visible');
+        teamCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const modalId = card.getAttribute('data-modal-target');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('show');
+                }
+            });
+        });
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modalId = button.getAttribute('data-modal-close');
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        // Close modal when clicking outside of the modal content
+        modals.forEach(modal => {
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) { // If the click is on the modal backdrop itself
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        {{-- Enhanced Carousel Functionality - Completely Reorganized --}}
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.getElementById('carouselWrapper');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const dots = document.querySelectorAll('.carousel-dot');
+
+            // Check if carousel elements exist before proceeding
+            if (!wrapper || !prevBtn || !nextBtn || dots.length === 0) {
+                console.log('Carousel elements not found, skipping carousel initialization');
+                return;
             }
-        });
-    }
-    window.addEventListener('scroll', revealOnScroll);
-    revealOnScroll(); // Initial check
 
-    {{-- Smooth scroll for anchor links --}}
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            {{-- Pastikan targetId bukan hanya '#' (link kosong) --}}
-            if (targetId.length > 1 && document.querySelector(targetId)) {
-                const targetElement = document.querySelector(targetId);
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
+            let currentSlide = 0;
+            const totalSlides = dots.length; // Dynamic slide count based on dots
+            let autoPlayInterval;
+
+            function updateCarousel() {
+                const translateX = -currentSlide * 100;
+                wrapper.style.transform = `translateX(${translateX}%)`;
+
+                // Update dots with enhanced animation
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active');
+                        dot.style.backgroundColor = '#0ea5e9';
+                        dot.style.transform = 'scale(1.2)';
+                        dot.style.opacity = '1';
+                    } else {
+                        dot.classList.remove('active');
+                        dot.style.backgroundColor = '#cbd5e1';
+                        dot.style.transform = 'scale(1)';
+                        dot.style.opacity = '0.7';
+                    }
                 });
-                {{-- Close mobile menu if open after click --}}
-                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                }
-            } else if (targetId === '#') {
-                {{-- Untuk link seperti #getstarted-header yang mungkin belum ada sectionnya --}}
-                console.warn(`Anchor link "${targetId}" points to a non-existent or empty target.`);
             }
-        });
-    });
 
-    {{-- Modal Functionality --}}
-    const teamCards = document.querySelectorAll('.team-card');
-    const modals = document.querySelectorAll('.modal');
-    const closeButtons = document.querySelectorAll('.modal-close-button');
-
-    teamCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const modalId = card.getAttribute('data-modal-target');
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('show');
-            }
-        });
-    });
-
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const modalId = button.getAttribute('data-modal-close');
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('show');
-            }
-        });
-    });
-
-    // Close modal when clicking outside of the modal content
-    modals.forEach(modal => {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) { // If the click is on the modal backdrop itself
-                modal.classList.remove('show');
-            }
-        });
-    });
-
-    {{-- Enhanced Carousel Functionality - Completely Reorganized --}}
-    document.addEventListener('DOMContentLoaded', function() {
-        const wrapper = document.getElementById('carouselWrapper');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const dots = document.querySelectorAll('.carousel-dot');
-
-        // Check if carousel elements exist before proceeding
-        if (!wrapper || !prevBtn || !nextBtn || dots.length === 0) {
-            console.log('Carousel elements not found, skipping carousel initialization');
-            return;
-        }
-
-        let currentSlide = 0;
-        const totalSlides = dots.length; // Dynamic slide count based on dots
-        let autoPlayInterval;
-
-        function updateCarousel() {
-            const translateX = -currentSlide * 100;
-            wrapper.style.transform = `translateX(${translateX}%)`;
-
-            // Update dots with enhanced animation
-            dots.forEach((dot, index) => {
-                if (index === currentSlide) {
-                    dot.classList.add('active');
-                    dot.style.backgroundColor = '#0ea5e9';
-                    dot.style.transform = 'scale(1.2)';
-                    dot.style.opacity = '1';
-                } else {
-                    dot.classList.remove('active');
-                    dot.style.backgroundColor = '#cbd5e1';
-                    dot.style.transform = 'scale(1)';
-                    dot.style.opacity = '0.7';
-                }
-            });
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            updateCarousel();
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            updateCarousel();
-        }
-
-        function startAutoPlay() {
-            stopAutoPlay(); // Clear any existing interval
-            autoPlayInterval = setInterval(nextSlide, 5000);
-        }
-
-        function stopAutoPlay() {
-            if (autoPlayInterval) {
-                clearInterval(autoPlayInterval);
-                autoPlayInterval = null;
-            }
-        }
-
-        // Enhanced Event listeners with error handling
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                nextSlide();
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
-            });
-        }
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                prevSlide();
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
-            });
-        }
-
-        // Enhanced Dot navigation
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                currentSlide = index;
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
                 updateCarousel();
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
-            });
-        });
-
-        // Pause auto-play on hover
-        const carouselContainer = document.getElementById('imageCarouselContainer');
-        if (carouselContainer) {
-            carouselContainer.addEventListener('mouseenter', stopAutoPlay);
-            carouselContainer.addEventListener('mouseleave', startAutoPlay);
-        }
-
-        // Enhanced Touch/swipe support for mobile
-        let startX = 0;
-        let endX = 0;
-        let startTime = 0;
-        let isPointerDown = false;
-
-        function handleStart(e) {
-            isPointerDown = true;
-            startX = e.touches ? e.touches[0].clientX : e.clientX;
-            startTime = Date.now();
-        }
-
-        function handleEnd(e) {
-            if (!isPointerDown) return;
-            isPointerDown = false;
-            endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-            const timeDiff = Date.now() - startTime;
-
-            // Only trigger swipe if it's quick enough (< 300ms) and long enough
-            if (timeDiff < 300) {
-                handleSwipe();
             }
-        }
 
-        function handleSwipe() {
-            const threshold = 50;
-            const diff = startX - endX;
-
-            if (Math.abs(diff) > threshold) {
-                if (diff > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
-                }
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateCarousel();
             }
-        }
 
-        // Add touch event listeners
-        if (wrapper) {
-            wrapper.addEventListener('touchstart', handleStart, { passive: true });
-            wrapper.addEventListener('touchend', handleEnd, { passive: true });
-            wrapper.addEventListener('mousedown', handleStart);
-            wrapper.addEventListener('mouseup', handleEnd);
-        }
+            function startAutoPlay() {
+                stopAutoPlay(); // Clear any existing interval
+                autoPlayInterval = setInterval(nextSlide, 5000);
+            }
 
-        // Enhanced Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-                prevSlide();
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
-            } else if (e.key === 'ArrowRight') {
-                nextSlide();
-                stopAutoPlay();
-                setTimeout(startAutoPlay, 3000);
-            } else if (e.key === 'Escape') {
-                stopAutoPlay();
-            } else if (e.key === ' ' || e.key === 'Enter') {
+            function stopAutoPlay() {
                 if (autoPlayInterval) {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                }
+            }
+
+            // Enhanced Event listeners with error handling
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                });
+            }
+
+            // Enhanced Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    updateCarousel();
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                });
+            });
+
+            // Pause auto-play on hover
+            const carouselContainer = document.getElementById('imageCarouselContainer');
+            if (carouselContainer) {
+                carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+                carouselContainer.addEventListener('mouseleave', startAutoPlay);
+            }
+
+            // Enhanced Touch/swipe support for mobile
+            let startX = 0;
+            let endX = 0;
+            let startTime = 0;
+            let isPointerDown = false;
+
+            function handleStart(e) {
+                isPointerDown = true;
+                startX = e.touches ? e.touches[0].clientX : e.clientX;
+                startTime = Date.now();
+            }
+
+            function handleEnd(e) {
+                if (!isPointerDown) return;
+                isPointerDown = false;
+                endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+                const timeDiff = Date.now() - startTime;
+
+                // Only trigger swipe if it's quick enough (< 300ms) and long enough
+                if (timeDiff < 300) {
+                    handleSwipe();
+                }
+            }
+
+            function handleSwipe() {
+                const threshold = 50;
+                const diff = startX - endX;
+
+                if (Math.abs(diff) > threshold) {
+                    if (diff > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                }
+            }
+
+            // Add touch event listeners
+            if (wrapper) {
+                wrapper.addEventListener('touchstart', handleStart, {
+                    passive: true
+                });
+                wrapper.addEventListener('touchend', handleEnd, {
+                    passive: true
+                });
+                wrapper.addEventListener('mousedown', handleStart);
+                wrapper.addEventListener('mouseup', handleEnd);
+            }
+
+            // Enhanced Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    stopAutoPlay();
+                    setTimeout(startAutoPlay, 3000);
+                } else if (e.key === 'Escape') {
+                    stopAutoPlay();
+                } else if (e.key === ' ' || e.key === 'Enter') {
+                    if (autoPlayInterval) {
+                        stopAutoPlay();
+                    } else {
+                        startAutoPlay();
+                    }
+                }
+            });
+
+            // Initialize carousel
+            updateCarousel();
+            startAutoPlay();
+
+            // Visibility API for better performance
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
                     stopAutoPlay();
                 } else {
                     startAutoPlay();
                 }
+            });
+        });
+
+        {{-- Enhanced Marquee Functionality --}}
+        document.addEventListener('DOMContentLoaded', function() {
+            const marqueeElements = document.querySelectorAll('.animate-marquee, .animate-marquee2');
+            const marqueeContainer = document.querySelector('.group');
+
+            if (marqueeElements.length === 0) {
+                console.log('Marquee elements not found, skipping marquee initialization');
+                return;
             }
-        });
 
-        // Initialize carousel
-        updateCarousel();
-        startAutoPlay();
-
-        // Visibility API for better performance
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopAutoPlay();
-            } else {
-                startAutoPlay();
-            }
-        });
-    });
-
-    {{-- Enhanced Marquee Functionality --}}
-    document.addEventListener('DOMContentLoaded', function() {
-        const marqueeElements = document.querySelectorAll('.animate-marquee, .animate-marquee2');
-        const marqueeContainer = document.querySelector('.group');
-
-        if (marqueeElements.length === 0) {
-            console.log('Marquee elements not found, skipping marquee initialization');
-            return;
-        }
-
-        // Enhanced marquee hover effects
-        marqueeElements.forEach(marquee => {
-            const icons = marquee.querySelectorAll('span');
-
-            icons.forEach(icon => {
-                // Add enhanced hover effects
-                icon.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.15) rotate(5deg)';
-                    this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    this.style.filter = 'drop-shadow(0 10px 25px rgba(0,0,0,0.15))';
-                });
-
-                icon.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1) rotate(0deg)';
-                    this.style.filter = 'none';
-                });
-
-                // Add click effects for better interactivity
-                icon.addEventListener('click', function() {
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1.1)';
-                        setTimeout(() => {
-                            this.style.transform = 'scale(1)';
-                        }, 150);
-                    }, 100);
-                });
-            });
-        });
-
-        // Pause marquee on hover with smooth transition
-        if (marqueeContainer) {
-            marqueeContainer.addEventListener('mouseenter', function() {
-                marqueeElements.forEach(marquee => {
-                    marquee.style.animationPlayState = 'paused';
-                });
-            });
-
-            marqueeContainer.addEventListener('mouseleave', function() {
-                marqueeElements.forEach(marquee => {
-                    marquee.style.animationPlayState = 'running';
-                });
-            });
-        }
-
-        // Reduce motion for users who prefer it
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            // Enhanced marquee hover effects
             marqueeElements.forEach(marquee => {
-                marquee.style.animation = 'none';
-            });
-        }
+                const icons = marquee.querySelectorAll('span');
 
-        // Performance optimization: pause animations when not visible
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const marquees = entry.target.querySelectorAll('.animate-marquee, .animate-marquee2');
-                if (entry.isIntersecting) {
-                    marquees.forEach(marquee => {
-                        marquee.style.animationPlayState = 'running';
+                icons.forEach(icon => {
+                    // Add enhanced hover effects
+                    icon.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.15) rotate(5deg)';
+                        this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                        this.style.filter = 'drop-shadow(0 10px 25px rgba(0,0,0,0.15))';
                     });
-                } else {
-                    marquees.forEach(marquee => {
+
+                    icon.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1) rotate(0deg)';
+                        this.style.filter = 'none';
+                    });
+
+                    // Add click effects for better interactivity
+                    icon.addEventListener('click', function() {
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1.1)';
+                            setTimeout(() => {
+                                this.style.transform = 'scale(1)';
+                            }, 150);
+                        }, 100);
+                    });
+                });
+            });
+
+            // Pause marquee on hover with smooth transition
+            if (marqueeContainer) {
+                marqueeContainer.addEventListener('mouseenter', function() {
+                    marqueeElements.forEach(marquee => {
                         marquee.style.animationPlayState = 'paused';
                     });
-                }
+                });
+
+                marqueeContainer.addEventListener('mouseleave', function() {
+                    marqueeElements.forEach(marquee => {
+                        marquee.style.animationPlayState = 'running';
+                    });
+                });
+            }
+
+            // Reduce motion for users who prefer it
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                marqueeElements.forEach(marquee => {
+                    marquee.style.animation = 'none';
+                });
+            }
+
+            // Performance optimization: pause animations when not visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const marquees = entry.target.querySelectorAll(
+                        '.animate-marquee, .animate-marquee2');
+                    if (entry.isIntersecting) {
+                        marquees.forEach(marquee => {
+                            marquee.style.animationPlayState = 'running';
+                        });
+                    } else {
+                        marquees.forEach(marquee => {
+                            marquee.style.animationPlayState = 'paused';
+                        });
+                    }
+                });
+            }, {
+                threshold: 0.1
             });
-        }, { threshold: 0.1 });
 
-        if (marqueeContainer) {
-            observer.observe(marqueeContainer);
+            if (marqueeContainer) {
+                observer.observe(marqueeContainer);
+            }
+        });
+
+        {{-- Additional Utility Functions --}}
+
+        // Smooth performance monitoring
+        let lastFrameTime = Date.now();
+
+        function checkPerformance() {
+            const currentTime = Date.now();
+            const deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+
+            // If frame time is too high (> 33ms = < 30fps), reduce animations
+            if (deltaTime > 33) {
+                console.log('Performance issue detected, consider reducing animations');
+            }
         }
-    });
 
-    {{-- Additional Utility Functions --}}
+        // Call performance check occasionally
+        setInterval(checkPerformance, 5000);
 
-    // Smooth performance monitoring
-    let lastFrameTime = Date.now();
-    function checkPerformance() {
-        const currentTime = Date.now();
-        const deltaTime = currentTime - lastFrameTime;
-        lastFrameTime = currentTime;
+        // Cleanup function for better memory management
+        window.addEventListener('beforeunload', function() {
+            // Clear any remaining intervals
+            const wrapper = document.getElementById('carouselWrapper');
+            if (wrapper && wrapper.autoPlayInterval) {
+                clearInterval(wrapper.autoPlayInterval);
+            }
+        });
 
-        // If frame time is too high (> 33ms = < 30fps), reduce animations
-        if (deltaTime > 33) {
-            console.log('Performance issue detected, consider reducing animations');
+        {{-- Debug mode for development --}}
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('🎠 Enhanced Carousel & Marquee Script Loaded Successfully');
+            console.log('📱 Features: Auto-play, Touch/Swipe, Keyboard Navigation, Performance Optimization');
         }
-    }
-
-    // Call performance check occasionally
-    setInterval(checkPerformance, 5000);
-
-    // Cleanup function for better memory management
-    window.addEventListener('beforeunload', function() {
-        // Clear any remaining intervals
-        const wrapper = document.getElementById('carouselWrapper');
-        if (wrapper && wrapper.autoPlayInterval) {
-            clearInterval(wrapper.autoPlayInterval);
-        }
-    });
-
-    {{-- Debug mode for development --}}
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log('🎠 Enhanced Carousel & Marquee Script Loaded Successfully');
-        console.log('📱 Features: Auto-play, Touch/Swipe, Keyboard Navigation, Performance Optimization');
-    }
-</script>
+    </script>
 </body>
 
 </html>

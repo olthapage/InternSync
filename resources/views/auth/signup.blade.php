@@ -4,7 +4,9 @@
 @section('title', 'Register Pengguna - InternSync') {{-- Mengganti title --}}
 
 @section('overlay-title', 'Selamat Datang di InternSync') {{-- Mengganti title --}}
-@section('overlay-description', 'Buat akun baru untuk memulai perjalanan Anda. Bergabunglah dengan kami dan nikmati pengalaman mencari tempat magang yang lebih baik!')
+@section('overlay-description',
+    'Buat akun baru untuk memulai perjalanan Anda. Bergabunglah dengan kami dan nikmati
+    pengalaman mencari tempat magang yang lebih baik!')
 
 @section('form-title', 'Buat Akun Baru') {{-- Mengganti title form --}}
 
@@ -25,10 +27,13 @@
         {{-- TAMBAHAN: Dropdown untuk Role Dosen (DPA atau Pembimbing) --}}
         <div class="mb-3" id="role-dosen-group" style="display:none;">
             <label for="role_dosen_signup" class="form-label">Peran Dosen <span class="text-danger">*</span></label>
-            <select id="role_dosen_signup" name="role_dosen_signup" class="form-control form-control-lg @error('role_dosen_signup') is-invalid @enderror">
+            <select id="role_dosen_signup" name="role_dosen_signup"
+                class="form-control form-control-lg @error('role_dosen_signup') is-invalid @enderror">
                 <option value="">-- Pilih Peran Dosen --</option>
-                <option value="dpa" {{ old('role_dosen_signup') == 'dpa' ? 'selected' : '' }}>DPA (Dosen Penasehat Akademik)</option>
-                <option value="pembimbing" {{ old('role_dosen_signup') == 'pembimbing' ? 'selected' : '' }}>Dosen Pembimbing</option>
+                <option value="dpa" {{ old('role_dosen_signup') == 'dpa' ? 'selected' : '' }}>DPA (Dosen Penasehat
+                    Akademik)</option>
+                <option value="pembimbing" {{ old('role_dosen_signup') == 'pembimbing' ? 'selected' : '' }}>Dosen Pembimbing
+                </option>
             </select>
             <small id="error-role_dosen_signup" class="error-text text-danger d-block mt-1"></small>
         </div>
@@ -36,38 +41,47 @@
 
         <div class="mb-3" id="nidn-group" style="display:none;">
             <label for="nidn" class="form-label">NIDN/NIP <span class="text-danger">*</span></label>
-            <input type="text" name="nidn" id="nidn" class="form-control form-control-lg @error('nidn') is-invalid @enderror" placeholder="NIDN/NIP Dosen" value="{{ old('nidn') }}">
+            <input type="text" name="nidn" id="nidn"
+                class="form-control form-control-lg @error('nidn') is-invalid @enderror" placeholder="NIDN/NIP Dosen"
+                value="{{ old('nidn') }}">
             <small id="error-nidn" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="mb-3" id="nim-group" style="display:none;">
             <label for="nim" class="form-label">NIM <span class="text-danger">*</span></label>
-            <input type="text" name="nim" id="nim" class="form-control form-control-lg @error('nim') is-invalid @enderror" placeholder="NIM Mahasiswa" value="{{ old('nim') }}">
+            <input type="text" name="nim" id="nim"
+                class="form-control form-control-lg @error('nim') is-invalid @enderror" placeholder="NIM Mahasiswa"
+                value="{{ old('nim') }}">
             <small id="error-nim" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="mb-3">
             <label for="nama_lengkap" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-            <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control form-control-lg @error('nama_lengkap') is-invalid @enderror"
+            <input type="text" id="nama_lengkap" name="nama_lengkap"
+                class="form-control form-control-lg @error('nama_lengkap') is-invalid @enderror"
                 placeholder="Masukkan Nama Lengkap Anda" value="{{ old('nama_lengkap') }}">
             <small id="error-nama_lengkap" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="mb-3">
             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" id="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Masukkan Email Anda" value="{{ old('email') }}">
+            <input type="email" id="email" name="email"
+                class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Masukkan Email Anda"
+                value="{{ old('email') }}">
             <small id="error-email" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="mb-3">
             <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-            <input type="password" id="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror"
+            <input type="password" id="password" name="password"
+                class="form-control form-control-lg @error('password') is-invalid @enderror"
                 placeholder="Buat Password Anda">
             <small id="error-password" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="mb-3">
-            <label for="password_confirmation" class="form-label">Konfirmasi Password <span class="text-danger">*</span></label>
+            <label for="password_confirmation" class="form-label">Konfirmasi Password <span
+                    class="text-danger">*</span></label>
             <input type="password" id="password_confirmation" name="password_confirmation"
                 class="form-control form-control-lg" placeholder="Ulangi Password Anda">
             {{-- Error untuk password_confirmation akan ditangani oleh rule equalTo --}}
@@ -75,22 +89,29 @@
         </div>
 
         <div class="form-check form-check-info text-left mb-3">
-            <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" value="agree" {{ old('terms') ? 'checked' : '' }}>
+            <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms"
+                id="terms" value="agree" {{ old('terms') ? 'checked' : '' }}>
             <label class="form-check-label" for="terms">
-                Saya setuju dengan <a href="#" class="text-dark font-weight-bolder">Syarat dan Ketentuan</a>
+                Saya setuju dengan <button type="button" onclick="modalAction('{{ route('syaratketentuan') }}')"
+                    class="text-dark font-weight-bolder"
+                    style="background:none; border:none; padding:0; display:inline; vertical-align:baseline; cursor:pointer;">Syarat
+                    dan Ketentuan</button>
             </label>
             <small id="error-terms" class="error-text text-danger d-block mt-1"></small>
         </div>
 
         <div class="row align-items-center mt-4">
             <div class="col-7">
-                <a href="{{ url('login') }}" class="link-text text-decoration-none hover-blue">Sudah punya akun? Login di sini</a>
+                <a href="{{ url('login') }}" class="link-text text-decoration-none hover-blue">Sudah punya akun? Login
+                    di sini</a>
             </div>
             <div class="col-5 text-end">
-                <button type="submit" class="btn btn-primary rounded-pill w-100">Sign up</button> {{-- Mengganti style tombol --}}
+                <button type="submit" class="btn btn-dark rounded-pill">Sign up</button> {{-- Mengganti style tombol --}}
             </div>
         </div>
     </form>
+    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
 @section('bottom-link')
@@ -104,25 +125,40 @@
 
     <style>
         .error-text,
-        label.error { /* jQuery validate default error class is 'error' */
-            color: #dc3545; /* Bootstrap danger color */
-            font-size: 0.875em; /* Slightly smaller than default form text */
+        label.error {
+            /* jQuery validate default error class is 'error' */
+            color: #dc3545;
+            /* Bootstrap danger color */
+            font-size: 0.875em;
+            /* Slightly smaller than default form text */
             display: block;
             margin-top: .25rem;
         }
+
         .form-control.error {
             border-color: #dc3545;
         }
+
         .input-group .form-control.error {
             z-index: 2 !important;
         }
-        .form-label { /* Sedikit styling untuk label agar konsisten */
+
+        .form-label {
+            /* Sedikit styling untuk label agar konsisten */
             font-weight: 500;
             margin-bottom: .5rem;
         }
     </style>
 
     <script>
+        function modalAction(url = '') {
+            // Kosongkan modal dulu untuk menghindari konten lama muncul saat loading
+            $('#myModal').html(
+                '<div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Memuat konten...</p></div></div></div>'
+            ).modal('show');
+            $('#myModal').load(url, function() {});
+        }
+
         $(document).ready(function() {
             // Tampilkan atau sembunyikan field NIDN/NIM dan Role Dosen berdasarkan role utama
             $('#role').change(function() {
@@ -158,7 +194,9 @@
 
             $("#form-register").validate({
                 rules: {
-                    role: { required: true },
+                    role: {
+                        required: true
+                    },
                     // TAMBAHAN: Validasi untuk role_dosen_signup
                     role_dosen_signup: {
                         required: function() {
@@ -167,27 +205,50 @@
                     },
                     // AKHIR TAMBAHAN
                     nidn: {
-                        required: function() { return $('#role').val() === 'dosen'; },
+                        required: function() {
+                            return $('#role').val() === 'dosen';
+                        },
                         digits: true,
                         minlength: 10, // Sesuaikan dengan NIDN/NIP yang valid
-                        maxlength: 20  // Sesuaikan
+                        maxlength: 20 // Sesuaikan
                     },
                     nim: {
-                        required: function() { return $('#role').val() === 'mahasiswa'; },
+                        required: function() {
+                            return $('#role').val() === 'mahasiswa';
+                        },
                         // digits: true, // NIM bisa jadi ada huruf
                         minlength: 8,
                         maxlength: 15 // Sesuaikan
                     },
-                    nama_lengkap: { required: true, minlength: 3 },
-                    email: { required: true, email: true },
-                    password: { required: true, minlength: 6, maxlength: 20 },
-                    password_confirmation: { required: true, equalTo: "#password" },
-                    terms: { required: true }
+                    nama_lengkap: {
+                        required: true,
+                        minlength: 3
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6,
+                        maxlength: 20
+                    },
+                    password_confirmation: {
+                        required: true,
+                        equalTo: "#password"
+                    },
+                    terms: {
+                        required: true
+                    }
                 },
                 messages: {
-                    role: { required: "Silakan pilih role utama Anda." },
+                    role: {
+                        required: "Silakan pilih role utama Anda."
+                    },
                     // TAMBAHAN: Pesan untuk role_dosen_signup
-                    role_dosen_signup: { required: "Silakan pilih peran dosen Anda (DPA/Pembimbing)." },
+                    role_dosen_signup: {
+                        required: "Silakan pilih peran dosen Anda (DPA/Pembimbing)."
+                    },
                     // AKHIR TAMBAHAN
                     nidn: {
                         required: "NIDN/NIP wajib diisi untuk dosen.",
@@ -218,13 +279,15 @@
                         required: "Konfirmasi password tidak boleh kosong.",
                         equalTo: "Konfirmasi password tidak cocok."
                     },
-                    terms: { required: "Anda harus menyetujui Syarat dan Ketentuan." }
+                    terms: {
+                        required: "Anda harus menyetujui Syarat dan Ketentuan."
+                    }
                 },
                 errorElement: 'small', // Gunakan tag <small> untuk pesan error
                 errorClass: 'error-text text-danger d-block', // Kelas yang sama dengan <small> manual Anda
                 highlight: function(element, errorClass, validClass) {
                     $(element).addClass('is-invalid').removeClass(validClass);
-                     // Hapus pesan error dari small tag manual jika jQuery Validate mengambil alih
+                    // Hapus pesan error dari small tag manual jika jQuery Validate mengambil alih
                     $('#error-' + $(element).attr('name')).text('');
                 },
                 unhighlight: function(element, errorClass, validClass) {
@@ -234,7 +297,8 @@
                 errorPlacement: function(error, element) {
                     // Tempatkan error di dalam <small id="error-FIELD_NAME">
                     var errorContainerId = '#error-' + element.attr('name');
-                    $(errorContainerId).html(error.text()).addClass('error'); // Tambahkan kelas error juga ke small tag
+                    $(errorContainerId).html(error.text()).addClass(
+                        'error'); // Tambahkan kelas error juga ke small tag
                 },
 
                 submitHandler: function(form) {
@@ -244,7 +308,9 @@
                     // Tampilkan loading (opsional)
                     var submitButton = $(form).find('button[type="submit"]');
                     var originalButtonText = submitButton.html();
-                    submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...').prop('disabled', true);
+                    submitButton.html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                    ).prop('disabled', true);
 
 
                     $.ajax({
@@ -258,25 +324,33 @@
                             if (response.status) {
                                 iziToast.success({
                                     title: 'Berhasil',
-                                    message: response.message || 'Registrasi berhasil.',
+                                    message: response.message ||
+                                        'Registrasi berhasil.',
                                     position: 'topCenter',
                                     timeout: 2500,
                                     onClosed: function() {
                                         if (response.redirect) {
-                                            window.location.href = response.redirect;
+                                            window.location.href = response
+                                                .redirect;
                                         } else {
-                                            window.location.href = "{{ url('login') }}";
+                                            window.location.href =
+                                                "{{ url('login') }}";
                                         }
                                     }
                                 });
                             } else {
-                                let generalErrorMessage = response.message || 'Terjadi kesalahan saat registrasi.';
+                                let generalErrorMessage = response.message ||
+                                    'Terjadi kesalahan saat registrasi.';
                                 if (response.errors) {
                                     $.each(response.errors, function(key, value) {
-                                        $('#error-' + key.replace(/\./g, '_')).text(value[0]).addClass('error'); // Handle nested errors if any
-                                        $('#' + key.replace(/\./g, '_')).addClass('is-invalid');
+                                        $('#error-' + key.replace(/\./g, '_')).text(
+                                            value[0]).addClass(
+                                            'error'); // Handle nested errors if any
+                                        $('#' + key.replace(/\./g, '_')).addClass(
+                                            'is-invalid');
                                     });
-                                    generalErrorMessage = "Silakan periksa kembali data yang Anda masukkan.";
+                                    generalErrorMessage =
+                                        "Silakan periksa kembali data yang Anda masukkan.";
                                 }
                                 iziToast.error({
                                     title: 'Gagal',
@@ -288,18 +362,24 @@
                         },
                         error: function(xhr) {
                             submitButton.html(originalButtonText).prop('disabled', false);
-                            let errorMessage = 'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
+                            let errorMessage =
+                                'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
                             if (xhr.responseJSON) {
                                 if (xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }
                                 if (xhr.responseJSON.errors) {
-                                     $.each(xhr.responseJSON.errors, function(key, value) {
-                                        $('#error-' + key.replace(/\./g, '_')).text(value[0]).addClass('error');
-                                        $('#' + key.replace(/\./g, '_')).addClass('is-invalid');
+                                    $.each(xhr.responseJSON.errors, function(key, value) {
+                                        $('#error-' + key.replace(/\./g, '_')).text(
+                                            value[0]).addClass('error');
+                                        $('#' + key.replace(/\./g, '_')).addClass(
+                                            'is-invalid');
                                     });
-                                    if (!xhr.responseJSON.message) { // Hanya jika tidak ada pesan general dari server
-                                        errorMessage = "Data yang dimasukkan tidak valid. Periksa kembali isian Anda.";
+                                    if (!xhr.responseJSON
+                                        .message
+                                        ) { // Hanya jika tidak ada pesan general dari server
+                                        errorMessage =
+                                            "Data yang dimasukkan tidak valid. Periksa kembali isian Anda.";
                                     }
                                 }
                             }

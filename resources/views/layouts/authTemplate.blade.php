@@ -45,7 +45,7 @@
         .img-overlay-container {
             position: relative;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -98,7 +98,7 @@
          .slideshow-container {
             position: relative;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -181,6 +181,7 @@
     </script>
 
     <script>
+
     let slides = document.querySelectorAll('.slide');
     let currentSlide = 0;
 
@@ -199,7 +200,7 @@
     }
 
     showSlide(currentSlide);
-    setInterval(nextSlide, 6000); 
+    setInterval(nextSlide, 6000);
     </script>
 
     @yield('scripts')

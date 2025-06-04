@@ -32,8 +32,11 @@
     <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="https://demos.creative-tim.com/soft-ui-dashboard/assets/css/nucleo-svg.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
 
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('softTemplate/assets/css/soft-ui-dashboard.css?v=1.1.0') }}" rel="stylesheet" />
@@ -50,15 +53,95 @@
         .primary {
             background-color: #fafafa;
         }
+
         .bg-primary {
             background-color: #fafafa;
         }
+
         .btn-primary {
             background-color: #fafafa;
             color: #0f0f0f;
         }
+
         .bg-light {
-            background-color:#fafafa;
+            background-color: #fafafa;
+        }
+
+        /* --- Global DataTables Pagination Styling --- */
+
+        /* Wrapper umum DataTables untuk pagination */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item .page-link {
+            background-color: #ffffff !important;
+            /* Latar belakang putih untuk semua tombol */
+            color: #007bff !important;
+            /* Warna teks primary (biru bootstrap default) untuk nomor halaman */
+            border: 1px solid #dee2e6 !important;
+            /* Border abu-abu standar */
+            box-shadow: none !important;
+            /* Hapus shadow jika ada */
+        }
+
+        /* Tombol pagination saat hover (kecuali yang aktif) */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item:not(.active) .page-link:hover {
+            background-color: #f8f9fa !important;
+            /* Latar belakang abu-abu sangat muda saat hover */
+            color: #0056b3 !important;
+            /* Warna teks primary lebih gelap saat hover untuk nomor halaman */
+            border-color: #ced4da !important;
+            /* Border sedikit lebih gelap saat hover */
+        }
+
+        /* Tombol pagination yang aktif */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link {
+            background-color: #007bff !important;
+            /* Latar belakang primary untuk tombol aktif */
+            color: #ffffff !important;
+            /* Teks putih untuk tombol aktif (nomor halaman) */
+            border-color: #007bff !important;
+            /* Border primary untuk tombol aktif */
+            font-weight: bold;
+            /* Tebalkan nomor halaman aktif */
+        }
+
+        /* Tombol pagination yang aktif saat hover (opsional, bisa dibuat berbeda) */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link:hover {
+            background-color: #0056b3 !important;
+            /* Latar belakang primary lebih gelap saat hover */
+            color: #ffffff !important;
+            border-color: #0056b3 !important;
+        }
+
+        /* Tombol pagination yang dinonaktifkan (disabled) */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.disabled .page-link {
+            background-color: #f8f9fa !important;
+            /* Latar belakang lebih terang untuk disabled */
+            color: #6c757d !important;
+            /* Warna teks abu-abu (muted) untuk nomor halaman */
+            border-color: #e9ecef !important;
+            /* Border lebih terang */
+        }
+
+        /* Styling untuk ikon di tombol pagination (Previous, Next, etc.) */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item .page-link i {
+            color: #343a40 !important;
+            /* Warna ikon gelap standar */
+        }
+
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.disabled .page-link i {
+            color: #6c757d !important;
+            /* Warna ikon muted untuk disabled (tetap sama) */
+        }
+
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item:not(.active) .page-link:hover i {
+            color: #212529 !important;
+            /* Warna ikon lebih gelap saat hover */
+        }
+
+        /* Ikon pada tombol aktif tetap putih agar kontras dengan latar belakang primary */
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link i,
+        .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link:hover i {
+            color: #ffffff !important;
+            /* Warna ikon putih untuk tombol aktif */
         }
     </style>
     <!-- Nepcha Analytics (nepcha.com) -->
@@ -150,7 +233,8 @@
                         onclick="navbarFixed(this)">
                 </div>
                 <hr class="horizontal dark my-sm-4">
-                <a class="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/soft-ui-dashboard">Free
+                <a class="btn bg-gradient-dark w-100"
+                    href="https://www.creative-tim.com/product/soft-ui-dashboard">Free
                     Download</a>
                 <a class="btn btn-outline-dark w-100"
                     href="https://www.creative-tim.com/learning-lab/bootstrap/license/soft-ui-dashboard">View
