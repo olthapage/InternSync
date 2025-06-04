@@ -61,9 +61,6 @@ class MahasiswaController extends Controller
 
                 return '<span class="badge bg-secondary">Belum Magang</span>';
             })
-            ->addColumn('status_akun', function($mahasiswa){ // Status aktif/tidak aktif akun mahasiswa
-                 return $mahasiswa->status == 1 ? '<span class="badge bg-success">Aktif</span>' : '<span class="badge bg-danger">Tidak Aktif</span>';
-            })
             ->addColumn('aksi', function ($mahasiswa) {
                 $btn = '<button onclick="modalAction(\'' . route('mahasiswa.verifikasi', $mahasiswa->mahasiswa_id) . '\')" class="btn btn-info btn-sm me-1 mb-1" title="Verifikasi Dokumen"><i class="fas fa-user-check"></i></button>';
                 $btn .= '<button onclick="modalAction(\'' . route('mahasiswa.edit', $mahasiswa->mahasiswa_id) . '\')" class="btn btn-warning btn-sm me-1 mb-1" title="Edit Mahasiswa"><i class="fas fa-edit"></i></button>';

@@ -21,7 +21,6 @@
                             <th style="width:15%;">DPA</th>
                             <th style="width:15%;">Dosen Pembimbing Magang</th>
                             <th class="text-center" style="width:10%;">Status Magang</th>
-                            <th class="text-center" style="width:10%;">Status Akun</th>
                             <th class="text-center" style="width:10%;">Aksi</th>
                         </tr>
                     </thead>
@@ -115,11 +114,6 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: "status_akun",
-                        name: "status",
-                        className: "text-center"
-                    }, // 'status' untuk sorting by status akun
                     {
                         data: "aksi",
                         className: "text-center",

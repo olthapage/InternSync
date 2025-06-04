@@ -1,35 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\LogHarianModel;
+use App\Models\DosenModel;
 use App\Models\LogHarianDetailModel;
+use App\Models\LogHarianModel;
 use App\Models\MagangModel;
 use App\Models\MahasiswaModel;
-use App\Models\DosenModel;
-use App\Models\MahasiswaPreferensiLokasiModel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LogHarianController extends Controller
 {
     public function index()
     {
         return view('mahasiswa_page.logharian.index', [
-            'activeMenu' => 'logharian'
+            'activeMenu' => 'logharian',
         ]);
     }
 
     public function list(Request $request)
     {
         $user = Auth::guard('mahasiswa')->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $mahasiswaId = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
+        $mahasiswaId       = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
         $mahasiswaMagangId = MagangModel::where('mahasiswa_id', $mahasiswaId)->value('mahasiswa_magang_id');
 
         $query = LogHarianModel::where('mahasiswa_magang_id', $mahasiswaMagangId)->with('detail');
@@ -57,7 +55,7 @@ class LogHarianController extends Controller
                 return '<span class="badge bg-warning">Pending</span>';
             })
             ->addColumn('aksi', function ($row) {
-                $editUrl = route('logHarian.edit', ['id' => $row->logHarian_id]);
+                $editUrl   = route('logHarian.edit', ['id' => $row->logHarian_id]);
                 $detailUrl = route('logHarian.show', ['id' => $row->logHarian_id]);
 
                 return '
@@ -74,90 +72,110 @@ class LogHarianController extends Controller
 
     public function create()
     {
-        $user = Auth::guard('mahasiswa')->user();
-        $mahasiswaId = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
+        $user                = Auth::guard('mahasiswa')->user();
+        $mahasiswa           = MahasiswaModel::where('nim', $user->nim)->first();
+        $defaultLokasiMagang = 'Alamat lowongan tidak ditemukan'; // Fallback default
 
-        $lokasi = MahasiswaPreferensiLokasiModel::where('mahasiswa_id', $mahasiswaId)
-            ->join('m_kota', 'user_preferensi_lokasi.kota_id', '=', 'm_kota.kota_id')
-            ->orderBy('user_preferensi_lokasi.prioritas', 'asc')
-            ->select('m_kota.kota_id as kota_id', 'm_kota.kota_nama')
-            ->first();
+        if ($mahasiswa) {
+            $magang = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
+                ->with([
+                    'lowongan.lokasiKota.provinsi',    // Untuk DetailLowonganModel->getAlamatLengkapDisplayAttribute()
+                    'lowongan.industri.kota.provinsi', // Untuk DetailLowonganModel->getAlamatLengkapDisplayAttribute()
+                ])
+                ->first();
+
+            if ($magang && $magang->lowongan) {
+                // Menggunakan accessor getAlamatLengkapDisplayAttribute dari DetailLowonganModel
+                $defaultLokasiMagang = $magang->lowongan->alamat_lengkap_display;
+            } else if ($magang && $magang->lowongan && ! $magang->lowongan->use_specific_location && $magang->lowongan->industri) {
+                                                                                  // Jika tidak pakai lokasi spesifik, coba ambil dari alamat industri
+                $defaultLokasiMagang = $magang->lowongan->alamat_lengkap_display; // Accessor sudah menghandle ini
+            }
+        }
 
         return view('mahasiswa_page.logharian.create', [
-            'activeMenu' => 'logharian',
-            'lokasi' => $lokasi,
+            'activeMenu'          => 'logharian',
+            'defaultLokasiMagang' => $defaultLokasiMagang,
         ]);
     }
 
     public function store(Request $request)
     {
         $user = Auth::guard('mahasiswa')->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $mahasiswaId = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
+        $mahasiswaId       = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
         $mahasiswaMagangId = MagangModel::where('mahasiswa_id', $mahasiswaId)->value('mahasiswa_magang_id');
 
         $request->validate([
-            'tanggal' => 'required|date',
-            'aktivitas' => 'required|array|min:1',
+            'tanggal'               => 'required|date',
+            'aktivitas'             => 'required|array|min:1',
             'aktivitas.*.deskripsi' => 'required|string',
-            'aktivitas.*.lokasi' => 'required|string',
-            'aktivitas.*.tanggal' => 'required|date',
+            'aktivitas.*.lokasi'    => 'required|string',
+            'aktivitas.*.tanggal'   => 'required|date',
         ]);
 
         // Simpan log harian header (tanggal umum)
         $log = LogHarianModel::create([
             'mahasiswa_magang_id' => $mahasiswaMagangId,
-            'tanggal' => $request->tanggal,
+            'tanggal'             => $request->tanggal,
         ]);
 
         // Simpan detail aktivitas dengan tanggal masing-masing
         foreach ($request->aktivitas as $aktivitas) {
             LogHarianDetailModel::create([
-                'logHarian_id' => $log->logHarian_id,
-                'isi' => $aktivitas['deskripsi'],
-                'lokasi' => $aktivitas['lokasi'],
-                'tanggal_kegiatan' => $aktivitas['tanggal'],
-                'status_approval_dosen' => 'pending',
+                'logHarian_id'             => $log->logHarian_id,
+                'isi'                      => $aktivitas['deskripsi'],
+                'lokasi'                   => $aktivitas['lokasi'],
+                'tanggal_kegiatan'         => $aktivitas['tanggal'],
+                'status_approval_dosen'    => 'pending',
                 'status_approval_industri' => 'pending',
-                'catatan_dosen' => null,
-                'catatan_industri' => null,
+                'catatan_dosen'            => null,
+                'catatan_industri'         => null,
             ]);
         }
 
         return response()->json(['success' => 'Log harian berhasil disimpan.']);
     }
 
-
     public function edit($id)
     {
         $log = LogHarianModel::with('detail')->findOrFail($id);
 
-        $user = Auth::guard('mahasiswa')->user();
-        $mahasiswaId = MahasiswaModel::where('nim', $user->nim)->value('mahasiswa_id');
+        // Ambil default lokasi magang untuk konsistensi jika ada aktivitas baru atau untuk referensi
+        $user                = Auth::guard('mahasiswa')->user();
+        $mahasiswa           = MahasiswaModel::where('nim', $user->nim)->first();
+        $defaultLokasiMagang = 'Alamat lowongan tidak ditemukan';
 
-        $lokasi = MahasiswaPreferensiLokasiModel::where('mahasiswa_id', $mahasiswaId)
-            ->join('m_kota', 'user_preferensi_lokasi.kota_id', '=', 'm_kota.kota_id')
-            ->orderBy('user_preferensi_lokasi.prioritas', 'asc')
-            ->select('m_kota.kota_id as kota_id', 'm_kota.kota_nama')
-            ->first();
+        if ($mahasiswa) {
+            $magang = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
+                ->with([
+                    'lowongan.lokasiKota.provinsi',
+                    'lowongan.industri.kota.provinsi',
+                ])
+                ->first();
+
+            if ($magang && $magang->lowongan) {
+                $defaultLokasiMagang = $magang->lowongan->alamat_lengkap_display;
+            }
+        }
 
         return view('mahasiswa_page.logharian.edit', [
-            'log' => $log,
-            'activeMenu' => 'logharian',
-            'lokasi' => $lokasi,
+            'log'                 => $log,
+            'activeMenu'          => 'logharian',
+            'defaultLokasiMagang' => $defaultLokasiMagang, // Kirim ke view edit
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'tanggal' => 'required|date',
-            'aktivitas' => 'required|array|min:1',
-            'aktivitas.*.deskripsi' => 'required|string',
-            'aktivitas.*.lokasi' => 'required|string',
+            'tanggal'                      => 'required|date',
+            'aktivitas'                    => 'required|array|min:1',
+            'aktivitas.*.deskripsi'        => 'required|string',
+            'aktivitas.*.lokasi'           => 'required|string',
             'aktivitas.*.tanggal_kegiatan' => 'required|date',
         ]);
 
@@ -170,14 +188,14 @@ class LogHarianController extends Controller
 
         foreach ($request->aktivitas as $aktivitas) {
             LogHarianDetailModel::create([
-                'logHarian_id' => $log->logHarian_id,
-                'isi' => $aktivitas['deskripsi'],
-                'lokasi' => $aktivitas['lokasi'],
-                'tanggal_kegiatan' => $aktivitas['tanggal_kegiatan'],
-                'status_approval_dosen' => 'pending',
+                'logHarian_id'             => $log->logHarian_id,
+                'isi'                      => $aktivitas['deskripsi'],
+                'lokasi'                   => $aktivitas['lokasi'],
+                'tanggal_kegiatan'         => $aktivitas['tanggal_kegiatan'],
+                'status_approval_dosen'    => 'pending',
                 'status_approval_industri' => 'pending',
-                'catatan_dosen' => null,
-                'catatan_industri' => null,
+                'catatan_dosen'            => null,
+                'catatan_industri'         => null,
             ]);
         }
 
@@ -192,54 +210,139 @@ class LogHarianController extends Controller
             return view('mahasiswa_page.logharian.show', compact('logharian'));
         }
     }
+    
     public function delete_ajax(Request $request, $id)
     {
-        if ($request->ajax()) {
-            $log = LogHarianModel::find($id);
+        if (! $request->ajax()) {
+            return redirect()->route('logHarian.index')->with('error', 'Aksi tidak diizinkan.');
+        }
 
-            if (!$log) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Log harian tidak ditemukan.'
-                ]);
-            }
+        $user = Auth::guard('mahasiswa')->user();
+        if (! $user) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Unauthorized. Silakan login kembali.',
+            ], 401); // Unauthorized
+        }
 
-            // Hapus relasi detail jika ada
+        $mahasiswa = MahasiswaModel::where('nim', $user->nim)->first();
+        if (! $mahasiswa) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Data mahasiswa tidak ditemukan.',
+            ], 404); // Not Found
+        }
+
+        $magang = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)->first();
+        if (! $magang) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Anda belum terdaftar pada program magang.',
+            ], 403); // Forbidden - Mahasiswa tidak punya magang
+        }
+
+        $log = LogHarianModel::where('logHarian_id', $id)
+            ->where('mahasiswa_magang_id', $magang->mahasiswa_magang_id) // Pastikan log milik mahasiswa yang login
+            ->first();
+
+        if (! $log) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Log harian tidak ditemukan atau Anda tidak memiliki izin untuk menghapusnya.',
+            ], 404); // Not Found atau Forbidden (disamarkan sebagai Not Found)
+        }
+
+        try {
+            // Hapus relasi detail terlebih dahulu
             $log->detail()->delete();
+            // Kemudian hapus log utama
             $log->delete();
 
             return response()->json([
-                'status' => true,
-                'message' => 'Log harian berhasil dihapus.'
+                'status'  => true,
+                'message' => 'Log harian berhasil dihapus.',
             ]);
+        } catch (\Exception $e) {
+            // Log error jika perlu: Log::error('Gagal menghapus log harian: ' . $e->getMessage());
+            return response()->json([
+                'status'  => false,
+                'message' => 'Terjadi kesalahan saat menghapus log harian. Silakan coba lagi.',
+            ], 500); // Internal Server Error
+        }
+    }
+
+    public function export_pdf()
+    {
+        $user = Auth::guard('mahasiswa')->user(); // Menggunakan Auth::guard('mahasiswa')
+        if (! $user) {
+            // Handle jika tidak ada user mahasiswa yang login
+            // Redirect atau tampilkan pesan error, contoh:
+            return redirect()->route('mahasiswa.login')->with('error', 'Anda harus login sebagai mahasiswa untuk mengekspor PDF.');
         }
 
-        return redirect()->route('logHarian.index');
+        $mahasiswa = MahasiswaModel::where('nim', $user->nim)->first();
+        if (! $mahasiswa) {
+            // Ini seharusnya tidak terjadi jika user sudah login dengan guard mahasiswa
+            return redirect()->back()->with('error', 'Data mahasiswa tidak ditemukan.');
+        }
+
+        // Ambil data dosen pembimbing mahasiswa (jika ada dan diperlukan)
+        $dosen = null;
+        if ($mahasiswa->dosen_id) { // Asumsi ada field dosen_id di tabel mahasiswa
+            $dosen = DosenModel::find($mahasiswa->dosen_id);
+        }
+
+        // Ambil data magang mahasiswa beserta informasi lowongan untuk alamat
+        $magang = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)
+            ->with([
+                'lowongan.lokasiKota.provinsi',    // Untuk DetailLowonganModel->getAlamatLengkapDisplayAttribute()
+                'lowongan.industri.kota.provinsi', // Untuk DetailLowonganModel->getAlamatLengkapDisplayAttribute()
+            ])
+            ->first();
+
+        $lokasiMagangDisplay = 'Alamat magang tidak ditentukan'; // Fallback
+        $mahasiswaMagangId   = null;
+
+        if ($magang) {
+            $mahasiswaMagangId = $magang->mahasiswa_magang_id;
+            if ($magang->lowongan) {
+                // Menggunakan accessor getAlamatLengkapDisplayAttribute dari DetailLowonganModel
+                $lokasiMagangDisplay = $magang->lowongan->alamat_lengkap_display;
+            } else {
+                $lokasiMagangDisplay = 'Informasi lowongan tidak ditemukan.';
+            }
+        } else {
+            // Jika mahasiswa tidak memiliki data magang aktif
+            return redirect()->back()->with('error', 'Anda belum terdaftar pada program magang aktif.');
+        }
+
+        // Jika $mahasiswaMagangId masih null setelah pengecekan magang
+        if (is_null($mahasiswaMagangId)) {
+            return redirect()->back()->with('error', 'Data magang mahasiswa tidak valid untuk ekspor.');
+        }
+
+        $logharian = LogHarianModel::where('mahasiswa_magang_id', $mahasiswaMagangId)
+            ->with('detail') // Eager load detail untuk efisiensi di view PDF
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        if ($logharian->isEmpty()) {
+            // Jika tidak ada log harian untuk diekspor
+            return redirect()->back()->with('info', 'Tidak ada data log harian untuk diekspor.');
+        }
+
+        $pdf = Pdf::loadView('mahasiswa_page.logharian.export_pdf', [
+            'mahasiswa'    => $mahasiswa,
+            'dosen'        => $dosen,               // Bisa null jika tidak ada dosen_id
+            'lokasiMagang' => $lokasiMagangDisplay, // Menggunakan alamat dari lowongan
+            'logharian'    => $logharian,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+        // setOption "isRemoteEnabled" biasanya untuk DomPDF versi lama atau jika ada masalah dengan path gambar/CSS eksternal
+        // Untuk versi lebih baru, mungkin tidak selalu diperlukan atau defaultnya sudah true.
+        $pdf->setOption("isRemoteEnabled", true);
+
+        return $pdf->stream('Log Harian - ' . $mahasiswa->nama . ' - ' . now()->format('Ymd_His') . '.pdf');
     }
-    public function export_pdf()
-{
-    $user = auth()->user();
-
-    $mahasiswa = MahasiswaModel::where('nim', $user->nim)->first();
-    $dosen = DosenModel::find($mahasiswa->dosen_id);
-    $lokasi = MahasiswaPreferensiLokasiModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)->first();
-    $mahasiswaMagangId = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)->value('mahasiswa_magang_id');
-
-    $logharian = LogHarianModel::where('mahasiswa_magang_id', $mahasiswaMagangId)
-        ->orderBy('tanggal', 'asc')
-        ->get();
-
-    $pdf = Pdf::loadView('mahasiswa_page.logharian.export_pdf', [
-        'mahasiswa' => $mahasiswa,
-        'dosen' => $dosen,
-        'lokasi' => $lokasi,
-        'lokasiMagang' => $lokasi->lokasi_nama ?? '---',
-        'logharian' => $logharian,
-    ]);
-
-    $pdf->setPaper('a4', 'portrait');
-    $pdf->setOption("isRemoteEnabled", true);
-
-    return $pdf->stream('Log Harian - ' . $mahasiswa->nama . ' - ' . now()->format('Ymd_His') . '.pdf');
-}
 }
