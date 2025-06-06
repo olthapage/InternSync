@@ -78,7 +78,7 @@
                             {!! $rankIcon !!}{{ $rank }}
                         </td>
                         <td>
-                            <img src="{{ optional($mahasiswaData['mahasiswa'])->foto ? asset('storage/mahasiswa/' . $mahasiswaData['mahasiswa']->foto) : asset('assets/images/default-avatar.png') }}"
+                            <img src="{{ optional($mahasiswaData['mahasiswa'])->foto ? asset('storage/foto/' . $mahasiswaData['mahasiswa']->foto) : asset('assets/default-profile.png') }}"
                                  alt="Foto" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
                             <a href="{{ route('industri.lowongan.pendaftar.show_profil', $mahasiswaData['pengajuan_id']) }}" target="_blank" title="Lihat Profil Pendaftar {{ optional($mahasiswaData['mahasiswa'])->nama_lengkap }}">
                                 {{ optional($mahasiswaData['mahasiswa'])->nama_lengkap }}

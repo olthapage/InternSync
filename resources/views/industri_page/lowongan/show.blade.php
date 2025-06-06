@@ -58,6 +58,53 @@
                             <strong>Deskripsi:</strong>
                             {!! $lowongan->deskripsi !!}
                         </div>
+                        <hr>
+                        <div class="row">
+                            {{-- Menampilkan Upah --}}
+                            <div class="col-md-4">
+                                <p>
+                                    <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                    <strong>Uang Saku / Upah:</strong><br>
+                                    @if ($lowongan->upah > 0)
+                                        Rp {{ number_format($lowongan->upah, 0, ',', '.') }} / bulan
+                                    @else
+                                        Tidak disediakan
+                                    @endif
+                                </p>
+                            </div>
+
+                            {{-- Menampilkan Tipe Kerja --}}
+                            <div class="col-md-8">
+                                <p>
+                                    <i class="fas fa-briefcase text-primary me-2"></i>
+                                    <strong>Tipe Kerja:</strong><br>
+                                    @if ($lowongan->tipeKerja->isNotEmpty())
+                                        @foreach ($lowongan->tipeKerja as $tipe)
+                                            <span class="badge bg-primary me-1">{{ $tipe->nama_tipe_kerja }}</span>
+                                        @endforeach
+                                    @else
+                                        -
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Menampilkan Fasilitas --}}
+                        @if ($lowongan->fasilitas->isNotEmpty())
+                            <div class="mt-2">
+                                <strong><i class="fas fa-gifts text-info me-2"></i>Fasilitas yang Disediakan:</strong>
+                                <ul class="list-unstyled mt-2 row">
+                                    @foreach ($lowongan->fasilitas as $fasilitas)
+                                        <li class="col-md-6 mb-2">
+                                            <i class="fas fa-check-circle text-success me-1"></i>
+                                            {{ $fasilitas->nama_fasilitas }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <hr>
                         @if ($lowongan->lowonganSkill->isNotEmpty())
                             <div class="mt-3">
                                 <strong>Skill yang Dibutuhkan:</strong>
@@ -291,7 +338,7 @@
 
                 stepsContent.html(
                     '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><p class="mt-2 mb-0 small">Memuat langkah perhitungan...</p></div>'
-                    );
+                );
                 stepsContainer.slideToggle(); // Toggle tampilan
 
                 if (stepsContainer.is(':visible')) {

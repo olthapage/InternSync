@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('tanggal_selesai');
             $table->date('pendaftaran_tanggal_mulai')->nullable();
             $table->date('pendaftaran_tanggal_selesai')->nullable();
+            $table->unsignedBigInteger('upah')->default(0)->nullable();
             $table->boolean('use_specific_location')->default(false);
 
             // Kolom untuk alamat spesifik lowongan (opsional)

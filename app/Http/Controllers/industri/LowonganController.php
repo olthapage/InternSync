@@ -1,21 +1,22 @@
 <?php
 namespace App\Http\Controllers\industri;
 
-use App\Models\KotaModel;
-use App\Models\MagangModel;
-use Illuminate\Http\Request;
-use App\Models\IndustriModel;
-use App\Models\ProvinsiModel;
-use App\Models\PengajuanModel;
+use App\Http\Controllers\Controller;
+use App\Models\DetailLowonganModel;
 use App\Models\DetailSkillModel;
-use App\Services\SpkEdasService;
+use App\Models\FasilitasModel;
+use App\Models\IndustriModel;
 use App\Models\KategoriSkillModel;
 use App\Models\LowonganSkillModel;
-use Illuminate\Support\Facades\DB;
-use App\Models\DetailLowonganModel;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
+use App\Models\MagangModel;
+use App\Models\PengajuanModel;
+use App\Models\ProvinsiModel;
+use App\Models\TipeKerjaModel;
+use App\Services\SpkEdasService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 // Ditambahkan untuk Request jika diperlukan
@@ -41,18 +42,20 @@ class LowonganController extends Controller
         ]);
     }
 
-    public function show($id) // Hapus Request $request jika tidak digunakan
+    public function show($id)
     {
+        // Ganti blok with() Anda dengan ini untuk mengambil semua relasi sekaligus
         $lowongan = DetailLowonganModel::with([
             'industri',
             'kategoriSkill',
             'lowonganSkill.skill',
-            'pendaftar.mahasiswa', // Eager load pendaftar dan data mahasiswa mereka
+            'pendaftar.mahasiswa',
+            'fasilitas',
+            'tipeKerja',
         ])->findOrFail($id);
 
         $activeMenu = 'lowongan';
 
-        // Pastikan view 'industri_page.lowongan.show' ada di resources/views/industri_page/lowongan/show.blade.php
         return view('industri_page.lowongan.show', compact('lowongan', 'activeMenu'));
     }
     public function create()
@@ -64,11 +67,10 @@ class LowonganController extends Controller
 
         // Ambil daftar semua provinsi
         $provinsiList = ProvinsiModel::orderBy('provinsi_nama')->get();
-        // Ambil daftar semua kota beserta provinsi_id nya
-        $kotaList = KotaModel::orderBy('kota_nama')->select('kota_id', 'kota_nama', 'provinsi_id')->get();
 
-        // Pastikan $industri valid dan memiliki industri_id
-        // Logika ini perlu disesuaikan dengan struktur User dan IndustriModel Anda
+        $tipeKerjaList = TipeKerjaModel::all();
+        $fasilitasList = FasilitasModel::all();
+
         $industriId = null;
         if ($industri) {
             if (isset($industri->industri_id)) { // Jika Auth::user() langsung instance IndustriModel dengan properti industri_id
@@ -82,11 +84,6 @@ class LowonganController extends Controller
         if (! $industriId) {
             return redirect()->route('industri.lowongan.index')->with('error', 'Akses tidak sah atau data industri tidak ditemukan.');
         }
-        // Jika Anda perlu mengambil ulang model Industri berdasarkan ID yang didapat:
-        // $industri = IndustriModel::with('kota.provinsi')->find($industriId);
-        // if(!$industri) {
-        //      return redirect()->route('industri.lowongan.index')->with('error', 'Data industri tidak ditemukan.');
-        // }
 
         return view('industri_page.lowongan.create', compact(
             'kategoriSkills',
@@ -94,7 +91,8 @@ class LowonganController extends Controller
             'industri', // Kirim instance IndustriModel yang sudah di-load dengan relasi jika perlu di view
             'activeMenu',
             'provinsiList',
-            'kotaList' // <-- KIRIM DAFTAR KOTA KE VIEW
+            'tipeKerjaList',
+            'fasilitasList'
         ));
     }
     public function store(Request $request)
@@ -109,14 +107,16 @@ class LowonganController extends Controller
             'pendaftaran_tanggal_mulai'   => 'required|date',
             'pendaftaran_tanggal_selesai' => 'required|date|after_or_equal:pendaftaran_tanggal_mulai',
 
+            'upah'                        => 'required|integer|min:0',
+            'tipe_kerja'                  => 'required|array|min:1',
+            'tipe_kerja.*'                => 'exists:m_tipe_kerja,tipe_kerja_id',
+            'fasilitas'                   => 'nullable|array',
+            'fasilitas.*'                 => 'exists:m_fasilitas,fasilitas_id',
+
             'skills'                      => 'sometimes|array',
             'skills.*'                    => 'required_with:skills|exists:m_detail_skill,skill_id',
             'levels'                      => 'sometimes|array',
             'levels.*'                    => 'required_with:skills|string|in:Beginner,Intermediate,Expert', // Validasi untuk level
-
-            // Validasi untuk bobot kriteria lainnya (IPK & Lokasi)
-            'bobot_akademik'              => 'required|numeric|min:1|max:100',
-            'bobot_lokasi'                => 'required|numeric|min:1|max:100',
 
                                                                  // Validasi untuk alamat spesifik lowongan
             'use_specific_location'       => 'nullable|boolean', // checkbox bisa tidak dikirim jika tidak dicentang
@@ -130,13 +130,12 @@ class LowonganController extends Controller
             'skills.*.exists'                   => 'Salah satu skill yang dipilih tidak valid.',
             'levels.*.required_with'            => 'Level kompetensi untuk setiap skill wajib dipilih.',
             'levels.*.in'                       => 'Level kompetensi tidak valid.',
-            'bobot_akademik.required'           => 'Bobot nilai akademik wajib diisi.',
-            'bobot_lokasi.required'             => 'Bobot lokasi wajib diisi.',
             'lokasi_provinsi_id.required_if'    => 'Provinsi spesifik wajib dipilih jika menggunakan alamat berbeda.',
             'lokasi_kota_id.required_if'        => 'Kota spesifik wajib dipilih jika menggunakan alamat berbeda.',
             'lokasi_alamat_lengkap.required_if' => 'Alamat lengkap spesifik wajib diisi jika menggunakan alamat berbeda.',
-
-            // Tambahkan pesan validasi untuk alamat jika perlu
+            'upah.required'                     => 'Uang saku wajib diisi (masukkan 0 jika tidak ada).',
+            'tipe_kerja.required'               => 'Pilih minimal satu tipe kerja.',
+            'tipe_kerja.min'                    => 'Pilih minimal satu tipe kerja.',
         ]);
 
         if ($validator->fails()) {
@@ -183,6 +182,7 @@ class LowonganController extends Controller
                 'kategori_skill_id'           => $request->kategori_skill_id,
                 'slot'                        => $request->slot,
                 'deskripsi'                   => $request->deskripsi,
+                'upah'                        => $request->upah,
                 'tanggal_mulai'               => $request->tanggal_mulai,
                 'tanggal_selesai'             => $request->tanggal_selesai,
                 'pendaftaran_tanggal_mulai'   => $request->pendaftaran_tanggal_mulai,
@@ -202,24 +202,15 @@ class LowonganController extends Controller
                 $lowonganData['lokasi_alamat_lengkap'] = null;
             }
 
-            // Cek apakah model DetailLowonganModel memiliki fillable untuk bobot_akademik dan bobot_lokasi
-            // Jika tidak, Anda perlu menyimpannya ke tabel KriteriaMagangModel
-            // Untuk saat ini, kita asumsikan belum disimpan langsung di DetailLowonganModel
-
             $lowongan = DetailLowonganModel::create($lowonganData);
 
-            // Simpan bobot ke tabel kriteria_magang jika KriteriaMagangModel ada
-            // Asumsi KriteriaMagangModel memiliki lowongan_id, nama_kriteria, bobot
-            // if (class_exists(\App\Models\KriteriaMagangModel::class)) {
-            //     \App\Models\KriteriaMagangModel::updateOrCreate(
-            //         ['lowongan_id' => $lowongan->lowongan_id, 'nama_kriteria' => 'Akademik (IPK)'],
-            //         ['bobot' => $request->bobot_akademik]
-            //     );
-            //     \App\Models\KriteriaMagangModel::updateOrCreate(
-            //         ['lowongan_id' => $lowongan->lowongan_id, 'nama_kriteria' => 'Lokasi'],
-            //         ['bobot' => $request->bobot_lokasi]
-            //     );
-            // }
+            // <-- SIMPAN DATA RELASI MANY-TO-MANY -->
+            // Gunakan method attach() untuk menyimpan ke tabel pivot
+            $lowongan->tipeKerja()->attach($request->tipe_kerja);
+
+            if ($request->has('fasilitas')) {
+                $lowongan->fasilitas()->attach($request->fasilitas);
+            }
 
             if ($request->has('skills')) {
                 foreach ($request->input('skills') as $index => $skillId) {
@@ -261,10 +252,10 @@ class LowonganController extends Controller
     }
     public function showPendaftarProfil(PengajuanModel $pengajuan)
     {
-        $activeMenu = 'lowongan';
+        $activeMenu       = 'lowongan';
         $loggedInIndustri = Auth::guard('industri')->user(); // Gunakan guard eksplisit
 
-        if (!$loggedInIndustri) {
+        if (! $loggedInIndustri) {
             return redirect()->route('login.company.view') // Arahkan ke login industri
                 ->with('error', 'Sesi tidak valid. Silakan login kembali sebagai industri.');
         }
@@ -281,14 +272,14 @@ class LowonganController extends Controller
                     'prodi',
                     'skills' => function ($skillQuery) {
                         $skillQuery->with(['detailSkill.kategori', 'linkedPortofolios'])
-                                   // ->where('status_verifikasi', 'Valid'); // Biarkan DPA yang menilai ini, industri lihat semua
-                                   ;
+                        // ->where('status_verifikasi', 'Valid'); // Biarkan DPA yang menilai ini, industri lihat semua
+                        ;
                     },
                 ]);
             },
-            'lowongan' => function ($query) {
+            'lowongan'  => function ($query) {
                 $query->with(['lowonganSkill.skill', 'kategoriSkill', 'industri']); // Muat industri juga di sini
-            }
+            },
         ]);
 
         $allPortfolioItems = optional($pengajuan->mahasiswa)->portofolios()->orderBy('created_at', 'desc')->get() ?? collect();
@@ -300,11 +291,10 @@ class LowonganController extends Controller
         ));
     }
 
-
     public function terimaPengajuan(Request $request, PengajuanModel $pengajuan)
     {
         $loggedInIndustri = Auth::guard('industri')->user();
-        if (!$loggedInIndustri) {
+        if (! $loggedInIndustri) {
             return redirect()->back()->with('error', 'Sesi tidak valid.');
         }
         $authenticatedIndustriId = $loggedInIndustri->industri_id;
@@ -315,12 +305,12 @@ class LowonganController extends Controller
 
         if (strtolower($pengajuan->status) !== 'belum') {
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
+                ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
         }
 
         if ($pengajuan->lowongan->slotTersedia() <= 0) { // Pastikan slotTersedia() benar
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('error', 'Slot untuk lowongan ini sudah penuh.');
+                ->with('error', 'Slot untuk lowongan ini sudah penuh.');
         }
 
         DB::beginTransaction();
@@ -336,19 +326,19 @@ class LowonganController extends Controller
 
             DB::commit();
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.');
+                ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error saat menerima pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage() . "\nStack: " . $e->getTraceAsString());
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
+                ->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
         }
     }
 
     public function tolakPengajuan(Request $request, PengajuanModel $pengajuan)
     {
         $loggedInIndustri = Auth::guard('industri')->user();
-        if (!$loggedInIndustri) {
+        if (! $loggedInIndustri) {
             return redirect()->back()->with('error', 'Sesi tidak valid.');
         }
         $authenticatedIndustriId = $loggedInIndustri->industri_id;
@@ -359,7 +349,7 @@ class LowonganController extends Controller
 
         if (strtolower($pengajuan->status) !== 'belum') {
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
+                ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
         }
 
         $validator = Validator::make($request->all(), [
@@ -377,20 +367,20 @@ class LowonganController extends Controller
         try {
             $pengajuan->status = 'ditolak';
             if ($request->filled('alasan_penolakan')) {
-               $pengajuan->alasan_penolakan = $request->alasan_penolakan;
+                $pengajuan->alasan_penolakan = $request->alasan_penolakan;
             } else {
-               $pengajuan->alasan_penolakan = null;
+                $pengajuan->alasan_penolakan = null;
             }
             $pengajuan->save();
 
             DB::commit();
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' telah DITOLAK.');
+                ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' telah DITOLAK.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error saat menolak pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage());
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                             ->with('error', 'Terjadi kesalahan sistem.');
+                ->with('error', 'Terjadi kesalahan sistem.');
         }
     }
     public function getSpkModalKriteriaForm(DetailLowonganModel $lowongan)
@@ -401,37 +391,37 @@ class LowonganController extends Controller
 
     public function calculateSpkRekomendasi(Request $request, DetailLowonganModel $lowongan, SpkEdasService $spkService)
     {
-        $rules = [];
+        $rules    = [];
         $messages = [];
 
         // Validasi untuk bobot skill
         if ($request->has('bobot_skill')) {
             foreach ($request->input('bobot_skill') as $skillId => $bobot) {
-                $rules['bobot_skill.' . $skillId] = 'required|numeric|min:0|max:100';
+                $rules['bobot_skill.' . $skillId]                  = 'required|numeric|min:0|max:100';
                 $messages['bobot_skill.' . $skillId . '.required'] = 'Bobot untuk skill wajib diisi.';
-                $messages['bobot_skill.' . $skillId . '.numeric'] = 'Bobot skill harus angka.';
-                $messages['bobot_skill.' . $skillId . '.min'] = 'Bobot skill min 0.';
-                $messages['bobot_skill.' . $skillId . '.max'] = 'Bobot skill maks 100.';
+                $messages['bobot_skill.' . $skillId . '.numeric']  = 'Bobot skill harus angka.';
+                $messages['bobot_skill.' . $skillId . '.min']      = 'Bobot skill min 0.';
+                $messages['bobot_skill.' . $skillId . '.max']      = 'Bobot skill maks 100.';
             }
         }
 
         // Validasi untuk kriteria tambahan jika checkbox-nya dicentang
-        $criteriaTambahan = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
+        $criteriaTambahan       = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
         $criteriaTambahanLabels = [
-            'ipk' => 'IPK',
+            'ipk'        => 'IPK',
             'organisasi' => 'Aktivitas Organisasi',
-            'lomba' => 'Aktivitas Lomba',
-            'skor_ais' => 'Skor AIS',
-            'kasus' => 'Status Kasus'
+            'lomba'      => 'Aktivitas Lomba',
+            'skor_ais'   => 'Skor AIS',
+            'kasus'      => 'Status Kasus',
         ];
 
         foreach ($criteriaTambahan as $kriteria) {
             if ($request->boolean('gunakan_' . $kriteria)) {
-                $rules['bobot_' . $kriteria] = 'required|numeric|min:0|max:100';
+                $rules['bobot_' . $kriteria]                  = 'required|numeric|min:0|max:100';
                 $messages['bobot_' . $kriteria . '.required'] = 'Bobot untuk ' . $criteriaTambahanLabels[$kriteria] . ' wajib diisi jika kriteria ini digunakan.';
-                $messages['bobot_' . $kriteria . '.numeric'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' harus angka.';
-                $messages['bobot_' . $kriteria . '.min'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' minimal 0.';
-                $messages['bobot_' . $kriteria . '.max'] = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' maksimal 100.';
+                $messages['bobot_' . $kriteria . '.numeric']  = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' harus angka.';
+                $messages['bobot_' . $kriteria . '.min']      = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' minimal 0.';
+                $messages['bobot_' . $kriteria . '.max']      = 'Bobot ' . $criteriaTambahanLabels[$kriteria] . ' maksimal 100.';
             }
         }
 
@@ -454,35 +444,35 @@ class LowonganController extends Controller
         $pendaftar = $lowongan->pendaftar()
             ->where('status', 'belum') // Hanya pendaftar dengan status 'belum'
             ->with([
-                'mahasiswa.skills' => function($query) { // Eager load skills mahasiswa
+                'mahasiswa.skills' => function ($query) {    // Eager load skills mahasiswa
                     $query->where('status_verifikasi', 'Valid'); // Hanya skill yang valid
                 },
-                'mahasiswa.prodi'
+                'mahasiswa.prodi',
             ])
             ->get();
 
         if ($pendaftar->isEmpty()) {
-             $data = ['rankedMahasiswa' => collect(), 'criteriaView' => [], 'message' => 'Tidak ada pendaftar dengan status "belum" yang memenuhi syarat untuk dievaluasi pada lowongan ini.'];
-             return view('industri_page.lowongan.partials.rekomendasi_hasil', $data);
+            $data = ['rankedMahasiswa' => collect(), 'criteriaView' => [], 'message' => 'Tidak ada pendaftar dengan status "belum" yang memenuhi syarat untuk dievaluasi pada lowongan ini.'];
+            return view('industri_page.lowongan.partials.rekomendasi_hasil', $data);
         }
 
         try {
-        $result = $spkService->calculateRekomendasi($lowongan, $pendaftar, $criteriaWeights);
+            $result = $spkService->calculateRekomendasi($lowongan, $pendaftar, $criteriaWeights);
 
-        // Tambahkan $lowongan ke array $result sebelum dikirim ke view
-        $result['lowongan'] = $lowongan;
+            // Tambahkan $lowongan ke array $result sebelum dikirim ke view
+            $result['lowongan'] = $lowongan;
 
-        return view('industri_page.lowongan.partials.rekomendasi_hasil', $result);
-    } catch (\Exception $e) {
-        Log::error('SPK EDAS Calculation Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-        // Saat error, mungkin juga perlu mengirim $lowongan jika view membutuhkannya untuk ID modal
-        // return response()->json(['message' => 'Terjadi kesalahan internal saat menghitung rekomendasi: ' . $e->getMessage()], 500);
-        // Jika mengembalikan view error:
-        return view('industri_page.lowongan.partials.rekomendasi_hasil', [
-            'error_message' => 'Terjadi kesalahan internal: ' . $e->getMessage(),
-            'lowongan' => $lowongan // Kirim $lowongan agar ID modal tetap benar
-        ]);
-    }
+            return view('industri_page.lowongan.partials.rekomendasi_hasil', $result);
+        } catch (\Exception $e) {
+            Log::error('SPK EDAS Calculation Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            // Saat error, mungkin juga perlu mengirim $lowongan jika view membutuhkannya untuk ID modal
+            // return response()->json(['message' => 'Terjadi kesalahan internal saat menghitung rekomendasi: ' . $e->getMessage()], 500);
+            // Jika mengembalikan view error:
+            return view('industri_page.lowongan.partials.rekomendasi_hasil', [
+                'error_message' => 'Terjadi kesalahan internal: ' . $e->getMessage(),
+                'lowongan'      => $lowongan, // Kirim $lowongan agar ID modal tetap benar
+            ]);
+        }
     }
     public function getSpkLangkahEdas(Request $request, DetailLowonganModel $lowongan, SpkEdasService $spkService)
     {
@@ -498,7 +488,7 @@ class LowonganController extends Controller
         }
         // Inisialisasi rules untuk kriteria tambahan
         $additionalCriteriaRules = [];
-        $criteriaTambahan = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
+        $criteriaTambahan        = ['ipk', 'organisasi', 'lomba', 'skor_ais', 'kasus'];
         foreach ($criteriaTambahan as $kriteria) {
             if ($request->boolean('gunakan_' . $kriteria)) {
                 $additionalCriteriaRules['bobot_' . $kriteria] = 'required|numeric|min:0|max:100';
@@ -519,17 +509,17 @@ class LowonganController extends Controller
         foreach ($criteriaTambahan as $kriteria) {
             $criteriaWeights['gunakan_' . $kriteria] = $request->boolean('gunakan_' . $kriteria);
             // Ambil bobot hanya jika kriteria digunakan, jika tidak, service harus handle default atau mengabaikannya
-            $criteriaWeights['bobot_' . $kriteria]   = $request->boolean('gunakan_' . $kriteria) ? $request->input('bobot_' . $kriteria, 0) : 0;
+            $criteriaWeights['bobot_' . $kriteria] = $request->boolean('gunakan_' . $kriteria) ? $request->input('bobot_' . $kriteria, 0) : 0;
         }
         Log::debug('CriteriaWeights yang dikirim ke service:', $criteriaWeights);
 
         $pendaftar = $lowongan->pendaftar()
             ->where('status', 'belum') // Sesuaikan status ini jika perlu
             ->with([
-                'mahasiswa.skills' => function($query) {
+                'mahasiswa.skills' => function ($query) {
                     $query->with('detailSkill')->where('status_verifikasi', 'Valid'); // Hanya skill valid
                 },
-                'mahasiswa.prodi'
+                'mahasiswa.prodi',
             ])
             ->get();
 
@@ -537,7 +527,7 @@ class LowonganController extends Controller
 
         if ($pendaftar->isEmpty()) {
             return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', [
-                'error_message' => 'Tidak ada pendaftar dengan status "belum" untuk ditampilkan langkah perhitungannya.'
+                'error_message' => 'Tidak ada pendaftar dengan status "belum" untuk ditampilkan langkah perhitungannya.',
             ]);
         }
 
@@ -545,9 +535,9 @@ class LowonganController extends Controller
             Log::info('Memanggil SpkEdasService->getEdasCalculationSteps', ['lowongan_id' => $lowongan->lowongan_id]);
             $edasSteps = $spkService->getEdasCalculationSteps($lowongan, $pendaftar, $criteriaWeights);
 
-            if(isset($edasSteps['error_message'])){
+            if (isset($edasSteps['error_message'])) {
                 Log::warning('Error dari SpkEdasService saat getEdasCalculationSteps:', ['error' => $edasSteps['error_message'], 'lowongan_id' => $lowongan->lowongan_id]);
-                 return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', ['error_message' => $edasSteps['error_message']]);
+                return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', ['error_message' => $edasSteps['error_message']]);
             }
 
             Log::info('Berhasil mendapatkan langkah EDAS, merender view.', ['lowongan_id' => $lowongan->lowongan_id]);

@@ -10,6 +10,8 @@ use Database\Seeders\SkillSeeder;
 use Illuminate\Support\Facades\DB;
 use Database\Seeders\IndustriSeeder;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\FasilitasSeeder;
+use Database\Seeders\TipeKerjaSeeder;
 use Database\Seeders\PreferensiLokasiSeeder;
 use Database\Seeders\MahasiswaMagangPengajuanSkillSeeder;
 
@@ -250,6 +252,11 @@ class DatabaseSeeder extends Seeder
         $this->call(MahasiswaMagangPengajuanSkillSeeder::class);
 
         $this->call(PreferensiLokasiSeeder::class);
+
+        $this->call([
+            TipeKerjaSeeder::class,
+            FasilitasSeeder::class,
+        ]);
 
 //         // user_skill (Target: 10 data)
 //         // Asumsi mahasiswa_id merujuk pada m_mahasiswa (ID 1-10)

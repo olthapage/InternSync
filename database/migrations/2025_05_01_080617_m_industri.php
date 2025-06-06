@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('telepon')->nullable();
             $table->string('password')->nullable();
             $table->string('logo')->nullable();
+            $table->integer('alumni_count')->default(0)->nullable();
             $table->unsignedBigInteger('level_id')->nullable();
             $table->timestamp('created_at')->nullable();
 
