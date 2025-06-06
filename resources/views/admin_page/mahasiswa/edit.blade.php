@@ -1,6 +1,6 @@
 <form action="{{ route('mahasiswa.update', $mahasiswa->mahasiswa_id) }}" method="POST" id="form-edit-mahasiswa" enctype="multipart/form-data">
     @csrf
-    @method('PUT') {{-- Gunakan PUT untuk update --}}
+    @method('POST') 
     <div class="modal-dialog modal-lg" role="document" style="max-width: 70%;">
         <div class="modal-content">
             <div class="modal-header">
@@ -21,6 +21,11 @@
                             <label class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control" value="{{ old('email', $mahasiswa->email) }}" required>
                             <small id="error-email" class="error-text text-danger"></small>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Telepon <span class="text-danger">*</span></label>
+                            <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <small id="error-telepon" class="error-text text-danger"></small>
                         </div>
                         <div class="form-group mb-3">
                             <label class="form-label">NIM <span class="text-danger">*</span></label>
@@ -164,6 +169,10 @@
     //        toggleDosenPembimbingField(); // Panggil saat load
     //     }
     // });
+    jQuery.validator.addMethod("phoneID", function (value, element) {
+        const cleaned = value.replace(/\D/g, ''); // hanya angka
+        return (value.startsWith("0") || value.startsWith("+62")) && cleaned.length >= 9 && cleaned.length <= 15;
+    }, "Masukkan nomor telepon yang valid");
     // Untuk jQuery Validate dan file input:
     $(document).ready(function() {
         $('#foto').on('change', function() {
@@ -180,6 +189,12 @@
              rules: {
                 nama_lengkap: { required: true, minlength: 3 },
                 email: { required: true, email: true },
+                telepon: {
+                    required: true,
+                    minlength: 9,
+                    maxlength: 15,
+                    phoneID: true 
+                }, 
                 nim: { required: true },
                 ipk: { number: true, min: 0, max: 4 },
                 password: { minlength: 6, maxlength: 20 }, // Tidak required, hanya jika diisi

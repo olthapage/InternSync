@@ -208,6 +208,7 @@ class MahasiswaController extends Controller
         $rules = [
             'nama_lengkap' => 'required|string|max:255',
             'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
+            'telepon'      => 'required|min:9|max:15',
             'nim'          => 'required|string|max:15|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
             'ipk'          => 'nullable|numeric|min:0|max:4.00',
             'status'       => 'required|boolean', // Status akun mahasiswa (aktif/tidak)
@@ -231,7 +232,7 @@ class MahasiswaController extends Controller
         }
 
         $dataToUpdate = $request->only([
-            'nama_lengkap', 'email', 'nim', 'ipk', 'status', 'level_id', 'prodi_id',
+            'nama_lengkap', 'email', 'telepon', 'nim', 'ipk', 'status', 'level_id', 'prodi_id',
             'dpa_id', // Simpan DPA ID
             'dosen_id' // Simpan Dosen Pembimbing ID (sebelumnya juga dosen_id)
         ]);
