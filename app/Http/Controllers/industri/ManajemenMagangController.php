@@ -1,18 +1,18 @@
 <?php
 namespace App\Http\Controllers\industri;
 
-use Carbon\Carbon;
-use App\Models\MagangModel;
-use Illuminate\Http\Request;
-use App\Models\IndustriModel;
-use App\Models\LogHarianModel;
-use App\Models\DetailLowonganModel;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\DetailLowonganModel;
+use App\Models\IndustriModel;
 use App\Models\LogHarianDetailModel;
+use App\Models\LogHarianModel;
+use App\Models\MagangModel;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class ManajemenMagangController extends Controller
 {
@@ -319,19 +319,31 @@ class ManajemenMagangController extends Controller
         $statusLama    = $magang->status;
         $statusRequest = $request->status_magang_baru;
 
-        // Logika tambahan untuk transisi status (opsional, tapi baik untuk UX)
-        // if ($statusLama == 'belum' && !in_array($statusRequest, ['sedang'])) {
-        //     return redirect()->back()->with('error', 'Dari "Belum Mulai", status hanya bisa diubah menjadi "Sedang Berjalan".');
-        // }
-        // if ($statusLama == 'sedang' && !in_array($statusRequest, ['selesai'])) {
-        //     return redirect()->back()->with('error', 'Dari "Sedang Berjalan", status hanya bisa diubah menjadi "Selesai".');
-        // }
-        // if ($statusLama == 'selesai' && $statusRequest != 'selesai') {
-        //      return redirect()->back()->with('error', 'Status "Selesai" tidak dapat diubah lagi.');
-        // }
-
         $magang->status = $statusRequest;
         $magang->save();
+
+        /**
+         * =============================================================
+         * SINKRONISASI: Update jumlah alumni di tabel m_industri
+         * =============================================================
+         */
+        // 1. Kondisi PENAMBAHAN alumni
+        // Hanya jika status baru adalah 'selesai' DAN status lamanya BUKAN 'selesai'
+        if ($statusRequest === 'selesai' && $statusLama !== 'selesai') {
+            // Ambil industri dari relasi yang sudah di-load, lalu tambah 1
+            $magang->lowongan->industri->increment('alumni_count');
+        }
+        // 2. Kondisi PENGURANGAN alumni (untuk koreksi jika terjadi kesalahan)
+        // Hanya jika status lama adalah 'selesai' DAN status barunya BUKAN 'selesai'
+        else if ($statusLama === 'selesai' && $statusRequest !== 'selesai') {
+            // Ambil industri, dan kurangi 1.
+            // Method decrement() aman dan tidak akan membuat angka menjadi minus.
+            $magang->lowongan->industri->decrement('alumni_count');
+        }
+        
+        // =============================================================
+        // Akhir dari blok sinkronisasi
+        // =============================================================
 
         // Ambil label status yang user-friendly
         $statusOptionsLabels = [
@@ -352,16 +364,16 @@ class ManajemenMagangController extends Controller
         $userIndustri = Auth::user(); // Ini SEHARUSNYA instance dari App\Models\IndustriModel
 
         // Validasi bahwa user yang login adalah instance dari IndustriModel
-        if (!$userIndustri || !($userIndustri instanceof IndustriModel)) {
+        if (! $userIndustri || ! ($userIndustri instanceof IndustriModel)) {
             Log::error("CRITICAL: Authenticated user is not an instance of IndustriModel as expected. Class: " . ($userIndustri ? get_class($userIndustri) : 'null') . ". Check auth guard configuration for industry routes.");
             return redirect()->back()->with('error', 'Sesi tidak valid atau otentikasi industri gagal.');
         }
 
-        // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
+                                                   // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
         $industriIdAuth = $userIndustri->getKey(); // Ini akan mengambil nilai dari 'industri_id'
         Log::info("Authenticated user is IndustriModel. Industri ID Auth: {$industriIdAuth}");
 
-        if (!$industriIdAuth) {
+        if (! $industriIdAuth) {
             // Ini seharusnya tidak terjadi jika user terautentikasi dengan benar sebagai IndustriModel
             Log::error("Failed to determine industriIdAuth even though user is confirmed as IndustriModel instance. User PK: " . ($userIndustri ? $userIndustri->getKey() : 'N/A'));
             return redirect()->back()->with('error', 'Tidak dapat mengidentifikasi ID industri Anda.');
@@ -381,14 +393,14 @@ class ManajemenMagangController extends Controller
         }
 
         $logDetail->status_approval_industri = 'Disetujui';
-        $logDetail->catatan_industri = $request->input('catatan_industri_approve_' . $logHarianDetail_id);
+        $logDetail->catatan_industri         = $request->input('catatan_industri_approve_' . $logHarianDetail_id);
         $logDetail->save();
 
         Log::info("LogHarianDetail_id: {$logHarianDetail_id} approved successfully by Industri ID: {$industriIdAuth}");
         return redirect()->back()->with('success', 'Log harian berhasil disetujui.');
     }
 
-   public function rejectLogHarian(Request $request, $logHarianDetail_id)
+    public function rejectLogHarian(Request $request, $logHarianDetail_id)
     {
         Log::info("Attempting to reject logHarianDetail_id: {$logHarianDetail_id}");
         $catatanFieldName = 'catatan_industri_reject_' . $logHarianDetail_id;
@@ -397,7 +409,7 @@ class ManajemenMagangController extends Controller
             $catatanFieldName => 'required|string|min:5',
         ], [
             $catatanFieldName . '.required' => 'Catatan penolakan wajib diisi.',
-            $catatanFieldName . '.min' => 'Catatan penolakan minimal 5 karakter.',
+            $catatanFieldName . '.min'      => 'Catatan penolakan minimal 5 karakter.',
         ]);
 
         if ($validator->fails()) {
@@ -412,16 +424,16 @@ class ManajemenMagangController extends Controller
         $userIndustri = Auth::user(); // Ini SEHARUSNYA instance dari App\Models\IndustriModel
 
         // Validasi bahwa user yang login adalah instance dari IndustriModel
-        if (!$userIndustri || !($userIndustri instanceof IndustriModel)) {
+        if (! $userIndustri || ! ($userIndustri instanceof IndustriModel)) {
             Log::error("CRITICAL: Authenticated user is not an instance of IndustriModel as expected. Class: " . ($userIndustri ? get_class($userIndustri) : 'null') . ". Check auth guard configuration for industry routes.");
             return redirect()->back()->with('error', 'Sesi tidak valid atau otentikasi industri gagal.');
         }
 
-        // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
+                                                   // $userIndustri adalah instance IndustriModel, dapatkan ID-nya (primary key)
         $industriIdAuth = $userIndustri->getKey(); // Ini akan mengambil nilai dari 'industri_id'
         Log::info("Authenticated user is IndustriModel. Industri ID Auth: {$industriIdAuth}");
 
-        if (!$industriIdAuth) {
+        if (! $industriIdAuth) {
             // Ini seharusnya tidak terjadi jika user terautentikasi dengan benar sebagai IndustriModel
             Log::error("Failed to determine industriIdAuth even though user is confirmed as IndustriModel instance. User PK: " . ($userIndustri ? $userIndustri->getKey() : 'N/A'));
             return redirect()->back()->with('error', 'Tidak dapat mengidentifikasi ID industri Anda.');
@@ -441,7 +453,7 @@ class ManajemenMagangController extends Controller
         }
 
         $logDetail->status_approval_industri = 'Ditolak';
-        $logDetail->catatan_industri = $request->input($catatanFieldName);
+        $logDetail->catatan_industri         = $request->input($catatanFieldName);
         $logDetail->save();
 
         Log::info("LogHarianDetail_id: {$logHarianDetail_id} rejected successfully by Industri ID: {$industriIdAuth}");

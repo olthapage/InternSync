@@ -248,6 +248,11 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::delete('/{id}/delete', [MahasiswaLowonganController::class, 'destroy'])->name('mahasiswa.lowongan.destroy');
     });
 
+    Route::prefix('mahasiswa/rekomendasi')->group(function () {
+        Route::get('/mahasiswa/rekomendasi', [MahasiswaLowonganController::class, 'showRecommendationModal'])->name('mahasiswa.rekomendasi.modal');
+        Route::post('/mahasiswa/rekomendasi/hitung', [MahasiswaLowonganController::class, 'calculateRecommendation'])->name('mahasiswa.rekomendasi.calculate');
+    });
+
     Route::prefix('mahasiswa/pengajuan')->group(function () {
         Route::get('/', [MahasiswaPengajuanController::class, 'index'])->name('mahasiswa.pengajuan.index');
         Route::get('/create', [MahasiswaPengajuanController::class, 'create'])->name('mahasiswa.pengajuan.create');

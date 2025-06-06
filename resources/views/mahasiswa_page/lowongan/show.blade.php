@@ -51,7 +51,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <p class="text-muted mb-1 small text-bold">Lokasi</p>
-                        <p class="fw-medium mb-0">{{ $lowongan->industri->kota->kota_nama ?? '-' }}, {{ $lowongan->industri->kota->provinsi->provinsi_nama ?? '-' }}</p>
+                        <p class="fw-medium mb-0">{{ $lowongan->alamat_lengkap_display }}</p>
                     </div>
                     <div class="mb-3">
                         <p class="text-muted mb-1 small text-bold">End time</p>
@@ -84,7 +84,63 @@
                     </div>
                 @endif
             </div>
+            <hr class="my-4">
 
+            <div class="mb-4">
+                <h5 class="fw-medium text-dark mb-3">Benefit dan Lingkungan Kerja</h5>
+                <div class="row">
+                    {{-- Tipe Kerja --}}
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-briefcase fa-lg text-primary mt-1 me-3"></i>
+                            <div>
+                                <p class="text-muted mb-1 small text-bold">Tipe Kerja</p>
+                                @if ($lowongan->tipeKerja->isNotEmpty())
+                                    @foreach ($lowongan->tipeKerja as $tipe)
+                                        <span
+                                            class="badge bg-primary bg-opacity-75 me-1">{{ $tipe->nama_tipe_kerja }}</span>
+                                    @endforeach
+                                @else
+                                    <p class="fw-medium mb-0">-</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Upah / Uang Saku --}}
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-money-bill-wave fa-lg text-success mt-1 me-3"></i>
+                            <div>
+                                <p class="text-muted mb-1 small text-bold">Uang Saku</p>
+                                <p class="fw-medium mb-0">
+                                    @if ($lowongan->upah > 0)
+                                        Rp {{ number_format($lowongan->upah, 0, ',', '.') }} / bulan
+                                    @else
+                                        Tidak disebutkan
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ($lowongan->fasilitas->isNotEmpty())
+                <div class="mb-4">
+                    <h5 class="fw-medium text-dark mb-3">Fasilitas yang Didapat</h5>
+                    <div class="row">
+                        @foreach ($lowongan->fasilitas as $fasilitas)
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span class="text-muted">{{ $fasilitas->nama_fasilitas }}</span>
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
             <!-- Deskripsi Section -->
             <div>
                 <h5 class="fw-medium text-dark mb-3">Deskripsi Lowongan</h5>

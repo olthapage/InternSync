@@ -3,7 +3,12 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
-            <h2 class="mb-4">Daftar Lowongan Magang</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Daftar Lowongan Magang</h2>
+                <button class="btn btn-success" onclick="modalAction('{{ route('mahasiswa.rekomendasi.modal') }}')">
+                    <i class="fas fa-star me-1"></i> Lihat Rekomendasi
+                </button>
+            </div>
             <div class="row mb-4"> <!-- Ubah dari form ke div -->
                 <div class="col-md-4">
                     <label for="lokasi">Lokasi (Kota)</label>
@@ -42,13 +47,18 @@
         </div>
     </div>
 
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
-        data-keyboard="false" data-width="75%" aria-hidden="true"></div>
+    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            {{-- Konten dari AJAX akan dimuat di sini, di dalam .modal-dialog --}}
+        </div>
+    </div>
 @endsection
 @push('js')
     <script>
         function modalAction(url = '') {
-            $('#myModal').load(url, function() {
+            // Targetkan .modal-dialog di dalam #myModal untuk diisi konten
+            $('#myModal .modal-dialog').load(url, function() {
+                // Tetap panggil .modal('show') pada elemen modal utamanya
                 $('#myModal').modal('show');
             });
         }
@@ -132,5 +142,4 @@
             });
         });
     </script>
-    
 @endpush
