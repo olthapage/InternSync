@@ -25,6 +25,7 @@
           <tr><th>ID</th>            <td>{{ $dosen->dosen_id }}</td></tr>
           <tr><th>Nama Lengkap</th> <td>{{ $dosen->nama_lengkap }}</td></tr>
           <tr><th>Email</th>         <td>{{ $dosen->email }}</td></tr>
+          <tr><th>Telepon</th>       <td>{{ $dosen->telepon }}</td></tr>
           <tr><th>NIP</th>           <td>{{ $dosen->nip }}</td></tr>
           <tr><th>Program Studi</th> <td>{{ $dosen->prodi->nama_prodi ?? '-' }}</td></tr>
           <tr><th>Level</th>         <td>{{ $dosen->level->level_nama ?? '-' }}</td></tr>

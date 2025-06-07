@@ -35,6 +35,12 @@
                         <small id="error-email" class="error-text form-text text-danger"></small>
                     </div>
                     <div class="form-group">
+                            <label>Telepon</label>
+                            <input type="text" name="telepon" class="form-control" 
+                                value="{{ old('telepon') }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <small id="error-telepon" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group">
                         <label>Password</label>
                         <input type="password" name="password" id="password" class="form-control" required>
                         <small id="error-password" class="error-text form-text text-danger"></small>
@@ -81,6 +87,7 @@
             rules: {
                 nama_lengkap: { required: true, minlength: 3 },
                 email:        { required: true, email: true },
+                telepon:      { required: true, minlength: 9, maxlength: 15}, 
                 password:     { required: true, minlength: 6 },
                 nip:          { required: true },
                 level_id:     { required: true, number: true },
