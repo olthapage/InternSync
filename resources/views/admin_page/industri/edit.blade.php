@@ -1,7 +1,7 @@
-<form action="{{ url('industri/' . $industri->industri_id . '/update') }}" method="POST" id="form-edit"
-    enctype="multipart/form-data">
+<form action="{{ url('industri/' . $industri->industri_id . '/update') }}" method="POST" id="form-edit" enctype="multipart/form-data">
 
     @csrf
+    @method('POST')
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -23,10 +23,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Telepon</label>
-                    <input type="text" name="telepon" id="telepon" class="form-control"
-                        value="{{ $industri->telepon }}" required>
-                    <small id="error-telepon" class="error-text form-text text-danger"></small>
+                            <label class="form-label">Telepon <span class="text-danger">*</span></label>
+                            <input type="text" name="telepon" class="form-control" 
+                                value="{{ old('telepon', $industri->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <small id="error-telepon" class="error-text text-danger"></small>
                 </div>
 
                 <div class="form-group">
@@ -77,6 +77,10 @@
 </form>
 
 <script>
+    jQuery.validator.addMethod("phoneID", function (value, element) {
+        const cleaned = value.replace(/\D/g, ''); // hanya angka
+        return (value.startsWith("0") || value.startsWith("+62")) && cleaned.length >= 9 && cleaned.length <= 15;
+    }, "Masukkan nomor telepon yang valid");
     $(document).ready(function() {
         $("#form-edit").validate({
             rules: {
@@ -90,8 +94,10 @@
                 },
                 telepon: {
                     required: true,
-                    minlength: 6
-                },
+                    minlength: 9,
+                    maxlength: 15,
+                    phoneID: true 
+                }, 
                 kota_id: {
                     required: true
                 },
@@ -104,7 +110,7 @@
 
                 $.ajax({
                     url: form.action,
-                    type: form.method,
+                    type: 'POST',
                     data: formData,
                     contentType: false,
                     processData: false,
