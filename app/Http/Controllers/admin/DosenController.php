@@ -69,6 +69,7 @@ class DosenController extends Controller
             $rules = [
                 'nama_lengkap' => 'required',
                 'email' => 'required|email|unique:m_dosen,email',
+                'telepon' => 'required|min:9|max:15',
                 'password' => 'required|min:6',
                 'nip' => 'required|unique:m_dosen,nip',
                 'level_id' => 'required',
@@ -88,6 +89,7 @@ class DosenController extends Controller
             DosenModel::create([
                 'nama_lengkap' => $request->nama_lengkap,
                 'email' => $request->email,
+                'telepon' => $request->telepon,
                 'password' => $request->password,
                 'nip' => $request->nip,
                 'level_id' => $request->level_id,
@@ -131,6 +133,7 @@ class DosenController extends Controller
         $rules = [
             'nama_lengkap' => 'required',
             'email'        => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
+            'telepon'      => 'required|min:9|max:15',
             'nip'          => 'required|unique:m_dosen,nip,' . $id . ',dosen_id',
             'level_id'     => 'required',
             'prodi_id'     => 'required',
@@ -148,7 +151,7 @@ class DosenController extends Controller
 
         $dosen = DosenModel::find($id);
         if ($dosen) {
-            $data = $request->only(['nama_lengkap', 'email', 'nip', 'level_id', 'prodi_id']);
+            $data = $request->only(['nama_lengkap', 'email', 'telepon', 'nip', 'level_id', 'prodi_id']);
 
             if ($request->filled('reset_password') && $request->reset_password == "1") {
                 $data['password'] = bcrypt($request->nip);

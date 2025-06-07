@@ -1,5 +1,6 @@
 <form action="{{ url('/dosen/' . $dosen->dosen_id . '/update') }}" method="POST" id="form-edit" enctype="multipart/form-data">
     @csrf
+    @method('POST')
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,6 +18,12 @@
                     <input type="email" name="email" id="email" class="form-control"
                         value="{{ $dosen->email }}" required>
                     <small id="error-email" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                            <label class="form-label">Telepon <span class="text-danger">*</span></label>
+                            <input type="text" name="telepon" class="form-control" 
+                                value="{{ old('telepon', $dosen->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <small id="error-telepon" class="error-text text-danger"></small>
                 </div>
                 <div class="form-group">
                     <label>NIP</label>
@@ -87,6 +94,10 @@
 </form>
 
 <script>
+    jQuery.validator.addMethod("phoneID", function (value, element) {
+        const cleaned = value.replace(/\D/g, ''); // hanya angka
+        return (value.startsWith("0") || value.startsWith("+62")) && cleaned.length >= 9 && cleaned.length <= 15;
+    }, "Masukkan nomor telepon yang valid");
     $(document).ready(function() {
         // Show filename when selected
         $('#foto').on('change', function() {
@@ -113,6 +124,12 @@
                     required: true,
                     email: true
                 },
+                telepon: {
+                    required: true,
+                    minlength: 9,
+                    maxlength: 15,
+                    phoneID: true 
+                }, 
                 nip: {
                     required: true
                 },
@@ -136,7 +153,7 @@
 
                 $.ajax({
                     url: form.action,
-                    type: form.method,
+                    type: 'POST',
                     data: formData,
                     processData: false, // Required for FormData
                     contentType: false, // Required for FormData
