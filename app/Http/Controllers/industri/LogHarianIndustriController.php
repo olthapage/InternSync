@@ -195,25 +195,22 @@ class LogHarianIndustriController extends Controller
         Log::info("[LogHarianIndustriController@approval] Memasuki method approval.");
         Log::debug("[LogHarianIndustriController@approval] Data request: ", $request->all());
 
-        // Asumsi dari kode sebelumnya, 'logHarianId' di request sebenarnya adalah 'logHarianDetail_id'
-        // Jika ingin update multiple detail berdasarkan 'logHarian_id' (grup), validasi & logic berbeda
-        $validationRules = [
-            'status'            => 'required|in:disetujui,ditolak,pending',
-            'catatan'           => 'nullable|string',
-            'logHarianDetailId' => 'required|exists:m_logharian_detail,logHarianDetail_id', // PK dari m_logharian_detail
-        ];
+        $request->validate([
+            'status'      => 'required|in:disetujui,ditolak,pending',
+            'catatan'     => 'nullable|string',
+            'logHarianId' => 'required|exists:m_logharian_detail,logHarian_id',
+        ]);
 
-        $request->validate($validationRules);
-        Log::info("[LogHarianIndustriController@approval] Validasi berhasil untuk logHarianDetailId: {$request->logHarianDetailId}, Status Baru: {$request->status}");
+        Log::info("[LogHarianIndustriController@approval] Validasi berhasil untuk logHarianDetailId: {$request->logHarianId}, Status Baru: {$request->status}");
 
         $authIndustriId = Auth::id();
         Log::info("[LogHarianIndustriController@approval] ID Industri Terautentikasi: {$authIndustriId}");
 
         $logDetail = LogHarianDetailModel::with('logHarian.mahasiswaMagang.lowongan.industri')
-            ->find($request->logHarianDetailId);
+            ->find($request->logHarianId);
 
         if (! $logDetail) {
-            Log::error("[LogHarianIndustriController@approval] LogHarianDetail tidak ditemukan untuk ID: {$request->logHarianDetailId}");
+            Log::error("[LogHarianIndustriController@approval] LogHarianDetail tidak ditemukan untuk ID: {$request->logHarianId}");
             return response()->json(['success' => false, 'message' => 'Detail log harian tidak ditemukan.'], 404);
         }
 
@@ -232,7 +229,7 @@ class LogHarianIndustriController extends Controller
             $logDetail->catatan_industri         = $request->catatan;
             $logDetail->save(); // updated_at akan dihandle otomatis oleh Eloquent
 
-            Log::info("[LogHarianIndustriController@approval] Approval industri berhasil disimpan untuk logHarianDetailId: {$request->logHarianDetailId}");
+            Log::info("[LogHarianIndustriController@approval] Approval industri berhasil disimpan untuk logHarianDetailId: {$request->logHarianId}");
             return response()->json([
                 'success' => true,
                 'message' => 'Approval industri berhasil disimpan.',

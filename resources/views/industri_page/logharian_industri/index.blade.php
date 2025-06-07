@@ -79,11 +79,11 @@
                 infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
                 infoFiltered: "(disaring dari MAX total data)",
                 paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
-                }
+                    first: "<i class='fas fa-angle-double-left'></i>",
+                    last: "<i class='fas fa-angle-double-right'></i>",
+                    next: "<i class='fas fa-angle-right'></i>",
+                    previous: "<i class='fas fa-angle-left'></i>"
+                },
             },
             order: [[1, 'desc']]
         });
