@@ -58,6 +58,7 @@ class AdminController extends Controller
             $rules = [
                 'nama_lengkap' => 'required',
                 'email'        => 'required|email|unique:m_user,email',
+                'telepon'      => 'required|min:9|max:15',
                 'password'     => 'required|min:6',
                 'level_id'     => 'required',
             ];
@@ -72,6 +73,7 @@ class AdminController extends Controller
             UserModel::create([
                 'nama_lengkap' => $request->nama_lengkap,
                 'email'        => $request->email,
+                'telepon'      => $request->telepon,
                 'password'     => bcrypt($request->password),
                 'level_id'     => $request->level_id,
             ]);
@@ -116,6 +118,7 @@ class AdminController extends Controller
             $rules = [
                 'nama_lengkap' => 'required',
                 'email'        => 'required|email|unique:m_user,email,' . $id . ',user_id',
+                'telepon'      => 'required|min:9|max:15',
                 'level_id'     => 'required',
                 'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
             ];
@@ -131,7 +134,7 @@ class AdminController extends Controller
 
             $admin = UserModel::find($id);
             if ($admin) {
-                $data = $request->only(['nama_lengkap', 'email', 'level_id']);
+                $data = $request->only(['nama_lengkap', 'email', 'telepon', 'level_id']);
 
                 if ($request->filled('password')) {
                     $data['password'] = bcrypt($request->password);
