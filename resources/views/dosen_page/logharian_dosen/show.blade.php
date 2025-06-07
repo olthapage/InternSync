@@ -137,13 +137,21 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
                         <option value="pending">Pending</option>
                     </select>
                 </div>
-                <textarea id="swal-catatan" class="form-control" rows="4" placeholder="Masukkan catatan atau feedback..."></textarea>`,
+                <textarea id="swal-catatan" class="form-control mb-1" rows="4" maxlength="100" placeholder="Masukkan catatan atau feedback..."></textarea>
+                <div class="text-end"><small id="char-count">0/100</small></div>`,
             showCancelButton: true,
             confirmButtonText: 'Kirim',
             cancelButtonText: 'Batal',
             focusConfirm: false, 
             didOpen: () => {
                 document.getElementById('swal-status').focus();
+                const textarea = document.getElementById('swal-catatan');
+                const counter = document.getElementById('char-count');
+
+                textarea.addEventListener('input', () => {
+                const len = textarea.value.length;
+                counter.textContent = `${len}/100`;
+                });
             },
             preConfirm: () => {
                 const status = document.getElementById('swal-status').value;
