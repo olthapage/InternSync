@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DosenModel;
 use App\Models\MahasiswaModel;
 use App\Models\UserModel;
+use App\Models\ValidasiAkun;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -31,22 +32,24 @@ class AuthController extends Controller
     }
 
     public function postlogin(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-            'role' => 'required|in:web,mahasiswa,dosen,industri'
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        $credentials = $request->only('email', 'password');
-        $guard = $request->role;
+    $credentials = $request->only('email', 'password');
 
-        if (Auth::guard($guard)->attempt($credentials)) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Login berhasil',
-                'redirect' => url('/dashboard')
-            ]);
+    // Coba login ke semua guard
+    $guards = ['web', 'mahasiswa', 'dosen', 'industri'];
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->attempt($credentials)) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Login berhasil',
+                    'redirect' => url('/dashboard')
+                ]);
+            }
         }
 
         return response()->json([
@@ -54,6 +57,7 @@ class AuthController extends Controller
             'message' => 'Email atau password salah.'
         ]);
     }
+
     public function companylogin(Request $request)
     {
         $request->validate([
@@ -104,13 +108,11 @@ class AuthController extends Controller
     }
     public function postsignup(Request $request)
     {
-        $role = $request->input('role');
-
         $rules = [
             'nama_lengkap' => 'required|string|max:255|min:3',
             'password' => 'required|string|min:6|max:20|confirmed',
-            'role' => 'required|in:mahasiswa,dosen',
-            'terms' => 'required',
+            'username' => 'required|string|unique:validasi_akun,username',
+            'email' => 'required|string|unique:validasi_akun,email',
         ];
 
         $messages = [
@@ -120,36 +122,11 @@ class AuthController extends Controller
             'password.min' => 'Password minimal 6 karakter.',
             'password.max' => 'Password maksimal 20 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'role.required' => 'Silakan pilih role Anda.',
-            'terms.required' => 'Anda harus menyetujui Syarat dan Ketentuan.',
+            'username.required' => 'NIM atau NIDN wajib diisi.',
+            'username.unique' => 'NIM/NIDN sudah terdaftar.',
             'email.required' => 'Email tidak boleh kosong.',
-            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
         ];
-
-        if ($role === 'dosen') {
-            $rules['nidn'] = 'required|digits:10|unique:m_dosen,nip';
-            $rules['email'] = 'required|email|unique:m_dosen,email';
-            $rules['role_dosen_signup'] = 'required|in:dpa,pembimbing';
-
-            $messages['nidn.required'] = 'NIDN wajib diisi untuk dosen.';
-            $messages['nidn.digits'] = 'NIDN harus terdiri dari 10 digit.';
-            $messages['nidn.unique'] = 'NIDN sudah terdaftar.';
-            $messages['email.unique'] = 'Email sudah terdaftar untuk dosen.';
-
-            $messages['role_dosen_signup.required'] = 'Peran dosen (DPA/Pembimbing) wajib dipilih.';
-            $messages['role_dosen_signup.in'] = 'Peran dosen yang dipilih tidak valid.';
-
-        } elseif ($role === 'mahasiswa') {
-            // GANTI 'm_mahasiswa' dengan nama tabel mahasiswa Anda jika berbeda
-            $rules['nim'] = 'required|string|min:8|max:10|digits_between:8,10|unique:m_mahasiswa,nim';
-            $rules['email'] = 'required|email|unique:m_mahasiswa,email';
-            $messages['nim.required'] = 'NIM wajib diisi untuk mahasiswa.';
-            $messages['nim.digits_between'] = 'NIM harus terdiri dari 8-10 digit angka.';
-            $messages['nim.min'] = 'NIM minimal 8 digit.';
-            $messages['nim.max'] = 'NIM maksimal 10 digit.';
-            $messages['nim.unique'] = 'NIM sudah terdaftar.';
-            $messages['email.unique'] = 'Email sudah terdaftar untuk mahasiswa.';
-        }
 
         $validator = Validator::make($request->all(), $rules, $messages);
 
@@ -161,37 +138,35 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = null;
-        if ($role === 'mahasiswa') {
-            $user = MahasiswaModel::create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'nim' => $request->nim,
-                'level_id' => 2,
-            ]);
-        } elseif ($role === 'dosen') {
-            $user = DosenModel::create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'nip' => $request->nidn,
-                'level_id' => 3,
-                'role_dosen' => $request->role_dosen_signup,
-            ]);
-        }
-
-        if ($user) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Registrasi berhasil. Silakan login.',
-                'redirect' => route('login')
-            ]);
+        // Cek format NIM/NIDN hanya untuk info atau validasi tambahan
+        $username = $request->input('username');
+        $role_guess = null;
+        if (preg_match('/^\d{10}$/', $username)) {
+            $role_guess = 'dosen';
+        } elseif (preg_match('/^\d{8,9}$/', $username)) {
+            $role_guess = 'mahasiswa';
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal membuat pengguna. Silakan coba lagi.'
-            ], 500);
+                'message' => 'Format NIM (8–9 digit) atau NIDN (10 digit) tidak valid.'
+            ], 422);
         }
+
+
+        // Simpan ke tabel validasi akun
+        $akun = ValidasiAkun::create([
+            'nama_lengkap' => $request->nama_lengkap,
+            'username' => $username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'status_validasi' => 'pending', // Default, menunggu validasi admin
+            'perkiraan_role' => $role_guess, // opsional untuk membantu admin
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Pendaftaran berhasil. Menunggu validasi admin.',
+            'redirect' => route('pendaftaran.berhasil') // arahkan ke halaman sukses
+        ]);
     }
 }
