@@ -10,6 +10,7 @@ use App\Http\Controllers\admin\MagangController;
 use App\Http\Controllers\admin\MahasiswaController;
 use App\Http\Controllers\admin\PengajuanController;
 use App\Http\Controllers\admin\ProgramStudiController;
+use App\Http\Controllers\admin\ValidasiAkunController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dosen\LogHarianDosenController;
 use App\Http\Controllers\dosen\MahasiswaBimbinganController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\mahasiswa\PortofolioController as MahasiswaPortofolioCo
 use App\Http\Controllers\mahasiswa\VerifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Models\ValidasiAkun;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,6 +60,10 @@ Route::post('signup', [AuthController::class, 'postsignup'])->name('post.signup'
 Route::get('syaratketentuan', function () {
     return view('auth.syaratketentuan');
 })->name('syaratketentuan');
+Route::get('/pendaftaran-berhasil', function () {
+    return view('auth.pendaftaran_berhasil');
+})->name('pendaftaran.berhasil');
+
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:web,mahasiswa,dosen,industri');
 
 Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\PreventBackHistory::class])->group(function () {
@@ -131,6 +137,15 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::post('/{id}/update', [AdminController::class, 'update'])->name('admin.update');
         Route::get('{id}/delete', [AdminController::class, 'deleteModal'])->name('admin.deleteModal');
         Route::delete('{id}/delete', [AdminController::class, 'delete_ajax'])->name('admin.delete_ajax');
+    });
+
+    Route::prefix('validasi_akun')->group(function () {
+        Route::get('/', [ValidasiAkunController::class, 'index'])->name('validasi-akun.index');
+        Route::post('/list', [ValidasiAkunController::class, 'list'])->name('validasi-akun.list');
+        Route::get('{id}/verifikasi', [ValidasiAkunController::class, 'verifikasi'])->name('validasi-akun.verifikasi');
+        Route::put('{id}/verifikasi', [ValidasiAkunController::class, 'validasiAkun'])->name('validasi-akun.validate');
+        Route::get('{id}/delete', [ValidasiAkunController::class, 'deleteModal'])->name('validasi.deleteModal');
+        Route::delete('{id}/delete', [ValidasiAkunController::class, 'delete_ajax'])->name('delete_ajax');
     });
 
     Route::prefix('program-studi')->group(function () {
