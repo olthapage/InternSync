@@ -20,16 +20,6 @@
             <input type="password" id="password" name="password" class="form-control" placeholder="Password">
             <small id="error-password" class="error-text text-danger"></small>
         </div>
-        <label>Login Sebagai</label>
-        <div class="mb-3">
-            <select id="role" class="form-control" name="role" required>
-                <option value="mahasiswa">Mahasiswa</option>
-                <option value="dosen">Dosen</option>
-                <option value="web">Admin</option>
-                <option value="industri">Industri</option>
-            </select>
-        </div>
-
         <div class="row">
             <div class="col-8">
                 <div class="form-check form-switch">
@@ -82,7 +72,6 @@
             document.getElementById('btnLogin').addEventListener('click', function() {
                 let email = document.getElementById('email').value;
                 let password = document.getElementById('password').value;
-                let role = document.getElementById('role').value;
                 let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                 fetch("{{ route('login') }}", {
@@ -94,8 +83,7 @@
                         },
                         body: JSON.stringify({
                             email: email,
-                            password: password,
-                            role: role
+                            password: password
                         })
                     })
                     .then(response => response.json())
