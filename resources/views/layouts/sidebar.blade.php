@@ -135,16 +135,24 @@
                             <span class="nav-link">Dosen</span>
                         </a>
                     </li>
-
+                    
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'admin' ? 'active text-success' : '' }}"
-                            href="{{ route('admin.index') }}">
-                            <i
-                                class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Admin</span>
-                        </a>
-                    </li>
-
+                        <a class="dropdown-item d-flex align-items-center border-bottom py-2 text-sm {{ $activeMenu == 'admin' ? 'active text-success' : '' }}"
+                        href="{{ route('admin.index') }}">
+                        <i
+                        class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
+                        <span class="nav-link">Admin</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'validasi_akun' ? 'active text-success' : '' }}"
+                        href="{{ route('validasi-akun.index') }}">
+                        <i
+                            class="fas fa-chalkboard-teacher me-2 {{ $activeMenu == 'validasi_akun' ? 'text-success' : 'text-dark' }}"></i>
+                        <span class="nav-link">Permintaan Akun</span>
+                    </a>
+                </li>
                 </ul>
             </li>
 
