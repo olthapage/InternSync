@@ -19,8 +19,8 @@
                         <div class="alert alert-success text-white p-3 mb-3 rounded-xl shadow-sm w-100">
                             <strong><i class="fas fa-check-circle me-2"></i>Informasi:</strong> {{ $alasanTidakBisaAjukan }}
                         </div>
-                    @elseif ($statusPengajuanAktif == 'diproses')
-                        <div class="alert alert-warning text-white p-3 mb-3 rounded-xl shadow-sm w-100">
+                    @elseif ($statusPengajuanAktif == 'belum')
+                        <div class="alert text-light alert-info p-3 mb-3 rounded-xl shadow-sm w-100">
                             <strong><i class="fas fa-exclamation-triangle me-2"></i>Informasi:</strong> {{ $alasanTidakBisaAjukan }}
                         </div>
                     @else

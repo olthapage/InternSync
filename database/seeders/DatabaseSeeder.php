@@ -48,21 +48,6 @@ class DatabaseSeeder extends Seeder
         }
         DB::table('tabel_prodi')->insert($prodiData);
 
-        // m_level_user (Target: 10 data)
-        // Asumsi ID auto-increment. ADM, MHS, DSN akan jadi ID 1, 2, 3
-        $levelUserData = [
-            ['level_kode' => 'ADM', 'level_nama' => 'Admin', 'created_at' => $now],
-            ['level_kode' => 'MHS', 'level_nama' => 'Mahasiswa', 'created_at' => $now],
-            ['level_kode' => 'DSN', 'level_nama' => 'Dosen', 'created_at' => $now],
-            ['level_kode' => 'IND', 'level_nama' => 'Industri', 'created_at' => $now],
-        ];
-
-        DB::table('m_level_user')->insert($levelUserData);
-        // Level User IDs akan menjadi 1 s/d 10 secara auto-increment
-
-        // m_dosen (Target: 10 data)
-        // Asumsi Dosen memiliki level_id = 3 (DSN)
-        // Asumsi prodi_id merujuk pada tabel_prodi (ID 1-10)
         $dosenData = [
             [
                 'nama_lengkap' => 'Dr. Budi Santoso',
@@ -70,7 +55,6 @@ class DatabaseSeeder extends Seeder
                 'password'     => Hash::make('password123'),
                 'nip'          => '19800101123456',
                 'role_dosen'   => 'dpa', // <-- DITAMBAHKAN: Peran Dosen
-                'level_id'     => 3,     // DSN
                 'prodi_id'     => 1,
                 'created_at'   => $now,
                 'updated_at'   => $now,
@@ -81,7 +65,6 @@ class DatabaseSeeder extends Seeder
                 'password'     => Hash::make('password123'),
                 'nip'          => '19750506123456',
                 'role_dosen'   => 'pembimbing', // <-- DITAMBAHKAN: Peran Dosen
-                'level_id'     => 3,            // DSN
                 'prodi_id'     => 2,
                 'created_at'   => $now,
                 'updated_at'   => $now,
@@ -92,7 +75,6 @@ class DatabaseSeeder extends Seeder
                 'password'     => Hash::make('password123'),
                 'nip'          => '197803152005011001',
                 'role_dosen'   => 'dpa',
-                'level_id'     => 3,
                 'prodi_id'     => 3, // Contoh prodi
                 'created_at'   => $now,
                 'updated_at'   => $now,
@@ -103,7 +85,6 @@ class DatabaseSeeder extends Seeder
                 'password'     => Hash::make('password123'),
                 'nip'          => '198207202008012002',
                 'role_dosen'   => 'pembimbing',
-                'level_id'     => 3,
                 'prodi_id'     => 4, // Contoh prodi
                 'created_at'   => $now,
                 'updated_at'   => $now,
@@ -121,9 +102,8 @@ class DatabaseSeeder extends Seeder
                 'email'        => 'dosen' . $i . $uniqueSuffix . '@example.com',
                 'password'     => Hash::make('password123'),
                 'nip'          => '19' . rand(70, 90) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT) . rand(100000, 999999), // Sedikit perbaikan pada NIP generator
-                'role_dosen'   => $role,                                                                                                                                // <-- DITAMBAHKAN: Peran Dosen
-                'level_id'     => 3,                                                                                                                                    // DSN
-                'prodi_id'     => rand(1, 10),                                                                                                                          // Pastikan ID prodi 1-10 sudah ada di tabel prodi Anda
+                'role_dosen'   => $role,                                                                                                                                                                                                                                                                  // DSN
+                'prodi_id'     => rand(1, 10),
                 'created_at'   => $now,
                 'updated_at'   => $now,
             ];
@@ -166,31 +146,16 @@ class DatabaseSeeder extends Seeder
 
         $this->call(KotaSeeder::class);
 
-        // m_user (Target: 10 data)
-        // Asumsi level_id merujuk pada m_level_user (ID 1-10)
-        // Asumsi prodi_id merujuk pada tabel_prodi (ID 1-10) atau null
         $userData = [
             [
                 'nama_lengkap' => 'Admin Satu',
                 'email'        => 'admin@example.com',
                 'password'     => Hash::make('password'),
-                'level_id'     => 1, // ADM
-                'prodi_id'     => null,
                 'created_at'   => $now,
-            ],
-            [
-                'nama_lengkap' => 'Mahasiswa Satu',
-                'email'        => 'mhs@example.com',
-                'password'     => Hash::make('password'),
-                'level_id'     => 2, // MHS
-                'prodi_id'     => 1,
-                'created_at'   => $now,
-            ],
+            ]
         ];
         DB::table('m_user')->insert($userData);
-        // User IDs akan menjadi 1 s/d 10 secara auto-increment
 
-        // Kategori Skill IDs akan menjadi 1 s/d 10 secara auto-increment
         $this->call(SkillSeeder::class);
         // m_kategori_industri (Target: 10 data)
         $kategoriIndustriData = [

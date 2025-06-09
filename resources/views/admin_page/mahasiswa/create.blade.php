@@ -1,18 +1,3 @@
-@empty($level)
-    <div id="modal-master" class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Kesalahan</h5>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger">
-                    <h5><i class="icon fas fa-ban"></i> Data level tidak tersedia.</h5>
-                </div>
-                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
-            </div>
-        </div>
-    </div>
-@else
     <form action="{{ route('mahasiswa.store') }}" method="POST" id="form-create-mahasiswa">
         @csrf
         <div id="modal-master" class="modal-dialog modal-lg" role="document" style="max-width:60vw;">
@@ -79,19 +64,6 @@
                                 <small id="error-prodi_id" class="error-text text-danger"></small>
                             </div>
                             <div class="form-group mb-3">
-                                <label>Level</label>
-                                <select name="level_id" id="level_id" class="form-select" required>
-                                    <option value="">-- Pilih Level --</option>
-                                    @foreach($level as $l)
-                                        <option value="{{ $l->level_id }}"
-                                            {{ old('level_id') == $l->level_id ? 'selected' : '' }}>
-                                            {{ $l->level_nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <small id="error-level_id" class="error-text text-danger"></small>
-                            </div>
-                            <div class="form-group mb-3">
                                 <label>Dosen Pembimbing</label>
                                 <select name="dosen_id" id="dosen_id" class="form-select">
                                     <option value="">-- Tidak Ada --</option>
@@ -127,7 +99,6 @@
                 ipk:          { number: true, min: 0, max: 4 },
                 status:       { required: true },
                 prodi_id:     { required: true, number: true },
-                level_id:     { required: true, number: true },
                 dosen_id:     { number: true }
             },
             submitHandler: function (form) {

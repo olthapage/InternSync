@@ -178,8 +178,21 @@
     <div class="container-fluid py-3">
         <div class="row mb-3">
             <div class="col-12">
-                <a href="{{ route('dosen.mahasiswa-dpa.index') }}" class="btn btn-sm btn-outline-dark">
-                    <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Mahasiswa
+                @php
+                    // Tentukan URL dan Teks Tombol berdasarkan parameter 'from'
+                    $backUrl = route('home'); // Tujuan default jika 'from' tidak ada
+                    $backText = 'Kembali ke Dashboard';
+
+                    if (request('from') === 'validasi') {
+                        // Jika datang dari halaman validasi, arahkan kembali ke sana
+                        // PASTIKAN nama route ini benar sesuai dengan file web.php Anda
+                        $backUrl = route('dosen.mahasiswa-dpa.index');
+                        $backText = 'Kembali ke Validasi Skill';
+                    }
+                @endphp
+
+                <a href="{{ $backUrl }}" class="btn btn-sm btn-outline-dark">
+                    <i class="fas fa-arrow-left me-1"></i> {{ $backText }}
                 </a>
             </div>
         </div>
@@ -204,7 +217,7 @@
                 <div class="profile-header-validation rounded mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-auto text-center mb-3 mb-md-0">
-                            <img src="{{ optional($mahasiswa)->foto ? asset('storage/mahasiswa/' . $mahasiswa->foto) : asset('assets/default-profile.png') }}"
+                            <img src="{{ optional($mahasiswa)->foto ? asset('storage/mahasiswa/foto/' . $mahasiswa->foto) : asset('assets/default-profile.png') }}"
                                 alt="Foto Mahasiswa" class="profile-avatar-validation rounded-circle">
                         </div>
                         <div class="col-md">
@@ -280,7 +293,8 @@
                                                                     <span
                                                                         class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
                                                                     <span class="portfolio-type-clean">
-                                                                        ({{ ucfirst($portfolioItem->tipe_portofolio) }})</span>
+                                                                        ({{ ucfirst($portfolioItem->tipe_portofolio) }})
+                                                                    </span>
                                                                 </div>
                                                                 <span class="portfolio-link-clean">
                                                                     @if (in_array($portfolioItem->tipe_portofolio, ['url', 'video']))

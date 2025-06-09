@@ -2,6 +2,10 @@
 
 @section('content')
     <div class="container-fluid">
+        <a href="{{ route('industri.lowongan.index') }}" class="btn btn-white btn-sm mb-3">
+            <i class="fas fa-arrow-left me-2"></i>
+            Kembali
+        </a>
         <div class="row">
             <div class="col-md-12">
                 <div class="card border-dark shadow-sm mb-4">
@@ -15,9 +19,38 @@
                                     {{ $lowongan->status_pendaftaran_text }}
                                 </span>
                             @endif
-                            <a href="{{ route('industri.lowongan.index') }}" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-arrow-left mr-1"></i> Kembali
-                            </a>
+
+                            {{-- ================================================================== --}}
+                            {{-- MODIFIKASI DIMULAI DISINI: TOMBOL CRUD JIKA BELUM ADA PENDAFTAR --}}
+                            {{-- ================================================================== --}}
+                            @if ($lowongan->pendaftar->isEmpty())
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-dark dropdown-toggle btn-sm"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cogs me-1"></i> Kelola Lowongan
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                data-bs-target="#editLowonganModal">
+                                                <i class="fas fa-edit me-2"></i>Edit Lowongan
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
+                                                data-bs-target="#deleteLowonganModal">
+                                                <i class="fas fa-trash me-2"></i>Hapus Lowongan
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            @endif
+                            {{-- ================================================================== --}}
+                            {{-- MODIFIKASI SELESAI --}}
+                            {{-- ================================================================== --}}
                         </div>
                     </div>
                     <div class="card-body">
@@ -124,7 +157,7 @@
                 <div class="card border-dark shadow-sm">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Daftar Pendaftar ({{ $lowongan->pendaftar->count() }})</h5>
-                        <a href="#" class="btn btn-info" data-bs-toggle="modal"
+                        <a href="#" class="btn btn-info text-white" data-bs-toggle="modal"
                             data-bs-target="#rekomendasiSpkModal-{{ $lowongan->lowongan_id }}"
                             id="btnLihatRekomendasi-{{ $lowongan->lowongan_id }}">Lihat Rekomendasi</a>
                     </div>
@@ -167,7 +200,10 @@
                                                 </td>
                                                 <td>
                                                     {{-- MODIFIKASI TOMBOL AKSI --}}
-                                                    <a href="{{ route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id) }}"
+                                                    <a href="{{ route('industri.lowongan.pendaftar.show_profil', [
+                                                        'pengajuan' => $pengajuan->pengajuan_id,
+                                                        'from' => 'detail', // Menandakan datang dari halaman detail lowongan
+                                                    ]) }}"
                                                         class="btn btn-info btn-sm" title="Lihat Profil & Skill Pendaftar">
                                                         <i class="fas fa-user-check me-1"></i> Review
                                                     </a>
@@ -214,6 +250,61 @@
             </div>
         </div>
     </div>
+
+    {{-- ================================================================== --}}
+    {{-- MODIFIKASI DIMULAI DISINI: MODAL UNTUK EDIT DAN DELETE --}}
+    {{-- ================================================================== --}}
+    @if ($lowongan->pendaftar->isEmpty())
+        <div class="modal fade" id="editLowonganModal" tabindex="-1" aria-labelledby="editLowonganModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editLowonganModalLabel">Edit Lowongan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="editLowonganModalBody">
+                        {{-- Konten form edit akan dimuat di sini via AJAX --}}
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Memuat form edit...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteLowonganModal" tabindex="-1" aria-labelledby="deleteLowonganModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteLowonganModalLabel">Konfirmasi Hapus Lowongan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus lowongan <strong>"{{ $lowongan->judul_lowongan }}"</strong>?
+                        </p>
+                        <p class="text-danger">Tindakan ini tidak dapat diurungkan.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <form action="{{ route('industri.lowongan.destroy', $lowongan->lowongan_id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Ya, Hapus Lowongan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    {{-- ================================================================== --}}
+    {{-- MODIFIKASI SELESAI --}}
+    {{-- ================================================================== --}}
+
 @endsection
 
 @push('css')
@@ -280,16 +371,19 @@
                     type: 'POST',
                     data: formData,
                     success: function(response) {
-                        resultArea.html(response);
-                        submitButton.html(originalButtonText).prop('disabled', false);
-                        // Scroll ke hasil jika perlu
-                        if (resultArea.length) {
-                            $(modalBodyId).animate({
-                                scrollTop: resultArea.offset().top - $(modalBodyId)
-                                    .offset().top + $(modalBodyId).scrollTop() -
-                                    20 // offset 20px
-                            }, 500);
-                        }
+                        // Tutup modal
+                        $('#editLowonganModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: response.success, // Ambil pesan dari controller
+                            timer: 2000, // Notifikasi hilang setelah 2 detik
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Reload halaman setelah notifikasi ditutup
+                            location.reload();
+                        });
                     },
                     error: function(xhr) {
                         var errorMessage = "Terjadi kesalahan.";
@@ -382,4 +476,111 @@
             }
         }
     </script>
+
+    {{-- ================================================================== --}}
+    {{-- MODIFIKASI DIMULAI DISINI: JAVASCRIPT UNTUK MODAL CRUD --}}
+    {{-- ================================================================== --}}
+    @if ($lowongan->pendaftar->isEmpty())
+        <script>
+            $(document).ready(function() {
+                // Event listener untuk saat modal edit akan ditampilkan
+                $('#editLowonganModal').on('show.bs.modal', function(event) {
+                    var modal = $(this);
+                    var modalBody = $('#editLowonganModalBody');
+                    var url = "{{ route('industri.lowongan.edit', $lowongan->lowongan_id) }}";
+
+                    // Ambil konten form dari controller via AJAX
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        success: function(response) {
+                            modalBody.html(response);
+                            // Inisialisasi ulang plugin (jika ada, misal: select2, datepicker)
+                            // Contoh: $('.select2-edit').select2();
+                        },
+                        error: function(xhr) {
+                            modalBody.html(
+                                '<div class="alert alert-danger">Gagal memuat form. Silakan coba lagi.</div>'
+                                );
+                            console.error(xhr);
+                        }
+                    });
+                });
+
+                // Event delegation untuk submit form yang diload via AJAX
+                $(document).on('submit', '#editLowonganForm', function(e) {
+                    e.preventDefault();
+
+                    var form = $(this);
+                    var url = form.attr('action');
+                    var formData = new FormData(this);
+                    var submitButton = form.find('button[type="submit"]');
+                    var originalButtonText = submitButton.html();
+
+                    // Tampilkan spinner pada tombol submit
+                    submitButton.html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...'
+                        ).prop('disabled', true);
+
+                    // Hapus pesan error sebelumnya
+                    $('.form-control, .form-select').removeClass('is-invalid');
+                    $('.invalid-feedback').remove();
+
+                    $.ajax({
+                        type: 'POST', // Form method spoofing akan ditangani Laravel (_method: 'PUT')
+                        url: url,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            // Tutup modal
+                            $('#editLowonganModal').modal('hide');
+
+                            // Tampilkan notifikasi sukses (contoh menggunakan alert, bisa diganti SweetAlert)
+                            alert(response.success);
+
+                            // Reload halaman untuk melihat perubahan
+                            location.reload();
+                        },
+                        error: function(xhr) {
+                            // Kembalikan tombol ke keadaan semula
+                            submitButton.html(originalButtonText).prop('disabled', false);
+
+                            if (xhr.status === 422) { // Error validasi
+                                var errors = xhr.responseJSON.errors;
+                                $.each(errors, function(key, value) {
+                                    var field = $('[name="' + key + '"], [name="' + key +
+                                        '[]"]');
+                                    field.addClass('is-invalid');
+                                    field.after('<div class="invalid-feedback">' + value[
+                                        0] + '</div>');
+                                });
+                                alert(
+                                    'Terdapat kesalahan pada input Anda. Silakan periksa kembali.');
+                            } else {
+                                // Error lainnya
+                                alert('Terjadi kesalahan. Gagal menyimpan data.');
+                            }
+                        }
+                    });
+                });
+                $(document).on('click', '#add-skill-btn', function() {
+                    const template = document.getElementById('skill-row-template').content.cloneNode(true);
+                    $('#skills-container').append(template);
+                });
+
+                $(document).on('click', '.remove-skill-btn', function() {
+                    // Jangan hapus baris terakhir, minimal harus ada satu
+                    if ($('.skill-row').length > 1) {
+                        $(this).closest('.skill-row').remove();
+                    } else {
+                        alert('Minimal harus ada satu skill yang dibutuhkan.');
+                    }
+                });
+            });
+        </script>
+    @endif
+    {{-- ================================================================== --}}
+    {{-- MODIFIKASI SELESAI --}}
+    {{-- ================================================================== --}}
 @endpush

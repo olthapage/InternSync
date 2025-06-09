@@ -28,7 +28,6 @@
           <tr><th>Telepon</th>       <td>{{ $dosen->telepon }}</td></tr>
           <tr><th>NIP</th>           <td>{{ $dosen->nip }}</td></tr>
           <tr><th>Program Studi</th> <td>{{ $dosen->prodi->nama_prodi ?? '-' }}</td></tr>
-          <tr><th>Level</th>         <td>{{ $dosen->level->level_nama ?? '-' }}</td></tr>
           <tr><th>Dibuat pada</th>   <td>{{ $dosen->created_at }}</td></tr>
           <tr><th>Diupdate pada</th> <td>{{ $dosen->updated_at }}</td></tr>
         </table>

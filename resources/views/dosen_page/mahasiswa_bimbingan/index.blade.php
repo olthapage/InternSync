@@ -11,7 +11,7 @@
                     <thead>
                         <tr>
                             <th class="text-start">No</th>
-                            <th>Nama</th>
+                            <th class="text-start">Nama</th>
                             <th>NIM</th>
                             <th>Prodi</th>
                             <th>Tempat Magang</th>
@@ -44,7 +44,7 @@
                 ajax: '{{ route("mahasiswa-bimbingan.list") }}',
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
-                    { data: 'nama_lengkap', name: 'nama_lengkap' },
+                    { data: 'nama_lengkap', name: 'nama_lengkap', className: 'text-start' },
                     { data: 'nim', name: 'nim' },
                     { data: 'prodi', name: 'prodi.nama_prodi', className: 'text-center' },
                     { data: 'tempat_magang', name: 'magang.lowongan.industri.nama_industri', className: 'text-center' },

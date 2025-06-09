@@ -24,8 +24,8 @@
 
                 <div class="form-group">
                             <label class="form-label">Telepon <span class="text-danger">*</span></label>
-                            <input type="text" name="telepon" class="form-control" 
-                                value="{{ old('telepon', $industri->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <input type="text" name="telepon" class="form-control"
+                                value="{{ old('telepon', $industri->telepon) }}" pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
                             <small id="error-telepon" class="error-text text-danger"></small>
                 </div>
 
@@ -93,11 +93,10 @@
                     email: true
                 },
                 telepon: {
-                    required: true,
                     minlength: 9,
                     maxlength: 15,
-                    phoneID: true 
-                }, 
+                    phoneID: true
+                },
                 kota_id: {
                     required: true
                 },

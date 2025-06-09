@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Log;
 
 class ValidasiAkunController extends Controller
 {
@@ -66,12 +67,20 @@ class ValidasiAkunController extends Controller
     }
     public function validasiAkun(Request $request, $id)
     {
+
+         Log::info('Memulai proses validasi untuk akun ID: ' . $id, ['request_data' => $request->all()]);
+
         $request->validate([
             'status_validasi' => 'required|in:pending,approved,rejected',
             'alasan' => 'required_if:status_validasi,rejected',
         ], [
             'status_validasi.required' => 'Status validasi harus dipilih.',
             'alasan.required_if' => 'Alasan wajib diisi jika menolak akun.',
+        ]);
+
+        Log::info('Validasi akun berhasil, data yang diterima:', [
+            'status_validasi' => $request->status_validasi,
+            'alasan' => $request->alasan ?? null,
         ]);
 
         $akun = ValidasiAkun::findOrFail($id);
@@ -86,17 +95,17 @@ class ValidasiAkunController extends Controller
                     'email' => $akun->email,  // pakai email dari $akun
                     'password' => $akun->password,
                     'nim' => $akun->username,
-                    'status' => 'aktif',
-                    'level_id' => 2,
+                    'status' => 1,
                 ]);
+                Log::info('Akun mahasiswa berhasil dibuat untuk: ' . $akun->nama_lengkap);
             } elseif ($akun->perkiraan_role === 'dosen') {
                 DosenModel::create([
                     'nama_lengkap' => $akun->nama_lengkap,
                     'email' => $akun->email,  // pakai email dari $akun
                     'password' => $akun->password,
                     'nip' => $akun->username,
-                    'level_id' => 3,
                 ]);
+                Log::info('Akun dosen berhasil dibuat untuk: ' . $akun->nama_lengkap);
             }
 
             $akun->delete();

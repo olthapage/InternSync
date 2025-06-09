@@ -138,13 +138,7 @@
                         previous: "<i class='fas fa-angle-left'></i>"
                     }
                 },
-                // Contoh order default jika perlu
-                // order: [[1, 'asc']],
             });
-
-            // $('#level_id_filter').on('change', function() { // Jika Anda punya filter
-            //     dataTableInstance.ajax.reload();
-            // });
         });
     </script>
 @endpush

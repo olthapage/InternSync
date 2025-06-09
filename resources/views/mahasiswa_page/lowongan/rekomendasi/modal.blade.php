@@ -9,7 +9,7 @@
         <form id="form-preferensi">
             @csrf
             {{-- Bagian 1: Preferensi Dinamis --}}
-            <h6 class="text-primary">Langkah 1: Tentukan Preferensi Anda</h6>
+            <h6 class="text-dark">Langkah 1: Tentukan Preferensi Anda</h6>
             <div class="border p-3 rounded mb-4">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -40,13 +40,13 @@
             </div>
 
             {{-- Bagian 2: Pembobotan Kriteria (asumsikan sudah ada dari kode sebelumnya) --}}
-            <h6 class="text-primary">Langkah 2: Tentukan Tingkat Kepentingan Kriteria</h6>
+            <h6 class="text-dark">Langkah 2: Tentukan Tingkat Kepentingan Kriteria</h6>
             <p class="text-muted small">Silakan tentukan tingkat kepentingan untuk setiap kriteria berikut.</p>
-            <table class="table table-bordered">
-                <thead class="table-light">
+            <table class="table">
+                <thead class="table-white bg-white">
                     <tr>
-                        <th style="width: 50%;">Kriteria</th>
-                        <th>Tingkat Kepentingan</th>
+                        <th class="text-dark" style="width: 50%;">Kriteria</th>
+                        <th class="text-dark">Tingkat Kepentingan</th>
                     </tr>
                 </thead>
                 <tbody>

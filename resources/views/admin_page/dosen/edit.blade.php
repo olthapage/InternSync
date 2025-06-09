@@ -1,93 +1,136 @@
 <form action="{{ url('/dosen/' . $dosen->dosen_id . '/update') }}" method="POST" id="form-edit" enctype="multipart/form-data">
     @csrf
-    @method('POST')
+    @method('POST') {{-- Laravel akan menghandle ini sebagai PUT/PATCH jika route-nya demikian --}}
+
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Data Dosen</h5>
+                {{-- Judul dinamis berdasarkan siapa yang login --}}
+                @if (Auth::guard('web')->check())
+                    <h5 class="modal-title">Edit Data Dosen: {{ $dosen->nama_lengkap }}</h5>
+                @else
+                    <h5 class="modal-title">Edit Profil Saya</h5>
+                @endif
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Nama Lengkap</label>
-                    <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
-                        value="{{ $dosen->nama_lengkap }}" required>
-                    <small id="error-nama_lengkap" class="error-text form-text text-danger"></small>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" id="email" class="form-control"
-                        value="{{ $dosen->email }}" required>
-                    <small id="error-email" class="error-text form-text text-danger"></small>
-                </div>
-                <div class="form-group">
-                            <label class="form-label">Telepon <span class="text-danger">*</span></label>
-                            <input type="text" name="telepon" class="form-control" 
-                                value="{{ old('telepon', $dosen->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
-                            <small id="error-telepon" class="error-text text-danger"></small>
-                </div>
-                <div class="form-group">
-                    <label>NIP</label>
-                    <input type="text" name="nip" id="nip" class="form-control"
-                        value="{{ $dosen->nip }}" required>
-                    <small id="error-nip" class="error-text form-text text-danger"></small>
-                </div>
 
-                <!-- New Photo Upload Field -->
-                <div class="form-group">
-                    <label>Foto (opsional)</label><br>
-                    @if ($dosen->foto)
-                        <img src="{{ asset('storage/foto/' . $dosen->foto) }}" alt="Foto Dosen"
-                            width="100" class="mb-2 rounded">
-                    @endif
-                    <div class="custom-file">
-                        <input type="file" name="foto" id="foto" class="custom-file-input" accept="image/jpeg,image/png,image/jpg">
-                        <label class="custom-file-label" for="foto">Pilih file...</label>
-                        <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
-                        <small id="error-foto" class="error-text form-text text-danger"></small>
-                    </div>
-                </div>
+                {{-- ============================================= --}}
+                {{--      KONDISI UTAMA BERDASARKAN GUARD         --}}
+                {{-- ============================================= --}}
 
-                <div class="form-group">
-                    <label>Level</label>
-                    <select name="level_id" id="level_id" class="form-control" required>
-                        <option value="">-- Pilih Level --</option>
-                        @foreach($level as $lvl)
-                            <option value="{{ $lvl->level_id }}" {{ $dosen->level_id == $lvl->level_id ? 'selected' : '' }}>
-                                {{ $lvl->level_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small id="error-level_id" class="error-text form-text text-danger"></small>
-                </div>
-                <div class="form-group">
-                    <label>Program Studi</label>
-                    <select name="prodi_id" id="prodi_id" class="form-control" required>
-                        <option value="">-- Pilih Prodi --</option>
-                        @foreach($prodi as $prd)
-                            <option value="{{ $prd->prodi_id }}" {{ $dosen->prodi_id == $prd->prodi_id ? 'selected' : '' }}>
-                                {{ $prd->nama_prodi }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small id="error-prodi_id" class="error-text form-text text-danger"></small>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <div class="row g-2">
-                        <div class="col-9">
-                            <input type="password" class="form-control" id="password" value="********" disabled>
+                @if (Auth::guard('web')->check())
+
+                    {{-- ======================================================= --}}
+                    {{--         TAMPILAN UNTUK ADMIN (EDIT LENGKAP)           --}}
+                    {{-- Ini adalah kode form asli Anda, tidak banyak berubah --}}
+                    {{-- ======================================================= --}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Nama Lengkap</label>
+                                <input type="text" name="nama_lengkap" class="form-control" value="{{ $dosen->nama_lengkap }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Email</label>
+                                <input type="email" name="email" class="form-control" value="{{ $dosen->email }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Telepon</label>
+                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $dosen->telepon) }}">
+                            </div>
+                             <div class="form-group mb-3">
+                                <label>NIP</label>
+                                <input type="text" name="nip" class="form-control" value="{{ $dosen->nip }}" required>
+                            </div>
                         </div>
-                        <div class="col-3">
-                            <button type="button" class="btn btn-danger" id="btn-reset-password">Reset Password</button>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Program Studi</label>
+                                <select name="prodi_id" class="form-select" required>
+                                    <option value="">-- Pilih Prodi --</option>
+                                    @foreach($prodi as $prd)
+                                        <option value="{{ $prd->prodi_id }}" {{ $dosen->prodi_id == $prd->prodi_id ? 'selected' : '' }}>
+                                            {{ $prd->nama_prodi }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                             <div class="form-group mb-3">
+                                <label>Foto (opsional)</label><br>
+                                <img src="{{ $dosen->foto ? asset('storage/dosen/foto/' . $dosen->foto) : asset('assets/default-profile.png') }}" alt="Foto Dosen" width="100" class="mb-2 rounded img-thumbnail">
+                                <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/jpg">
+                                <small class="form-text text-muted">Kosongkan jika tidak diubah. Maks 2MB.</small>
+                            </div>
                         </div>
                     </div>
-                    <input type="hidden" name="reset_password" id="reset_password" value="0">
-                    <small id="error-reset_password" class="error-text form-text text-danger"></small>
-                </div>
+                    <hr>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="row g-2">
+                            <div class="col-9">
+                                <input type="password" class="form-control" value="********" disabled>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-danger w-100" id="btn-reset-password">Reset Password</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="reset_password" id="reset_password" value="0">
+                        <small class="form-text text-muted">Klik tombol untuk mereset password ke default.</small>
+                    </div>
+
+                @else
+
+                    {{-- ======================================================== --}}
+                    {{--   TAMPILAN UNTUK DOSEN (EDIT PROFIL SENDIRI)           --}}
+                    {{-- ======================================================== --}}
+                    <div class="row">
+                        {{-- Kolom Kiri: Data yang bisa diedit oleh Dosen --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Nama Lengkap</label>
+                                <input type="text" name="nama_lengkap" class="form-control" value="{{ $dosen->nama_lengkap }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Telepon</label>
+                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $dosen->telepon) }}">
+                            </div>
+                             <div class="form-group mb-3">
+                                <label>Foto Profil (opsional)</label><br>
+                                <img src="{{ $dosen->foto ? asset('storage/dosen/foto/' . $dosen->foto) : asset('assets/default-profile.png') }}" alt="Foto Dosen" width="100" class="mb-2 rounded img-thumbnail">
+                                <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/jpg">
+                                <small class="form-text text-muted">Kosongkan jika tidak diubah. Maks 2MB.</small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Password Baru</label>
+                                <input type="password" name="password" class="form-control" placeholder="Kosongkan jika tidak ingin diubah">
+                                <small class="form-text text-muted">Isi untuk mengubah password Anda.</small>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Kanan: Data yang HANYA TAMPIL (read-only) --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Email</label>
+                                <input type="email" class="form-control" value="{{ $dosen->email }}" readonly>
+                                <small class="form-text text-muted">Email tidak dapat diubah.</small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>NIP</label>
+                                <input type="text" class="form-control" value="{{ $dosen->nip }}" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Program Studi</label>
+                                <input type="text" class="form-control" value="{{ optional($dosen->prodi)->nama_prodi ?? 'N/A' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="$('#myModal').modal('hide')">Tutup</button>
-                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
             </div>
         </div>
     </div>
@@ -125,17 +168,12 @@
                     email: true
                 },
                 telepon: {
-                    required: true,
                     minlength: 9,
                     maxlength: 15,
-                    phoneID: true 
-                }, 
+                    phoneID: true
+                },
                 nip: {
                     required: true
-                },
-                level_id: {
-                    required: true,
-                    number: true
                 },
                 prodi_id: {
                     required: true,

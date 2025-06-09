@@ -1,14 +1,16 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\MagangModel;
-use App\Models\IndustriModel;
-use App\Models\MahasiswaModel;
-use App\Models\PengajuanModel;
-use Illuminate\Support\Facades\DB;
 use App\Models\DetailLowonganModel;
+use App\Models\IndustriModel;
+use App\Models\LogHarianDetailModel;
+use App\Models\MagangModel;
+use App\Models\MahasiswaModel;
+use App\Models\MahasiswaSkillModel;
+use App\Models\PengajuanModel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WelcomeController extends Controller
 {
@@ -25,11 +27,11 @@ class WelcomeController extends Controller
     {
 
         $industriesForMarquee = IndustriModel::inRandomOrder() // Ambil secara acak
-                                    ->take(10) // Batasi jumlahnya agar tidak terlalu banyak
-                                    ->get();
+            ->take(10)                                             // Batasi jumlahnya agar tidak terlalu banyak
+            ->get();
         if ($industriesForMarquee->count() > 0 && $industriesForMarquee->count() < 7) {
             $tempIndustries = collect();
-            $repetitions = ceil(10 / $industriesForMarquee->count());
+            $repetitions    = ceil(10 / $industriesForMarquee->count());
             for ($i = 0; $i < $repetitions; $i++) {
                 $tempIndustries = $tempIndustries->merge($industriesForMarquee);
             }
@@ -46,7 +48,7 @@ class WelcomeController extends Controller
 
     public function industri(Request $request)
     {
-        $searchTerm = $request->input('search');
+        $searchTerm  = $request->input('search');
         $currentPage = $request->input('page', 1); // Ambil nomor halaman, default ke 1
 
         // Mulai query dasar, eager load relasi jika ada dan dibutuhkan untuk performa
@@ -82,8 +84,8 @@ class WelcomeController extends Controller
         // Urutkan hasil
         $query->orderBy('industri_nama', 'asc');
 
-        // Paginasi hasil
-        $perPage = 12; // Jumlah item per halaman, bisa disesuaikan
+                             // Paginasi hasil
+        $perPage       = 12; // Jumlah item per halaman, bisa disesuaikan
         $allIndustries = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
         // Tambahkan parameter pencarian ke link pagination
@@ -149,13 +151,179 @@ class WelcomeController extends Controller
                 'dataDistribusiIndustri'));
         }
         if (Auth::guard('dosen')->check()) {
-            return view('dosen_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+            $dosen     = Auth::user();
+            $roleDosen = $dosen->role_dosen;
+
+            if ($roleDosen == 'pembimbing') {
+                // --- DATA UNTUK DOSEN PEMBIMBING ---
+
+                // Ambil ID mahasiswa yang dibimbing oleh dosen ini
+                $mahasiswaBimbinganIds = $dosen->mahasiswaBimbinganMagang()->pluck('mahasiswa_id');
+
+                // 1. Kartu Statistik
+                $totalBimbingan = $mahasiswaBimbinganIds->count();
+                $sedangMagang   = MagangModel::whereIn('mahasiswa_id', $mahasiswaBimbinganIds)->where('status', 'sedang')->count();
+                $selesaiMagang  = MagangModel::whereIn('mahasiswa_id', $mahasiswaBimbinganIds)->where('status', 'selesai')->count();
+
+                // Menghitung log harian yang menunggu approval dosen
+                $menungguEvaluasi = LogHarianDetailModel::where('status_approval_dosen', 'belum')
+                    ->whereHas('logHarian.mahasiswaMagang', function ($query) use ($mahasiswaBimbinganIds) {
+                        $query->whereIn('mahasiswa_id', $mahasiswaBimbinganIds);
+                    })->count();
+
+                                                                                                    // 2. Data untuk Tabel Mahasiswa Bimbingan (ambil 5 terbaru)
+                $mahasiswaBimbinganList = MahasiswaModel::with('magang.lowongan.industri', 'prodi') // Eager load relasi
+                    ->where('dosen_id', $dosen->dosen_id)                                               // Filter berdasarkan ID dosen yang login
+                    ->latest()                                                                          // Ambil mahasiswa yang terbaru dibuat
+                    ->take(5)                                                                           // Batasi hanya 5 untuk ditampilkan di dashboard
+                    ->get();
+
+                // 3. Data untuk Timeline Aktivitas Terkini (5 log harian terbaru)
+                $aktivitasTerkini = LogHarianDetailModel::where('status_approval_dosen', 'belum')
+                    ->whereHas('logHarian.mahasiswaMagang', function ($query) use ($mahasiswaBimbinganIds) {
+                        $query->whereIn('mahasiswa_id', $mahasiswaBimbinganIds);
+                    })
+                    ->with('logHarian.mahasiswaMagang.mahasiswa')
+                    ->latest('created_at')->take(5)->get();
+
+                                                           // 4. Data untuk Chart (contoh: progress dari 5 mahasiswa)
+                                                           // Di aplikasi nyata, progress bisa dihitung dari jumlah logbook / total hari magang
+                $chartMahasiswa = $mahasiswaBimbinganList; // Kita gunakan data yang sama untuk contoh
+                $chartLabels    = $chartMahasiswa->pluck('nama_lengkap');
+                $chartData      = $chartMahasiswa->map(function ($mhs) {
+                    return rand(20, 100); // Progress acak untuk contoh
+                });
+
+                return view('dosen_page.dashboard', compact(
+                    'activeMenu', 'dosen',
+                    'totalBimbingan', 'sedangMagang', 'menungguEvaluasi', 'selesaiMagang',
+                    'mahasiswaBimbinganList', 'aktivitasTerkini', 'chartLabels', 'chartData'
+                ));
+
+            } elseif ($roleDosen == 'dpa') {
+                // --- LOGIKA BARU UNTUK DPA ---
+
+                // Ambil ID mahasiswa perwalian yang statusnya sudah 'valid'
+                $mahasiswaWaliIds = $dosen->mahasiswaWali()
+                    ->where('status_verifikasi', 'valid') // Filter hanya mahasiswa terverifikasi
+                    ->pluck('mahasiswa_id');
+
+                // 1. Kartu Statistik
+                $totalPerwalian        = $mahasiswaWaliIds->count();
+                $skillMenungguValidasi = MahasiswaSkillModel::whereIn('mahasiswa_id', $mahasiswaWaliIds)
+                    ->where('status_verifikasi', 'Belum Diverifikasi')->count();
+
+                // Contoh data dummy
+                $mahasiswaAktifWali = $totalPerwalian;
+                $pengajuanLain      = rand(0, 5);
+
+                // 2. Data untuk Tabel Mahasiswa Perwalian (ambil 5 dari yang sudah terverifikasi)
+                $mahasiswaWaliList = $dosen->mahasiswaWali()
+                    ->where('status_verifikasi', 'valid')
+                    ->orderBy('nama_lengkap')->take(5)->get();
+
+                // 3. Data untuk Timeline "Skill Terbaru Diunggah"
+                // Mengambil 5 skill terbaru dari mahasiswa wali yang terverifikasi
+                $skillTerbaru = MahasiswaSkillModel::whereIn('mahasiswa_id', $mahasiswaWaliIds)
+                    ->with('mahasiswa', 'detailSkill')
+                    ->latest('created_at') // Urutkan berdasarkan yang terbaru
+                    ->take(5)
+                    ->get();
+
+                return view('dosen_page.dashboard', compact(
+                    'activeMenu', 'dosen',
+                    'totalPerwalian', 'mahasiswaAktifWali', 'skillMenungguValidasi', 'pengajuanLain',
+                    'mahasiswaWaliList', 'skillTerbaru'
+                ));
+            }
         }
         if (Auth::guard('mahasiswa')->check()) {
-            return view('mahasiswa_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+            $mahasiswa        = MahasiswaModel::where('mahasiswa_id', Auth::id())->first();
+            $jumlahSkill      = 0;
+            $jumlahPortofolio = 0;
+            if ($mahasiswa) {
+                $jumlahPortofolio = $mahasiswa->portofolios()->count();
+            }
+            if ($mahasiswa) {
+                $jumlahSkill = $mahasiswa->skills()->count();
+            }
+
+            $magang = Auth::user()->magang;
+
+            $latestLogs = collect();
+
+            // 2. Pastikan mahasiswa memiliki data magang
+            if ($magang) {
+                // 3. Ambil 3 log harian terakhir
+                $latestLogs = $magang->logHarian()
+                    ->with('detail')             // Eager loading untuk menghindari N+1 query problem
+                    ->orderBy('tanggal', 'desc') // Urutkan berdasarkan tanggal terbaru
+                    ->take(3)                    // Ambil hanya 3
+                    ->get();
+            }
+            return view('mahasiswa_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan', 'jumlahSkill', 'jumlahPortofolio', 'latestLogs'));
         }
         if (Auth::guard('industri')->check()) {
-            return view('industri_page.dashboard', compact('activeMenu', 'mhsCount', 'mhsMagang', 'industri', 'lowongan'));
+            // Ambil data industri yang sedang login
+            $industriUser = Auth::guard('industri')->user();
+            $industriId   = $industriUser->industri_id;
+
+            // 1. Hitung lowongan aktif milik industri ini
+            $lowonganAktif = DetailLowonganModel::where('industri_id', $industriId)->count();
+
+            // 2. Hitung total pelamar ke semua lowongan industri ini
+            $totalPelamar = PengajuanModel::whereHas('lowongan', function ($query) use ($industriId) {
+                $query->where('industri_id', $industriId);
+            })->count();
+
+            // 3. Hitung mahasiswa yang SEDANG magang di industri ini
+            $mahasiswaMagangAktif = MagangModel::where('status', 'sedang')
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })->count();
+
+            // 4. Hitung total alumni magang dari industri ini
+            $totalAlumni = MagangModel::where('status', 'selesai')
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })->count();
+
+            // 5. Statistik pengajuan untuk lowongan milik industri ini
+            $pengajuanMenunggu = PengajuanModel::where('status', 'belum')
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })->count();
+
+            $pengajuanDiterima = PengajuanModel::where('status', 'diterima')
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })->count();
+
+            $pengajuanDitolak = PengajuanModel::where('status', 'ditolak')
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })->count();
+
+            // 6. Ambil data pelamar terbaru (misal 5 terakhir) untuk ditampilkan
+            $pelamarTerbaru = PengajuanModel::with(['mahasiswa', 'lowongan'])
+                ->whereHas('lowongan', function ($query) use ($industriId) {
+                    $query->where('industri_id', $industriId);
+                })
+                ->orderBy('created_at', 'desc') // Asumsi ada timestamp
+                ->take(5)
+                ->get();
+
+            return view('industri_page.dashboard', compact(
+                'activeMenu',
+                'lowonganAktif',
+                'totalPelamar',
+                'mahasiswaMagangAktif',
+                'totalAlumni',
+                'pengajuanMenunggu',
+                'pengajuanDiterima',
+                'pengajuanDitolak',
+                'pelamarTerbaru'
+            ));
         }
 
     }

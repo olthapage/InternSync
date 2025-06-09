@@ -36,10 +36,6 @@
               <th class="text-right">Email:</th>
               <td>{{ $admin->email }}</td>
             </tr>
-            <tr>
-              <th class="text-right">Level:</th>
-              <td>{{ $admin->level->level_nama ?? '-' }}</td>
-            </tr>
           </table>
         </div>
         <div class="modal-footer">

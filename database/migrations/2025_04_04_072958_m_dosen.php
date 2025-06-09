@@ -21,11 +21,8 @@ return new class extends Migration
             $table->string('nip');
             $table->enum('role_dosen', ['dpa', 'pembimbing'])->default('pembimbing');
 
-            $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
             $table->timestamps();
-
-            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');
 
             $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');
         });

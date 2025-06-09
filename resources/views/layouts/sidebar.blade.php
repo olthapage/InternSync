@@ -1,19 +1,18 @@
 <div class="sidenav-header">
     <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
         aria-hidden="true" id="iconSidenav"></i>
-    <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
-        target="_blank">
+    <section class="navbar-brand m-0">
         <img src="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}" class="navbar-brand-img h-100"
             alt="main_logo">
         <span class="ms-1 font-weight-bold">Intern.Sync</span>
-    </a>
+    </section>
 </div>
 <hr class="horizontal dark mt-0">
 <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
     <ul class="navbar-nav text-dark">
         <li class="nav-item">
             <a class="nav-link {{ $activeMenu == 'home' ? 'active text-success' : '' }}" href="{{ route('home') }} ">
-                <i class="fas fa-user-graduate me-2 {{ $activeMenu == 'home' ? 'text-success' : 'text-dark' }}"></i>
+                <i class="fas fa-chart-line me-2 {{ $activeMenu == 'home' ? 'text-success' : 'text-dark' }}"></i>
                 <span class="nav-link-text ms-1">Dashboard</span>
             </a>
         </li>
@@ -85,8 +84,8 @@
                 <a class="nav-link {{ $activeMenu == 'lowongan' ? 'active text-success' : '' }}"
                     href="{{ route('industri.lowongan.index') }} ">
                     <i
-                        class="fa-solid fa-briefcase me-2 {{ $activeMenu == 'lowongan' ? 'text-success' : 'text-dark' }}"></i>
-                    <span class="nav-link-text ms-1">Lowongan Magang</span>
+                        class="fa-solid fa-address-book me-2 {{ $activeMenu == 'lowongan' ? 'text-success' : 'text-dark' }}"></i>
+                    <span class="nav-link-text ms-1">Manajemen Lowongan</span>
                 </a>
                 <a class="nav-link {{ $activeMenu == 'manajemen' ? 'active text-success' : '' }}"
                     href="{{ route('industri.magang.index') }} ">
@@ -123,7 +122,7 @@
                             href="{{ route('mahasiswa.index') }}">
                             <i
                                 class="fas fa-user-graduate me-2 {{ $activeMenu == 'mahasiswa' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Mahasiswa</span>
+                            <span class="nav-link {{ $activeMenu == 'mahasiswa' ? 'text-success' : 'text-dark' }}">Mahasiswa</span>
                         </a>
                     </li>
 
@@ -132,55 +131,53 @@
                             href="{{ route('dosen.index') }}">
                             <i
                                 class="fas fa-chalkboard-teacher me-2 {{ $activeMenu == 'dosen' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Dosen</span>
+                            <span class="nav-link {{ $activeMenu == 'dosen' ? 'active text-success' : '' }}">Dosen</span>
                         </a>
                     </li>
-                    
+
                     <li class="nav-item">
                         <a class="dropdown-item d-flex align-items-center border-bottom py-2 text-sm {{ $activeMenu == 'admin' ? 'active text-success' : '' }}"
-                        href="{{ route('admin.index') }}">
-                        <i
-                        class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
-                        <span class="nav-link">Admin</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'validasi_akun' ? 'active text-success' : '' }}"
-                        href="{{ route('validasi-akun.index') }}">
-                        <i
-                            class="fas fa-chalkboard-teacher me-2 {{ $activeMenu == 'validasi_akun' ? 'text-success' : 'text-dark' }}"></i>
-                        <span class="nav-link">Permintaan Akun</span>
-                    </a>
-                </li>
+                            href="{{ route('admin.index') }}">
+                            <i
+                                class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
+                            <span class="nav-link {{ $activeMenu == 'admin' ? 'active text-success' : '' }}">Admin</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
 
             <li class="nav-item">
+                <a class="nav-link {{ $activeMenu == 'validasi_akun' ? 'active text-success' : '' }}" {{-- Mengganti 'home' dengan 'prodi' --}}
+                    href="{{ route('validasi-akun.index') }}">
+                    <i class="fas fa-clock me-2 {{ $activeMenu == 'validasi_akun' ? 'active text-success' : '' }}"></i>
+                    <span class="nav-link-text ms-1 ">Permintaan Akun</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ $activeMenu == 'prodi' ? 'active text-success' : '' }}" {{-- Mengganti 'home' dengan 'prodi' --}}
                     href="{{ route('program-studi.index') }} ">
                     <i class="fas fa-address-book me-2 {{ $activeMenu == 'prodi' ? 'text-success' : 'text-dark' }}"></i>
-                    <span class="nav-link-text ms-1">Program Studi</span>
+                    <span class="nav-link-text ms-1 ">Program Studi</span>
                 </a>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle {{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'active text-success' : '' }}"
+                <a class="nav-link dropdown-toggle {{ in_array($activeMenu, ['kategori-industri', 'industri']) ? 'active text-success' : '' }}"
                     href="#" id="navbarDropdownIndustri" role="button" data-bs-toggle="collapse"
                     data-bs-target="#dropdownMenuIndustri"
                     aria-expanded="{{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'true' : 'false' }}"
                     aria-controls="dropdownMenuIndustri">
                     <i
-                        class="fas fa-building me-2 {{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'text-success' : 'text-dark' }}"></i>
+                        class="fas fa-building me-2 {{ in_array($activeMenu, ['kategori-industri', 'industri']) ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Industri</span>
                 </a>
-                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_industri', 'industri']) ? 'show' : '' }}"
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori-industri', 'industri']) ? 'show' : '' }}"
                     id="dropdownMenuIndustri">
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'kategori_industri' ? 'active text-success' : '' }}"
+                        <a class="dropdown-item d-flex align-items-center py-2 border-bottom text-sm {{ $activeMenu == 'kategori-industri' ? 'active text-success' : '' }}"
                             href="{{ route('kategori-industri.index') }}">
                             <i
-                                class="fas fa-industry me-2 {{ $activeMenu == 'kategori_industri' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Kategori Industri</span>
+                                class="fas fa-industry me-2 {{ $activeMenu == 'kategori-industri' ? 'text-success' : 'text-dark' }}"></i>
+                            <span class="nav-link {{ $activeMenu == 'kategori-industri' ? 'active text-success' : '' }}">Kategori Industri</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -188,7 +185,7 @@
                             href="{{ route('industri.index') }}">
                             <i
                                 class="fas fa-shop me-2 {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Daftar Industri</span>
+                            <span class="nav-link {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}">Daftar Industri</span>
                         </a>
                     </li>
                 </ul>
@@ -253,7 +250,7 @@
             <div class="card-body text-start p-3 w-100">
                 <div
                     class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-                    <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
+                    <i class="fas fa-headset text-dark text-lg top-0" aria-hidden="true"
                         id="sidenavCardIcon"></i>
                 </div>
                 <div class="docs-info">
@@ -268,7 +265,7 @@
                 </div>
             </div>
         </div>
-        <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+        <a class="btn btn-dark mt-3 w-100" href="{{ url('logout') }}">Log out</a>
     </div>
 @endauth
 @auth('dosen')
@@ -280,7 +277,7 @@
             <div class="card-body text-start p-3 w-100">
                 <div
                     class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-                    <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
+                    <i class="fas fa-headset text-dark text-gradient text-lg top-0" aria-hidden="true"
                         id="sidenavCardIcon"></i>
                 </div>
                 <div class="docs-info">
@@ -291,7 +288,7 @@
                 </div>
             </div>
         </div>
-        <a class="btn btn-primary mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+        <a class="btn btn-dark mt-3 w-100" href="{{ url('logout') }}">Log out</a>
     </div>
 @endauth
 @auth('mahasiswa')
@@ -303,7 +300,7 @@
             <div class="card-body text-start p-3 w-100">
                 <div
                     class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-                    <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
+                    <i class="fas fa-headset text-dark text-gradient text-lg top-0" aria-hidden="true"
                         id="sidenavCardIcon"></i>
                 </div>
                 <div class="docs-info">
@@ -314,7 +311,7 @@
                 </div>
             </div>
         </div>
-        <a class="btn btn-danger mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+        <a class="btn btn-dark mt-3 w-100" href="{{ url('logout') }}">Log out</a>
     </div>
 @endauth
 @auth('industri')
@@ -326,7 +323,7 @@
             <div class="card-body text-start p-3 w-100">
                 <div
                     class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-                    <i class="ni ni-diamond text-dark text-gradient text-lg top-0" aria-hidden="true"
+                    <i class="fas fa-headset text-dark text-gradient text-lg top-0" aria-hidden="true"
                         id="sidenavCardIcon"></i>
                 </div>
                 <div class="docs-info">
@@ -337,6 +334,6 @@
                 </div>
             </div>
         </div>
-        <a class="btn btn-danger mt-3 w-100" href="{{ url('logout') }}">Log out</a>
+        <a class="btn btn-dark mt-3 w-100" href="{{ url('logout') }}">Log out</a>
     </div>
 @endauth

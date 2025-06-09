@@ -52,6 +52,10 @@
 
 @section('content')
     <div class="container-fluid">
+        <a href="{{ url()->previous() }}" class="btn btn-white btn-sm mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Kembali
+                </a>
         <div class="row">
             {{-- Kolom Kiri: Info Mahasiswa & Kontrol Status --}}
             <div class="col-lg-4 col-md-5 mb-4">

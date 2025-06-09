@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\LogHarianModel;
 use App\Models\MahasiswaModel;
 use App\Models\DetailLowonganModel;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,10 @@ class MagangModel extends Model
     public function lowongan()
     {
         return $this->belongsTo(DetailLowonganModel::class, 'lowongan_id', 'lowongan_id');
+    }
+    public function logHarian()
+    {
+        return $this->hasMany(LogHarianModel::class, 'mahasiswa_magang_id', 'mahasiswa_magang_id');
     }
 
 }

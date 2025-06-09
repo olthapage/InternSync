@@ -4,7 +4,6 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\UserModel;
-use App\Models\LevelModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,23 +14,17 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $admin = UserModel::with('level')->get();
+        $admin = UserModel::get();
         $activeMenu = 'admin';
         return view('admin_page.admin.index', compact('admin', 'activeMenu'));
     }
 
     public function list(Request $request)
     {
-        $users = UserModel::select('user_id', 'nama_lengkap', 'email', 'level_id')
-            ->with('level');
-
-        if ($request->level_id) {
-            $users->where('level_id', $request->level_id);
-        }
+        $users = UserModel::select('user_id', 'nama_lengkap', 'email');
 
         return DataTables::of($users)
             ->addIndexColumn()
-            ->addColumn('level', fn($u) => $u->level->level_nama ?? '-')
             ->addColumn('aksi', function ($u) {
                 $btn  = '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/show") . '\')" class="btn btn-info btn-sm">Detail</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/edit") . '\')" class="btn btn-warning btn-sm">Edit</button> ';
@@ -44,12 +37,11 @@ class AdminController extends Controller
 
     public function create(Request $request)
     {
-        $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('admin_page.admin.create', compact('level'));
+            return view('admin_page.admin.create');
         }
         $activeMenu = 'admin';
-        return view('admin_page.admin.create', compact('level', 'activeMenu'));
+        return view('admin_page.admin.create', compact('activeMenu'));
     }
 
     public function store(Request $request)
@@ -60,7 +52,6 @@ class AdminController extends Controller
                 'email'        => 'required|email|unique:m_user,email',
                 'telepon'      => 'required|min:9|max:15',
                 'password'     => 'required|min:6',
-                'level_id'     => 'required',
             ];
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
@@ -75,7 +66,6 @@ class AdminController extends Controller
                 'email'        => $request->email,
                 'telepon'      => $request->telepon,
                 'password'     => bcrypt($request->password),
-                'level_id'     => $request->level_id,
             ]);
             return response()->json([
                 'status'  => true,
@@ -87,7 +77,7 @@ class AdminController extends Controller
 
     public function show(Request $request, $id)
         {
-            $admin = UserModel::with('level')->find($id);
+            $admin = UserModel::find($id);
 
         \Log::info('Foto Admin:', [
             'foto' => $admin->foto,
@@ -104,12 +94,11 @@ class AdminController extends Controller
     public function edit(Request $request, $id)
     {
         $admin = UserModel::findOrFail($id);
-        $level = LevelModel::all();
         if ($request->ajax()) {
-            return view('admin_page.admin.edit', compact('admin', 'level'));
+            return view('admin_page.admin.edit', compact('admin'));
         }
         $activeMenu = 'admin';
-        return view('admin_page.admin.edit', compact('admin', 'level', 'activeMenu'));
+        return view('admin_page.admin.edit', compact('admin', 'activeMenu'));
     }
 
     public function update(Request $request, $id)
@@ -119,7 +108,6 @@ class AdminController extends Controller
                 'nama_lengkap' => 'required',
                 'email'        => 'required|email|unique:m_user,email,' . $id . ',user_id',
                 'telepon'      => 'required|min:9|max:15',
-                'level_id'     => 'required',
                 'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // max 2MB
             ];
 
@@ -134,7 +122,7 @@ class AdminController extends Controller
 
             $admin = UserModel::find($id);
             if ($admin) {
-                $data = $request->only(['nama_lengkap', 'email', 'telepon', 'level_id']);
+                $data = $request->only(['nama_lengkap', 'email', 'telepon']);
 
                 if ($request->filled('password')) {
                     $data['password'] = bcrypt($request->password);
@@ -220,7 +208,7 @@ class AdminController extends Controller
 
     public function deleteModal(Request $request, $id)
     {
-        $admin = UserModel::with('level')->findOrFail($id);
+        $admin = UserModel::findOrFail($id);
         return view('admin_page.admin.delete', compact('admin'));
     }
 

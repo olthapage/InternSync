@@ -3,10 +3,11 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DosenModel;
-use App\Models\LevelModel;
 use App\Models\MahasiswaModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -25,17 +26,11 @@ class MahasiswaController extends Controller
     {
         // Ambil mahasiswa beserta relasi yang dibutuhkan untuk ditampilkan dan difilter
         $mahasiswaQuery = MahasiswaModel::with([
-            'level',
             'prodi',
-            'dpa', // Relasi ke DosenModel untuk DPA
-            'dosenPembimbing', // Relasi ke DosenModel untuk Pembimbing Magang
-            'magang' // Relasi ke MagangModel untuk cek status magang
+            'dpa',                       // Relasi ke DosenModel untuk DPA
+            'dosenPembimbing',           // Relasi ke DosenModel untuk Pembimbing Magang
+            'magang',                    // Relasi ke MagangModel untuk cek status magang
         ])->select('m_mahasiswa.*'); // Selalu baik untuk select spesifik atau semua dari tabel utama
-
-        if ($request->filled('level_id')) { // Jika ada filter level_id
-            $mahasiswaQuery->where('level_id', $request->level_id);
-        }
-        // Tambahkan filter lain jika perlu
 
         return DataTables::of($mahasiswaQuery)
             ->addIndexColumn()
@@ -53,10 +48,10 @@ class MahasiswaController extends Controller
                 }
                 // Cek juga dari pengajuan jika belum masuk MagangModel tapi sudah diterima
                 $pengajuanDiterima = $mahasiswa->pengajuan()
-                                        ->where('status', 'diterima') // Sesuai ENUM PengajuanModel
-                                        ->first();
-                if($pengajuanDiterima && !$mahasiswa->magang){ // Diterima pengajuan tapi belum jadi magang record
-                     return '<span class="badge bg-primary">Diterima (Menunggu Magang)</span>';
+                    ->where('status', 'diterima') // Sesuai ENUM PengajuanModel
+                    ->first();
+                if ($pengajuanDiterima && ! $mahasiswa->magang) { // Diterima pengajuan tapi belum jadi magang record
+                    return '<span class="badge bg-primary">Diterima (Menunggu Magang)</span>';
                 }
 
                 return '<span class="badge bg-secondary">Belum Magang</span>';
@@ -74,15 +69,14 @@ class MahasiswaController extends Controller
     public function create(Request $request)
     {
         $prodi = ProdiModel::all();
-        $level = LevelModel::all();
         $dosen = DosenModel::all();
 
         if ($request->ajax()) {
-            return view('admin_page.mahasiswa.create', compact('prodi', 'level', 'dosen'));
+            return view('admin_page.mahasiswa.create', compact('prodi', 'dosen'));
         }
 
         $activeMenu = 'mahasiswa';
-        return view('admin_page.mahasiswa.create', compact('prodi', 'level', 'dosen', 'activeMenu'));
+        return view('admin_page.mahasiswa.create', compact('prodi', 'dosen', 'activeMenu'));
     }
 
     public function store(Request $request)
@@ -95,10 +89,9 @@ class MahasiswaController extends Controller
                 'ipk'          => 'nullable|numeric|min:0|max:4',
                 'nim'          => 'required|unique:m_mahasiswa,nim',
                 'status'       => 'required|boolean',
-                'level_id'     => 'required',
                 'prodi_id'     => 'required',
                 'dosen_id'     => 'nullable',
-                'dpa_id'       => 'nullable'
+                'dpa_id'       => 'nullable',
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -117,7 +110,6 @@ class MahasiswaController extends Controller
                 'ipk'          => $request->ipk,
                 'nim'          => $request->nim,
                 'status'       => $request->status,
-                'level_id'     => $request->level_id,
                 'prodi_id'     => $request->prodi_id,
                 'dosen_id'     => $request->dosen_id,
                 'dosen_id'     => $request->dpa_id,
@@ -134,7 +126,7 @@ class MahasiswaController extends Controller
 
     public function show(Request $request, $id)
     {
-        $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dosen', 'preferensiLokasi', 'skills'])->find($id);
+        $mahasiswa = MahasiswaModel::with(['prodi', 'dosen', 'preferensiLokasi', 'skills'])->find($id);
 
         if ($request->ajax()) {
             return view('admin_page.mahasiswa.show', compact('mahasiswa'));
@@ -145,19 +137,18 @@ class MahasiswaController extends Controller
 
     public function edit(Request $request, $id) // $id adalah mahasiswa_id
     {
-        $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dpa', 'dosenPembimbing', 'magang'])->findOrFail($id);
+        $mahasiswa = MahasiswaModel::with(['prodi', 'dpa', 'dosenPembimbing', 'magang'])->findOrFail($id);
         $prodiList = ProdiModel::orderBy('nama_prodi')->get(); // Ganti nama variabel agar tidak bentrok
-        $levelList = LevelModel::whereIn('level_nama', ['Mahasiswa', 'MHS'])->get(); // Hanya level mahasiswa
 
         // Ambil dosen yang bisa jadi DPA (misal semua dosen atau dosen dengan role 'dpa')
         $dosenDpaList = DosenModel::where('role_dosen', 'dpa')->orderBy('nama_lengkap')->get();
-        if($dosenDpaList->isEmpty()){ // Fallback jika tidak ada DPA spesifik
+        if ($dosenDpaList->isEmpty()) { // Fallback jika tidak ada DPA spesifik
             $dosenDpaList = DosenModel::orderBy('nama_lengkap')->get();
         }
 
         // Ambil dosen yang bisa jadi Pembimbing (misal dosen dengan role 'pembimbing')
         $dosenPembimbingList = DosenModel::where('role_dosen', 'pembimbing')->orderBy('nama_lengkap')->get();
-         if($dosenPembimbingList->isEmpty()){ // Fallback jika tidak ada pembimbing spesifik
+        if ($dosenPembimbingList->isEmpty()) { // Fallback jika tidak ada pembimbing spesifik
             $dosenPembimbingList = DosenModel::orderBy('nama_lengkap')->get();
         }
 
@@ -173,12 +164,10 @@ class MahasiswaController extends Controller
             }
         }
 
-
         if ($request->ajax()) {
             return view('admin_page.mahasiswa.edit', compact(
                 'mahasiswa',
                 'prodiList',
-                'levelList',
                 'dosenDpaList',
                 'dosenPembimbingList',
                 'statusMagangMahasiswa'
@@ -190,7 +179,6 @@ class MahasiswaController extends Controller
         return view('admin_page.mahasiswa.edit', compact(
             'mahasiswa',
             'prodiList',
-            'levelList',
             'dosenDpaList',
             'dosenPembimbingList',
             'statusMagangMahasiswa',
@@ -198,71 +186,106 @@ class MahasiswaController extends Controller
         ));
     }
 
-     public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        // Logika update Anda yang sudah ada sebelumnya
-        // Tambahkan validasi dan penyimpanan untuk dpa_id dan dosen_id (pembimbing)
-
+        // Gunakan findOrFail untuk keamanan, akan melempar error jika ID tidak ditemukan
         $mahasiswa = MahasiswaModel::findOrFail($id);
 
-        $rules = [
-            'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
-            'telepon'      => 'required|min:9|max:15',
-            'nim'          => 'required|string|max:15|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
-            'ipk'          => 'nullable|numeric|min:0|max:4.00',
-            'status'       => 'required|boolean', // Status akun mahasiswa (aktif/tidak)
-            'level_id'     => 'required|exists:m_level_user,level_id',
-            'prodi_id'     => 'required|exists:tabel_prodi,prodi_id', // Pastikan nama tabel prodi benar
-            'foto'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
-            'password'     => 'nullable|string|min:6|max:20',
+        // Amankan: Mahasiswa hanya boleh edit profilnya sendiri
+        if (Auth::guard('mahasiswa')->check() && Auth::id() != $id) {
+            Log::warning('Upaya akses tidak sah: Mahasiswa ' . Auth::id() . ' mencoba mengedit profil Mahasiswa ' . $id);
+            return response()->json(['status' => false, 'message' => 'Anda tidak memiliki hak akses.'], 403);
+        }
 
-            'dpa_id'       => 'nullable|exists:m_dosen,dosen_id', // DPA bisa dipilih dari semua dosen
-            'dosen_id'     => 'nullable|exists:m_dosen,dosen_id', // Dosen Pembimbing bisa dipilih
-        ];
+        // Siapkan variabel untuk aturan validasi dan data yang akan diupdate
+        $rules       = [];
+        $allowedData = [];
 
+        if (Auth::guard('web')->check()) {
+            // --- LOGIKA & VALIDASI UNTUK ADMIN ---
+            Log::info('Request update mahasiswa dari ADMIN untuk ID: ' . $id);
+            $rules = [
+                'nama_lengkap' => 'required|string|max:255',
+                'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
+                'telepon'      => 'required|string|min:9|max:15',
+                'nim'          => 'required|string|max:15|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
+                'ipk'          => 'nullable|numeric|min:0|max:4.00',
+                'status'       => 'required|boolean',
+                'prodi_id'     => 'required|exists:m_prodi,prodi_id', // Nama tabel diperbaiki
+                'dpa_id'       => 'nullable|exists:m_dosen,dosen_id',
+                'dosen_id'     => 'nullable|exists:m_dosen,dosen_id',
+                'password'     => 'nullable|string|min:6|max:20',
+                'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ];
+            // Admin boleh mengubah semua field ini
+            $allowedData = ['nama_lengkap', 'email', 'telepon', 'nim', 'ipk', 'status', 'prodi_id', 'dpa_id', 'dosen_id'];
+
+        } elseif (Auth::guard('mahasiswa')->check()) {
+            // --- LOGIKA & VALIDASI UNTUK MAHASISWA (EDIT PROFIL) ---
+            Log::info('Request update profil dari MAHASISWA ID: ' . $id);
+            $rules = [
+                'nama_lengkap' => 'required|string|max:255',
+                'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
+                'telepon'      => 'required|string|min:9|max:15',
+                'password'     => 'nullable|string|min:6|max:20',
+                'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ];
+            // Mahasiswa hanya boleh mengubah field ini
+            $allowedData = ['nama_lengkap', 'email', 'telepon'];
+        }
+
+        // Lakukan validasi berdasarkan aturan yang sudah ditentukan
         $validator = Validator::make($request->all(), $rules);
-
         if ($validator->fails()) {
+            Log::warning('Validasi gagal untuk update Mahasiswa ID: ' . $id, $validator->errors()->toArray());
             return response()->json([
                 'status'   => false,
-                'message'  => 'Validasi gagal.',
-                'msgField' => $validator->errors()->toArray()
+                'message'  => 'Validasi gagal, periksa kembali data Anda.',
+                'msgField' => $validator->errors()->toArray(),
             ], 422);
         }
 
-        $dataToUpdate = $request->only([
-            'nama_lengkap', 'email', 'telepon', 'nim', 'ipk', 'status', 'level_id', 'prodi_id',
-            'dpa_id', // Simpan DPA ID
-            'dosen_id' // Simpan Dosen Pembimbing ID (sebelumnya juga dosen_id)
-        ]);
+        // Ambil hanya data yang diizinkan untuk diupdate
+        $dataToUpdate = $request->only($allowedData);
 
+        // Penanganan password (berlaku untuk admin dan mahasiswa)
         if ($request->filled('password')) {
             $dataToUpdate['password'] = Hash::make($request->password);
+            Log::info('Password sedang diupdate untuk Mahasiswa ID: ' . $id);
         }
 
+        // Penanganan upload foto (berlaku untuk admin dan mahasiswa)
         if ($request->hasFile('foto')) {
+            Log::info('Mendeteksi file foto untuk diunggah.');
             // Hapus foto lama jika ada
             if ($mahasiswa->foto && Storage::disk('public')->exists('mahasiswa/foto/' . $mahasiswa->foto)) {
                 Storage::disk('public')->delete('mahasiswa/foto/' . $mahasiswa->foto);
+                Log::info('Foto lama dihapus: ' . $mahasiswa->foto);
             }
-            // Simpan foto baru
-            $namaFileFoto = time() . '_' . $request->file('foto')->getClientOriginalName();
-            $request->file('foto')->storeAs('mahasiswa/foto', $namaFileFoto, 'public');
-            $dataToUpdate['foto'] = $namaFileFoto;
+
+            // Simpan foto baru dengan nama unik
+            $path                 = $request->file('foto')->store('mahasiswa/foto', 'public');
+            $dataToUpdate['foto'] = basename($path);
+            Log::info('Foto baru berhasil diunggah: ' . $dataToUpdate['foto']);
         }
 
-        $mahasiswa->update($dataToUpdate);
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Data mahasiswa berhasil diperbarui.'
-        ]);
+        // Lakukan update
+        try {
+            $mahasiswa->update($dataToUpdate);
+            Log::info('Database berhasil diupdate untuk Mahasiswa ID: ' . $id, $dataToUpdate);
+            return response()->json([
+                'status'  => true,
+                'message' => 'Data berhasil diperbarui.',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Terjadi error saat update database untuk Mahasiswa ID: ' . $id, ['error' => $e->getMessage()]);
+            return response()->json(['status' => false, 'message' => 'Terjadi kesalahan pada server.'], 500);
+        }
     }
 
     public function deleteModal(Request $request, $id)
     {
-        $mahasiswa = MahasiswaModel::with(['prodi', 'level', 'dosen'])->find($id);
+        $mahasiswa = MahasiswaModel::with(['prodi', 'dosen'])->find($id);
         return view('admin_page.mahasiswa.delete', compact('mahasiswa'));
     }
 
@@ -289,27 +312,18 @@ class MahasiswaController extends Controller
     public function verifikasi(Request $request, $id)
     {
         $mahasiswa = MahasiswaModel::with(['prodi', 'dpa', 'dosenPembimbing']) // Eager load relasi yang mungkin ditampilkan
-                                   ->findOrFail($id);
-        // Data prodi, level, dosen untuk dropdown di form edit, mungkin tidak semua relevan untuk modal verifikasi
-        // tapi tidak masalah jika dikirim.
-        // $prodiList = ProdiModel::all(); // Ganti nama variabel agar tidak bentrok
-        // $levelList = LevelModel::all();
-        // $dosenList = DosenModel::all();
+            ->findOrFail($id);
 
         if ($request->ajax()) {
             // Untuk modal, kita hanya perlu $mahasiswa
             return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa'));
         }
 
-        // Untuk halaman penuh (jika ada)
         $activeMenu = 'mahasiswa';
-        // return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa', 'prodiList', 'levelList', 'dosenList', 'activeMenu'));
-        // Karena ini modal, baris di atas mungkin tidak akan pernah tereksekusi jika selalu AJAX
-        // Jika Anda punya halaman verifikasi non-modal, sesuaikan variabel yang di-pass.
-        // Untuk modal, cukup:
+
         return view('admin_page.mahasiswa.verifikasi', compact('mahasiswa'));
     }
-   public function updateVerifikasi(Request $request, $id)
+    public function updateVerifikasi(Request $request, $id)
     {
         $mahasiswa = MahasiswaModel::findOrFail($id);
 
@@ -339,7 +353,7 @@ class MahasiswaController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal.',
-                'errors'  => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 

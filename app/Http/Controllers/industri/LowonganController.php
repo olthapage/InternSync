@@ -13,11 +13,13 @@ use App\Models\PengajuanModel;
 use App\Models\ProvinsiModel;
 use App\Models\TipeKerjaModel;
 use App\Services\SpkEdasService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 // Ditambahkan untuk Request jika diperlukan
 // Untuk transaction jika diperlukan
@@ -547,6 +549,237 @@ class LowonganController extends Controller
             Log::error('EXCEPTION di getSpkLangkahEdas untuk Lowongan ID ' . $lowongan->lowongan_id . ': ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             // Mengembalikan view dengan pesan error agar bisa ditampilkan di modal
             return response()->view('industri_page.lowongan.partials.rekomendasi_langkah_edas', ['error_message' => 'Terjadi kesalahan internal saat memuat langkah perhitungan. Silakan coba lagi atau hubungi administrator.']);
+        }
+    }
+
+    public function list(Request $request)
+    {
+        // 1. Dapatkan ID industri yang sedang login.
+        $industriId = Auth::id();
+
+        // 2. Mulai query dengan eager loading dan tambahkan filter whereHas.
+        $pengajuan = PengajuanModel::with(['mahasiswa', 'lowongan'])
+            ->whereHas('lowongan', function ($query) use ($industriId) {
+                $query->where('industri_id', $industriId);
+            });
+
+        // Filter berdasarkan rentang tanggal pengajuan
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $pengajuan->whereDate('created_at', '>=', $request->start_date)
+                ->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        return DataTables::of($pengajuan)
+            ->addIndexColumn()
+            ->addColumn('mahasiswa', fn($row) => $row->mahasiswa->nama_mahasiswa ?? 'N/A')
+            ->addColumn('lowongan', fn($row) => $row->lowongan->judul_lowongan ?? 'N/A')
+            ->addColumn('tanggal_pengajuan', fn($row) => Carbon::parse($row->created_at)->isoFormat('D MMMM YYYY'))
+            ->addColumn('status_pengajuan', function ($row) {
+                $status     = ucfirst($row->status);
+                $badgeColor = 'secondary';
+                if ($row->status == 'diterima') {
+                    $badgeColor = 'success';
+                }
+
+                if ($row->status == 'ditolak') {
+                    $badgeColor = 'danger';
+                }
+
+                if ($row->status == 'belum') {
+                    $badgeColor = 'warning';
+                }
+
+                return '<span class="badge bg-gradient-' . $badgeColor . '">' . $status . '</span>';
+            })
+            ->addColumn('aksi', function ($row) {
+                // Ambil primary key
+                $pk = $row->pengajuan_id;
+
+                $detailUrl = route('industri.lowongan.pendaftar.show_profil', [
+                    'pengajuan' => $pk,
+                    'from'      => 'index', // Menandakan datang dari halaman index/daftar
+                ]);
+
+                // Buat tombol "Profil" yang mengarah ke URL yang sudah diberi parameter
+                $detailBtn = '<a href="' . $detailUrl . '" class="btn btn-info btn-sm" title="Lihat Profil Pendaftar">
+                     <i class="fas fa-user-check me-1"></i> Review
+                  </a>';
+
+                return $detailBtn;
+            })
+            ->rawColumns(['status_pengajuan', 'aksi'])
+            ->make(true);
+    }
+
+    //==================================================================
+    // METHOD BARU UNTUK EDIT, UPDATE, DELETE
+    //==================================================================
+
+    /**
+     * Menampilkan form edit untuk lowongan dalam bentuk partial view untuk modal.
+     */
+    public function edit(DetailLowonganModel $lowongan)
+    {
+        // Pastikan lowongan ini milik industri yang sedang login
+        if ($lowongan->industri_id !== Auth::id()) {
+            abort(403, 'Akses Ditolak');
+        }
+
+        // Syarat tambahan: jangan boleh edit jika sudah ada pendaftar
+        if ($lowongan->pendaftar()->exists()) {
+            // Meskipun tombol disembunyikan, ini adalah lapisan keamanan server-side
+            return response('<div class="alert alert-danger m-3">Lowongan tidak dapat diubah karena sudah memiliki pendaftar.</div>', 403);
+        }
+
+        // Ambil data yang dibutuhkan untuk form
+        $kategoriSkills = KategoriSkillModel::orderBy('kategori_nama')->get();
+        $detailSkills   = DetailSkillModel::orderBy('skill_nama')->get();
+        $provinsiList   = ProvinsiModel::orderBy('provinsi_nama')->get();
+        $tipeKerjaList  = TipeKerjaModel::all();
+        $fasilitasList  = FasilitasModel::all();
+        $activeMenu     = 'lowongan'; // Kirim variabel ini jika partial view membutuhkannya
+
+        // Kembalikan partial view
+        return view('industri_page.lowongan.partials.edit_form', compact(
+            'lowongan',
+            'kategoriSkills',
+            'detailSkills',
+            'provinsiList',
+            'tipeKerjaList',
+            'fasilitasList',
+            'activeMenu'
+        ));
+    }
+
+    /**
+     * Memperbarui data lowongan di database.
+     */
+    public function update(Request $request, DetailLowonganModel $lowongan)
+    {
+        // 1. LOG: Memulai proses update
+        Log::info('Memulai proses update untuk Lowongan ID: ' . $lowongan->lowongan_id);
+        Log::debug('Request data mentah:', $request->all());
+
+        // Keamanan (tetap ada)
+        if ($lowongan->industri_id !== Auth::id() || $lowongan->pendaftar()->exists()) {
+            Log::warning('Akses update ditolak atau sudah ada pendaftar untuk Lowongan ID: ' . $lowongan->lowongan_id);
+            return response()->json(['message' => 'Aksi tidak diizinkan.'], 403);
+        }
+
+        // Validasi, ditambahkan validasi untuk 'levels'
+        $validator = Validator::make($request->all(), [
+            'judul_lowongan'              => 'required|string|max:255',
+            'kategori_skill_id'           => 'required|exists:m_kategori_skill,kategori_skill_id',
+            'slot'                        => 'required|integer|min:1',
+            'deskripsi'                   => 'required|string',
+            'tanggal_mulai'               => 'required|date',
+            'tanggal_selesai'             => 'required|date|after_or_equal:tanggal_mulai',
+            'pendaftaran_tanggal_mulai'   => 'required|date',
+            'pendaftaran_tanggal_selesai' => 'required|date|after_or_equal:pendaftaran_tanggal_mulai',
+            'upah'                        => 'required|integer|min:0',
+            'tipe_kerja'                  => 'required|array|min:1',
+            'tipe_kerja.*'                => 'exists:m_tipe_kerja,tipe_kerja_id',
+            'fasilitas'                   => 'nullable|array',
+            'fasilitas.*'                 => 'exists:m_fasilitas,fasilitas_id',
+            'skills'                      => 'sometimes|array',
+            'skills.*'                    => 'required_with:skills|exists:m_detail_skill,skill_id',
+            'levels'                      => 'sometimes|array', // Validasi untuk level
+            'levels.*'                    => 'required_with:skills|string|in:Beginner,Intermediate,Expert',
+        ]);
+
+        if ($validator->fails()) {
+            // 2. LOG: Jika validasi gagal
+            Log::error('Validasi GAGAL untuk Lowongan ID: ' . $lowongan->lowongan_id, $validator->errors()->toArray());
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // 3. LOG: Jika validasi berhasil
+        $validatedData = $validator->validated();
+        Log::info('Validasi BERHASIL untuk Lowongan ID: ' . $lowongan->lowongan_id);
+        Log::debug('Data setelah validasi:', $validatedData);
+
+        DB::beginTransaction();
+        try {
+            // Ambil data spesifik untuk model utama
+            $lowonganData = collect($validatedData)->only($lowongan->getFillable())->all();
+            Log::debug('Data untuk diupdate ke model DetailLowongan:', $lowonganData);
+
+            // Update data utama
+            $lowongan->update($lowonganData);
+            Log::info('Model DetailLowongan berhasil diupdate.');
+
+            // Update relasi Tipe Kerja & Fasilitas
+            $lowongan->tipeKerja()->sync($request->input('tipe_kerja', []));
+            Log::debug('Sync Tipe Kerja:', $request->input('tipe_kerja', []));
+            $lowongan->fasilitas()->sync($request->input('fasilitas', []));
+            Log::debug('Sync Fasilitas:', $request->input('fasilitas', []));
+
+            // Hapus skill lama dan tambahkan yang baru
+            $lowongan->lowonganSkill()->delete();
+            Log::info('Skill lama telah dihapus.');
+
+            if ($request->has('skills')) {
+                Log::debug('Processing Skills:', $request->input('skills'));
+                Log::debug('Processing Levels:', $request->input('levels'));
+
+                foreach ($request->input('skills') as $index => $skillId) {
+                    if (!empty($skillId)) {
+                        $levelKompetensi = $request->input('levels')[$index] ?? 'Beginner';
+
+                        LowonganSkillModel::create([
+                            'lowongan_id'      => $lowongan->lowongan_id,
+                            'skill_id'         => $skillId,
+                            'level_kompetensi' => $levelKompetensi,
+                            // 'bobot' => ... // tambahkan jika perlu
+                        ]);
+                        Log::debug("Menambahkan skill ID: {$skillId} dengan level: {$levelKompetensi}");
+                    }
+                }
+            }
+
+            DB::commit();
+            // 4. LOG: Jika semua proses berhasil
+            Log::info('Update lowongan ID ' . $lowongan->lowongan_id . ' SUKSES dan di-commit ke database.');
+            return response()->json(['success' => 'Lowongan berhasil diperbarui.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // 5. LOG: Jika terjadi error di tengah proses
+            Log::error('EXCEPTION saat update lowongan ID ' . $lowongan->lowongan_id . ': ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Terjadi kesalahan pada server.'], 500);
+        }
+    }
+
+    /**
+     * Menghapus lowongan dari database.
+     */
+    public function destroy(DetailLowonganModel $lowongan)
+    {
+        // Keamanan: Pastikan lowongan milik user & belum ada pendaftar
+        if ($lowongan->industri_id !== Auth::id()) {
+            abort(403, 'Akses Ditolak');
+        }
+        if ($lowongan->pendaftar()->exists()) {
+            return redirect()->back()->with('error', 'Gagal menghapus, lowongan sudah memiliki pendaftar.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Hapus relasi di pivot tables terlebih dahulu
+            $lowongan->tipeKerja()->detach();
+            $lowongan->fasilitas()->detach();
+            $lowongan->lowonganSkill()->delete(); // Hapus dari tabel lowongan_skill
+
+            // Hapus lowongan utama
+            $lowongan->delete();
+
+            DB::commit();
+            return redirect()->route('industri.lowongan.index')->with('success', 'Lowongan berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error saat hapus lowongan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus lowongan.');
         }
     }
 }

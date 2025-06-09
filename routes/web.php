@@ -313,6 +313,10 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/{lowongan}/spk-kriteria-form', [IndustriLowonganController::class, 'getSpkModalKriteriaForm'])->name('industri.lowongan.spk.get_kriteria_form');
         Route::post('/{lowongan}/spk-calculate', [IndustriLowonganController::class, 'calculateSpkRekomendasi'])->name('industri.lowongan.spk.calculate');
         Route::post('/{lowongan}/spk-langkah-edas', [IndustriLowonganController::class, 'getSpkLangkahEdas'])->name('industri.lowongan.spk.get_langkah_edas');
+        Route::post('pendaftar/list', [IndustriLowonganController::class, 'list'])->name('industri.pendaftar.list');
+        Route::get('/{lowongan}/edit', [IndustriLowonganController::class, 'edit'])->name('industri.lowongan.edit');
+        Route::put('/{lowongan}', [IndustriLowonganController::class, 'update'])->name('industri.lowongan.update');
+        Route::delete('/{lowongan}', [IndustriLowonganController::class, 'destroy'])->name('industri.lowongan.destroy');
     });
     Route::prefix('industri/manajemen')->group(function () {
         Route::get('/', [ManajemenMagangController::class, 'index'])->name('industri.magang.index');
