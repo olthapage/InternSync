@@ -53,11 +53,11 @@
                                         @php
                                             $statusMagang = $mahasiswa->magang->status;
                                             $badgeClass = 'badge-light';
-                                            if ($statusMagang == 'selesai') $badgeClass = 'badge-primary';
-                                            elseif ($statusMagang == 'sedang') $badgeClass = 'badge-info';
-                                            elseif ($statusMagang == 'belum') $badgeClass = 'badge-dark';
+                                            if ($statusMagang == 'selesai') $badgeClass = 'bg-gradient-success';
+                                            elseif ($statusMagang == 'sedang') $badgeClass = 'bg-gradient-info';
+                                            elseif ($statusMagang == 'belum') $badgeClass = 'bg-gradient-primary';
                                         @endphp
-                                        <span class="badge badge-secondary {{ $badgeClass }}">{{ ucfirst(htmlspecialchars($statusMagang)) }}</span>
+                                        <span class="badge badge-sm {{ $badgeClass }}">{{ ucfirst(htmlspecialchars($statusMagang)) }}</span>
                                     </td>
                                 </tr>
                                 <tr>

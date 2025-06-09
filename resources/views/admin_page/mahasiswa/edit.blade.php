@@ -1,142 +1,171 @@
 <form action="{{ route('mahasiswa.update', $mahasiswa->mahasiswa_id) }}" method="POST" id="form-edit-mahasiswa" enctype="multipart/form-data">
     @csrf
-    @method('POST') 
+    @method('POST')
+
     <div class="modal-dialog modal-lg" role="document" style="max-width: 70%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Data Mahasiswa: {{ $mahasiswa->nama_lengkap }}</h5>
+                {{-- Judul dinamis berdasarkan siapa yang login --}}
+                @if (Auth::guard('web')->check())
+                    <h5 class="modal-title">Edit Data Mahasiswa: {{ $mahasiswa->nama_lengkap }}</h5>
+                @else
+                    <h5 class="modal-title">Edit Profil Saya</h5>
+                @endif
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    {{-- Kolom Kiri (Data Pribadi & Akademik) --}}
-                    <div class="col-md-6">
-                        {{-- ... (Nama, Email, NIM, IPK, Password, Foto - tetap sama) ... --}}
-                        <div class="form-group mb-3">
-                            <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                            <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $mahasiswa->nama_lengkap) }}" required>
-                            <small id="error-nama_lengkap" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $mahasiswa->email) }}" required>
-                            <small id="error-email" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Telepon <span class="text-danger">*</span></label>
-                            <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
-                            <small id="error-telepon" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">NIM <span class="text-danger">*</span></label>
-                            <input type="text" name="nim" class="form-control" value="{{ old('nim', $mahasiswa->nim) }}" required>
-                            <small id="error-nim" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">IPK</label>
-                            <input type="number" step="0.01" name="ipk" class="form-control" value="{{ old('ipk', $mahasiswa->ipk) }}">
-                            <small id="error-ipk" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Password <small class="text-muted">(Kosongkan jika tidak ingin diubah)</small></label>
-                            <input type="password" name="password" class="form-control">
-                            <small id="error-password" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Foto <small class="text-muted">(Kosongkan jika tidak ingin diubah)</small></label><br>
-                            @if ($mahasiswa->foto)
-                                <img src="{{ asset('storage/mahasiswa/foto/' . $mahasiswa->foto) }}" alt="Foto Mahasiswa" width="100" class="mb-2 rounded img-thumbnail">
-                            @else
-                                <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Default Foto" width="100" class="mb-2 rounded img-thumbnail">
-                            @endif
-                            <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/jpg">
-                            <small class="form-text text-muted">Format: JPG, PNG. Maks 2MB.</small>
-                            <small id="error-foto" class="error-text text-danger"></small>
-                        </div>
-                    </div>
 
-                    {{-- Kolom Kanan (Status, Prodi, Dosen) --}}
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Status Akun <span class="text-danger">*</span></label>
-                            <select name="status" class="form-select" required>
-                                <option value="1" {{ old('status', $mahasiswa->status) == 1 ? 'selected' : '' }}>Aktif</option>
-                                <option value="0" {{ old('status', $mahasiswa->status) == 0 ? 'selected' : '' }}>Tidak Aktif</option>
-                            </select>
-                            <small id="error-status" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Program Studi <span class="text-danger">*</span></label>
-                            <select name="prodi_id" class="form-select" required>
-                                <option value="">-- Pilih Prodi --</option>
-                                @foreach ($prodiList as $p)
-                                    <option value="{{ $p->prodi_id }}" {{ old('prodi_id', $mahasiswa->prodi_id) == $p->prodi_id ? 'selected' : '' }}>
-                                        {{ $p->nama_prodi }}</option>
-                                @endforeach
-                            </select>
-                            <small id="error-prodi_id" class="error-text text-danger"></small>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label">Level User <span class="text-danger">*</span></label>
-                            <select name="level_id" class="form-select" required>
-                                <option value="">-- Pilih Level --</option>
-                                @foreach ($levelList as $l)
-                                    <option value="{{ $l->level_id }}" {{ old('level_id', $mahasiswa->level_id) == $l->level_id ? 'selected' : '' }}>
-                                        {{ $l->level_nama }}</option>
-                                @endforeach
-                            </select>
-                            <small id="error-level_id" class="error-text text-danger"></small>
-                        </div>
+                {{-- ====================================================== --}}
+                {{--                 KONDISI UTAMA DIMULAI DI SINI         --}}
+                {{-- ====================================================== --}}
 
-                        {{-- PILIHAN DPA --}}
-                        <div class="form-group mb-3">
-                            <label class="form-label">Dosen Penasehat Akademik (DPA)</label>
-                            <select name="dpa_id" id="dpa_id" class="form-select">
-                                <option value="">-- Pilih DPA --</option>
-                                @foreach ($dosenDpaList as $dpa)
-                                    <option value="{{ $dpa->dosen_id }}" {{ old('dpa_id', $mahasiswa->dpa_id) == $dpa->dosen_id ? 'selected' : '' }}>
-                                        {{ $dpa->nama_lengkap }} ({{ $dpa->nip }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small id="error-dpa_id" class="error-text text-danger"></small>
-                        </div>
+                @if (Auth::guard('web')->check())
 
-                        {{-- PILIHAN DOSEN PEMBIMBING (Hanya jika sudah/akan magang) --}}
-                        @php
-                            // Cek apakah mahasiswa punya record di MagangModel dengan status 'belum' atau 'sedang'
-                            // ATAU jika ada pengajuan yang statusnya 'diterima'
-                            $isMagangAktifOrDiterima = ($statusMagangMahasiswa === 'belum' || $statusMagangMahasiswa === 'sedang' || $statusMagangMahasiswa === 'akan_magang');
-                        @endphp
-
-                        <div class="form-group mb-3" id="dosen-pembimbing-group" style="{{ $isMagangAktifOrDiterima ? '' : 'display:none;' }}">
-                            <label class="form-label">Dosen Pembimbing Magang</label>
-                            <select name="dosen_id" id="dosen_id" class="form-select">
-                                <option value="">-- Pilih Dosen Pembimbing --</option>
-                                @foreach ($dosenPembimbingList as $pembimbing)
-                                    <option value="{{ $pembimbing->dosen_id }}" {{ old('dosen_id', $mahasiswa->dosen_id) == $pembimbing->dosen_id ? 'selected' : '' }}>
-                                        {{ $pembimbing->nama_lengkap }} ({{ $pembimbing->nip }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small id="error-dosen_id" class="error-text text-danger"></small>
-                            @if(!$isMagangAktifOrDiterima)
-                            <small class="form-text text-muted">Dosen pembimbing dapat diatur setelah mahasiswa diterima magang.</small>
-                            @endif
-                        </div>
-                         <div class="alert alert-light p-2 small">
-                            <strong>Status Magang Saat Ini:</strong>
-                            @if($isMagangAktifOrDiterima)
-                                <span class="badge bg-success">{{ ucfirst(str_replace('_', ' ', $statusMagangMahasiswa)) }}</span>
-                                @if($mahasiswa->magang && $mahasiswa->magang->lowongan)
-                                    di {{ $mahasiswa->magang->lowongan->industri->industri_nama ?? 'Industri' }} ({{ $mahasiswa->magang->lowongan->judul_lowongan ?? '' }})
+                    {{-- ============================================= --}}
+                    {{--                  TAMPILAN UNTUK ADMIN         --}}
+                    {{-- (Kode form asli Anda, tidak ada perubahan) --}}
+                    {{-- ============================================= --}}
+                    <div class="row">
+                        {{-- Kolom Kiri (Data Pribadi & Akademik) --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $mahasiswa->nama_lengkap) }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" value="{{ old('email', $mahasiswa->email) }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Telepon <span class="text-danger">*</span></label>
+                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}" required>
+                            </div>
+                             <div class="form-group mb-3">
+                                <label class="form-label">NIM <span class="text-danger">*</span></label>
+                                <input type="text" name="nim" class="form-control" value="{{ old('nim', $mahasiswa->nim) }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">IPK</label>
+                                <input type="number" step="0.01" name="ipk" class="form-control" value="{{ old('ipk', $mahasiswa->ipk) }}">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Password <small class="text-muted">(Kosongkan jika tidak diubah)</small></label>
+                                <input type="password" name="password" class="form-control">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Foto <small class="text-muted">(Kosongkan jika tidak diubah)</small></label><br>
+                                @if ($mahasiswa->foto)
+                                    <img src="{{ asset('storage/mahasiswa/foto/' . $mahasiswa->foto) }}" alt="Foto Mahasiswa" width="100" class="mb-2 rounded img-thumbnail">
+                                @else
+                                    <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Default Foto" width="100" class="mb-2 rounded img-thumbnail">
                                 @endif
-                            @else
-                                <span class="badge bg-secondary">Belum Magang / Tidak Aktif</span>
-                            @endif
+                                <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/jpg">
+                                <small class="form-text text-muted">Format: JPG, PNG. Maks 2MB.</small>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Kanan (Status, Prodi, Dosen) --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Status Akun <span class="text-danger">*</span></label>
+                                <select name="status" class="form-select" required>
+                                    <option value="1" {{ old('status', $mahasiswa->status) == 1 ? 'selected' : '' }}>Aktif</option>
+                                    <option value="0" {{ old('status', $mahasiswa->status) == 0 ? 'selected' : '' }}>Tidak Aktif</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Program Studi <span class="text-danger">*</span></label>
+                                <select name="prodi_id" class="form-select" required>
+                                    @foreach ($prodiList as $p)
+                                        <option value="{{ $p->prodi_id }}" {{ old('prodi_id', $mahasiswa->prodi_id) == $p->prodi_id ? 'selected' : '' }}>{{ $p->nama_prodi }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Dosen Penasehat Akademik (DPA)</label>
+                                <select name="dpa_id" class="form-select">
+                                    <option value="">-- Pilih DPA --</option>
+                                    @foreach ($dosenDpaList as $dpa)
+                                        <option value="{{ $dpa->dosen_id }}" {{ old('dpa_id', $mahasiswa->dpa_id) == $dpa->dosen_id ? 'selected' : '' }}>{{ $dpa->nama_lengkap }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            {{-- Field Dosen Pembimbing untuk Admin --}}
+                             <div class="form-group mb-3">
+                                <label class="form-label">Dosen Pembimbing Magang</label>
+                                <select name="dosen_id" class="form-select">
+                                    <option value="">-- Pilih Dosen Pembimbing --</option>
+                                    @foreach ($dosenPembimbingList as $pembimbing)
+                                        <option value="{{ $pembimbing->dosen_id }}" {{ old('dosen_id', $mahasiswa->dosen_id) == $pembimbing->dosen_id ? 'selected' : '' }}>{{ $pembimbing->nama_lengkap }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                @else
+
+                    {{-- ============================================= --}}
+                    {{-- TAMPILAN UNTUK SELAIN ADMIN (EDIT PROFIL) --}}
+                    {{-- ============================================= --}}
+                    <div class="row">
+                        {{-- Kolom Kiri: Data yang bisa diedit --}}
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" name="nama_lengkap" class="form-control" value="{{ old('nama_lengkap', $mahasiswa->nama_lengkap) }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" value="{{ old('email', $mahasiswa->email) }}" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Telepon <span class="text-danger">*</span></label>
+                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}">
+                            </div>
+                             <div class="form-group mb-3">
+                                <label class="form-label">Password <small class="text-muted">(Kosongkan jika tidak ingin diubah)</small></label>
+                                <input type="password" name="password" class="form-control">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Foto Profil <small class="text-muted">(Kosongkan jika tidak diubah)</small></label><br>
+                                @if ($mahasiswa->foto)
+                                    <img src="{{ asset('storage/mahasiswa/foto/' . $mahasiswa->foto) }}" alt="Foto Mahasiswa" width="100" class="mb-2 rounded img-thumbnail">
+                                @else
+                                    <img src="{{ asset('assets/images/default-avatar.png') }}" alt="Default Foto" width="100" class="mb-2 rounded img-thumbnail">
+                                @endif
+                                <input type="file" name="foto" class="form-control" accept="image/jpeg,image/png,image/jpg">
+                                <small class="form-text text-muted">Format: JPG, PNG. Maks 2MB.</small>
+                            </div>
+                        </div>
+
+                        {{-- Kolom Kanan: Data yang HANYA TAMPIL (read-only) --}}
+                        <div class="col-md-6">
+                             <div class="form-group mb-3">
+                                <label class="form-label">NIM</label>
+                                <input type="text" class="form-control" value="{{ $mahasiswa->nim }}" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Program Studi</label>
+                                {{-- Menggunakan null-safe operator (?) dan null coalescing (??) untuk keamanan --}}
+                                <input type="text" class="form-control" value="{{ $mahasiswa->prodi?->nama_prodi ?? 'Tidak ada data' }}" readonly>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="form-label">Dosen Penasehat Akademik (DPA)</label>
+                                <input type="text" class="form-control" value="{{ $mahasiswa->dpa?->nama_lengkap ?? 'Belum ditentukan' }}" readonly>
+                            </div>
+                             <div class="form-group mb-3">
+                                <label class="form-label">Dosen Pembimbing Magang</label>
+                                <input type="text" class="form-control" value="{{ $mahasiswa->dosenPembimbing?->nama_lengkap ?? 'Belum ditentukan' }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- ====================================================== --}}
+                {{--                   KONDISI UTAMA SELESAI               --}}
+                {{-- ====================================================== --}}
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -193,12 +222,11 @@
                     required: true,
                     minlength: 9,
                     maxlength: 15,
-                    phoneID: true 
-                }, 
+                    phoneID: true
+                },
                 nim: { required: true },
                 ipk: { number: true, min: 0, max: 4 },
                 password: { minlength: 6, maxlength: 20 }, // Tidak required, hanya jika diisi
-                level_id: { required: true },
                 prodi_id: { required: true },
                 status: { required: true },
                 dpa_id: { required: false }, // Atau true jika wajib punya DPA

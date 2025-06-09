@@ -32,14 +32,14 @@ class PengajuanController extends Controller
 
         // Cek apakah mahasiswa sudah memiliki pengajuan 'diproses' atau 'diterima'
         // Asumsi status 'diproses' adalah pengganti 'belum' untuk pengajuan yang sedang berjalan
-        $pengajuanDiproses = $pengajuan->firstWhere('status', 'diproses');
+        $pengajuanDiproses = $pengajuan->firstWhere('status', 'belum');
         $pengajuanDiterima = $pengajuan->firstWhere('status', 'diterima');
 
         if ($pengajuanDiterima) {
             $statusPengajuanAktif = 'diterima';
             $alasanTidakBisaAjukan = 'Anda sudah diterima magang dan tidak dapat membuat pengajuan baru.';
         } elseif ($pengajuanDiproses) {
-            $statusPengajuanAktif = 'diproses';
+            $statusPengajuanAktif = 'belum';
             $alasanTidakBisaAjukan = 'Anda sudah memiliki pengajuan magang yang sedang diproses. Harap tunggu hasilnya sebelum membuat pengajuan baru.';
         }
 

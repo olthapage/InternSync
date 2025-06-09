@@ -64,7 +64,7 @@ class MahasiswaDpaController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('nama_lengkap_mahasiswa', function ($row) {
-                $foto = $row->foto ? asset('storage/foto/' . $row->foto) : asset('assets/default-profile.png');
+                $foto = $row->foto ? asset('storage/mahasiswa/foto/' . $row->foto) : asset('assets/default-profile.png');
                 return '
             <div class="d-flex align-items-center">
                 <img src="' . htmlspecialchars($foto) . '" class="avatar avatar-sm me-3 rounded-circle" alt="foto_mahasiswa">
@@ -87,7 +87,11 @@ class MahasiswaDpaController extends Controller
                 return '<span class="badge bg-success">Semua Skill Terverifikasi</span>';
             })
             ->addColumn('aksi', function ($row) {
-                $validasiUrl = route('dosen.mahasiswa-dpa.validasi.skill.show', $row->mahasiswa_id);
+                // Tambahkan parameter 'from' => 'validasi'
+                $validasiUrl = route('dosen.mahasiswa-dpa.validasi.skill.show', [
+                    'mahasiswa' => $row->mahasiswa_id,
+                    'from'      => 'validasi',
+                ]);
                 return '<a href="' . $validasiUrl . '" class="btn btn-sm btn-primary"><i class="fas fa-user-shield me-1"></i> Validasi Skill</a>';
             })
             ->rawColumns(['nama_lengkap_mahasiswa', 'skill_pending_count', 'aksi'])
@@ -96,7 +100,7 @@ class MahasiswaDpaController extends Controller
     public function showValidasiSkillPage(MahasiswaModel $mahasiswa)
     {
         $dpa        = Auth::guard('dosen')->user(); // Lebih baik eksplisit dengan guard dosen
-        $activeMenu = 'mahasiswa-dpa';
+        $activeMenu = 'validasi-portofolio';
 
         if (! $dpa || $dpa->role_dosen !== 'dpa') { // Pastikan yang login adalah DPA
             return redirect()->route('home')           // atau dashboard dosen umum

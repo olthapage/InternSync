@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\DosenModel;
-use App\Models\LevelModel;
 use App\Models\MahasiswaSkillModel;
 use App\Models\PortofolioMahasiswa;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +26,6 @@ class MahasiswaModel extends Authenticatable
         'status_verifikasi',
         'alasan',
         'ipk',
-        'level_id',
         'prodi_id',
         'dosen_id',
         'dpa_id',
@@ -52,11 +50,6 @@ class MahasiswaModel extends Authenticatable
     protected $hidden = ['password'];
 
     protected $casts = ['password' => 'hashed'];
-
-    public function level()
-    {
-        return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
-    }
 
     public function prodi()
     {

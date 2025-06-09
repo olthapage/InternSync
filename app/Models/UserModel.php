@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\ProdiModel;
 use App\Models\UserIpkModel;
-use App\Models\LevelModel;
 use App\Models\DetailSkillModel;
 use App\Models\DetailKompetensiModel;
 use Illuminate\Database\Eloquent\Model;
@@ -19,16 +18,11 @@ class UserModel extends Authenticatable
     protected $primaryKey = 'user_id';
     public $timestamps = false;
 
-    protected $fillable = ['nama_lengkap', 'email', 'password', 'foto', 'level_id', 'created_at', 'telepon'];
+    protected $fillable = ['nama_lengkap', 'email', 'password', 'foto', 'created_at', 'telepon'];
 
     protected $hidden = ['password'];
 
     protected $casts = ['password' => 'hashed'];
-
-    public function level()
-    {
-        return $this->belongsTo(LevelModel::class, 'level_id');
-    }
 
     public function preferensiLokasi()
     {

@@ -1,18 +1,3 @@
-@empty($level)
-    <div id="modal-master" class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Kesalahan</h5>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger">
-                    <h5><i class="icon fas fa-ban"></i> Data level tidak tersedia.</h5>
-                </div>
-                <button class="btn btn-warning" onclick="$('#myModal').modal('hide')">Tutup</button>
-            </div>
-        </div>
-    </div>
-@else
     <form action="{{ route('admin.store') }}" method="POST" id="form-create-admin">
         @csrf
         <div id="modal-master" class="modal-dialog modal-lg" role="document" style="max-width:60vw;">
@@ -35,7 +20,7 @@
                     </div>
                     <div class="form-group">
                             <label>Telepon</label>
-                            <input type="text" name="telepon" class="form-control" 
+                            <input type="text" name="telepon" class="form-control"
                                 value="{{ old('telepon') }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
                             <small id="error-telepon" class="error-text form-text text-danger"></small>
                     </div>
@@ -43,16 +28,6 @@
                         <label>Password</label>
                         <input type="password" name="password" id="password" class="form-control" required>
                         <small id="error-password" class="error-text text-danger"></small>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label>Level</label>
-                        <select name="level_id" id="level_id" class="form-select" required>
-                            <option value="">-- Pilih Level --</option>
-                            @foreach($level as $lvl)
-                                <option value="{{ $lvl->level_id }}">{{ $lvl->level_nama }}</option>
-                            @endforeach
-                        </select>
-                        <small id="error-level_id" class="error-text text-danger"></small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -70,9 +45,8 @@
             rules: {
                 nama_lengkap: { required: true, minlength: 3 },
                 email:        { required: true, email: true },
-                telepon:      { required: true, minlength: 9, maxlength: 15}, 
+                telepon:      { required: true, minlength: 9, maxlength: 15},
                 password:     { required: true, minlength: 6 },
-                level_id:     { required: true, number: true }
             },
             submitHandler: function (form) {
                 $.ajax({
@@ -96,7 +70,7 @@
                         Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
                     }
                 });
-                return false; 
+                return false;
             },
             errorElement: 'span',
             errorPlacement: function (error, element) {

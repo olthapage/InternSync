@@ -26,7 +26,6 @@
           <tr><th>Nama Lengkap</th> <td>{{ $admin->nama_lengkap }}</td></tr>
           <tr><th>Email</th>        <td>{{ $admin->email }}</td></tr>
           <tr><th>Telepon</th>        <td>{{ $admin->telepon }}</td></tr>
-          <tr><th>Level</th>        <td>{{ $admin->level->level_nama ?? '-' }}</td></tr>
           <tr><th>Dibuat pada</th>  <td>{{ $admin->created_at }}</td></tr>
           <tr><th>Diupdate pada</th><td>{{ $admin->updated_at }}</td></tr>
         </table>

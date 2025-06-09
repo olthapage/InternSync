@@ -51,9 +51,6 @@
                     url: "{{ url('admin/list') }}",
                     type: "POST",
                     dataType: "json",
-                    data: function(d) {
-                        d.level_id = $('#level_id').val();
-                    }
                 },
                 columns: [{
                         data: "DT_RowIndex",
@@ -108,10 +105,6 @@
                     },
                     processing: '<div class="d-flex justify-content-center"><i class="fas fa-spinner fa-pulse fa-2x fa-fw text-primary"></i><span class="ms-2">Memuat data...</span></div>'
                 },
-            });
-
-            $('#level_id').on('change', function() {
-                dataAdmin.ajax.reload();
             });
         });
     </script>

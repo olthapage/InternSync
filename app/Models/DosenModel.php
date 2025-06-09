@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\LevelModel;
 use App\Models\MahasiswaModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,7 +20,6 @@ class DosenModel extends Authenticatable
         'telepon',
         'nip',
         'role_dosen',
-        'level_id',
         'prodi_id'
     ];
 
@@ -29,10 +27,6 @@ class DosenModel extends Authenticatable
 
     protected $casts = ['password' => 'hashed'];
 
-    public function level()
-    {
-        return $this->belongsTo(LevelModel::class, 'level_id');
-    }
     public function prodi()
     {
         return $this->belongsTo(ProdiModel::class, 'prodi_id');

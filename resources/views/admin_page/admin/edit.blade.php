@@ -21,8 +21,8 @@
                 </div>
                 <div class="form-group">
                             <label class="form-label">Telepon <span class="text-danger">*</span></label>
-                            <input type="text" name="telepon" class="form-control" 
-                                value="{{ old('telepon', $admin->telepon) }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
+                            <input type="text" name="telepon" class="form-control"
+                                value="{{ old('telepon', $admin->telepon) }}" pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
                             <small id="error-telepon" class="error-text text-danger"></small>
                 </div>
                 <div class="form-group">
@@ -42,20 +42,6 @@
                         <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
                         <small id="error-foto" class="error-text form-text text-danger"></small>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Level</label>
-                    <select name="level_id" id="level_id" class="form-control" required>
-                        <option value="">-- Pilih Level --</option>
-                        @foreach ($level as $lvl)
-                            <option value="{{ $lvl->level_id }}"
-                                {{ $admin->level_id == $lvl->level_id ? 'selected' : '' }}>
-                                {{ $lvl->level_nama }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small id="error-level_id" class="error-text form-text text-danger"></small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -97,18 +83,13 @@
                 email: true
             },
             telepon: {
-                    required: true,
                     minlength: 9,
                     maxlength: 15,
-                    phoneID: true 
-            }, 
+                    phoneID: true
+            },
             password: {
                 minlength: 6
             },
-            level_id: {
-                required: true,
-                number: true
-            }
         },
         submitHandler: function(form) {
             let formData = new FormData(form);

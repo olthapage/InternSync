@@ -3,8 +3,10 @@
     {{-- ... (Bagian Welcome Banner dan Key Metrics Cards tidak berubah) ... --}}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card bg-gradient-primary shadow-primary border-radius-lg">
-                <div class="card-body p-3">
+            <div class="card bg-gradient-primary shadow-primary border-radius-lg mt-2"
+                style="background-image: url('{{ asset('images/slide1.jpg') }}'); background-size: cover; background-position: center;">
+                <span class="mask bg-gradient-dark opacity-6 border-radius-lg"></span>
+                <div class="card-body p-3 position-relative">
                     <div class="row">
                         <div class="col-lg-8">
                             <h4 class="text-white mb-0">Selamat datang, Admin!</h4>

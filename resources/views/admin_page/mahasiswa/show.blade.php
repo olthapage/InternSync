@@ -36,7 +36,6 @@
           </td></tr>
           <tr><th>Program Studi</th>   <td>{{ $mahasiswa->prodi->nama_prodi ?? '-' }}</td></tr>
           <tr><th>Dosen Pembimbing</th><td>{{ $mahasiswa->dosen->nama_lengkap ?? '-' }}</td></tr>
-          <tr><th>Level</th>           <td>{{ $mahasiswa->level->level_nama ?? '-' }}</td></tr>
           <tr><th>Dibuat pada</th>     <td>{{ $mahasiswa->created_at }}</td></tr>
           <tr><th>Diupdate pada</th>   <td>{{ $mahasiswa->updated_at }}</td></tr>
         </table>

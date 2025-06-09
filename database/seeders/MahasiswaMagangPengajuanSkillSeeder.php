@@ -55,7 +55,6 @@ class MahasiswaMagangPengajuanSkillSeeder extends Seeder
                 'status'            => 1,
                 'status_verifikasi' => "Pending",
                 'alasan'            => null,
-                'level_id'          => 2,           // MHS
                 'prodi_id'          => rand(1, 10), // Asumsi ada 10 prodi
                 'dpa_id'            => $dpaIds[array_rand($dpaIds)],
                 'dosen_id'          => null, // Dosen Pembimbing diisi nanti

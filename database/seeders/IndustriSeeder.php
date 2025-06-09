@@ -54,7 +54,6 @@ class IndustriSeeder extends Seeder
                 'email'                => $ind['email_prefix'] . ($index + 1) . '@example.com',
                 'telepon'              => $faker->unique()->numerify('081#########'),
                 'password'             => Hash::make('password123'),
-                'level_id'             => 4,
                 'created_at'           => $now,
             ];
         }
@@ -69,7 +68,6 @@ class IndustriSeeder extends Seeder
                 'email'                => Str::slug(explode(' ', $namaPerusahaan)[0], '') . $i . '@example.net', // Email unik berbasis nama
                 'telepon'              => $faker->unique()->numerify('08##########'),
                 'password'             => Hash::make('industriPass'),
-                'level_id'             => 4,            
                 'created_at'           => $now,
                 // 'updated_at'        => $now, // Jika ada
             ];

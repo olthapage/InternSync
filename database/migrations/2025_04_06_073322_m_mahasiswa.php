@@ -23,13 +23,10 @@ return new class extends Migration
             $table->enum('status_verifikasi', ['pending', 'valid', 'invalid'])->nullable();
             $table->text('alasan')->nullable(); // Alasan jika status_verifikasi invalid
             $table->decimal('ipk', 3, 2)->nullable();
-            $table->unsignedBigInteger('level_id');
             $table->unsignedBigInteger('prodi_id')->nullable();
             $table->unsignedBigInteger('dosen_id')->nullable();
             $table->unsignedBigInteger('dpa_id')->nullable()->comment('Foreign Key ke m_dosen untuk DPA');
             $table->timestamps();
-
-            $table->foreign('level_id')->references('level_id')->on('m_level_user')->onDelete('cascade');
 
             $table->foreign('prodi_id')->references('prodi_id')->on('tabel_prodi')->onDelete('cascade');
 
