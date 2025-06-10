@@ -113,7 +113,7 @@
     <div class="container-fluid py-4">
         <div class="row">
             {{-- Quick Links --}}
-            <div class="col-12 col-xl-4">
+            <div class="col-12 mb-4 mb-xl-4">
                 <div class="card h-100">
                     <div class="card-header pb-0 p-3">
                         <h6 class="mb-0">📥 Quick Links</h6>
@@ -141,15 +141,16 @@
             </div>
 
             {{-- Kolom kedua: Konten dinamis berdasarkan guard --}}
-            <div class="col-12 col-xl-4">
+            <div class="col-12 mb-4 mb-xl-0">
                 {{-- Tampilkan untuk Admin, Dosen, dan Industri --}}
                 @if (Auth::guard('web')->check() || Auth::guard('dosen')->check() || Auth::guard('industri')->check())
+                <div class="d-flex flex-column h-100">
                     <div class="card mb-3">
                         <div class="card-header pb-0 p-3">
                             <h6 class="mb-0">⚙ Status Sistem</h6>
                         </div>
                         <div class="card-body p-3 small">
-                            <ul class="list-unstyled">
+                            <ul class="list-unstyled mb-0">
                                 <li>Database: <span class="text-success">Online ✅</span></li>
                                 <li>Backup terakhir: <small class="text-muted">{{ now()->subHours(2)->format('H:i') }}
                                         WIB</small></li>
@@ -157,19 +158,15 @@
                         </div>
                     </div>
 
-                    <div class="card mb-3">
+                    <div class="card flex-grow-1">
                         <div class="card-header pb-0 p-3">
                             <h6 class="mb-0">📥 Unduhan Cepat</h6>
                         </div>
-                        <div class="card-body mb-3">
+                        <div class="card-body p-3">
                             <ul class="list-group">
                                 <a href="{{ asset('files/panduan_internsync.pdf') }}"
                                     class="list-group-item list-group-item-action" target="_blank">
                                     📄 Panduan InternSync
-                                </a>
-                                <a href="{{ asset('files/form_magang.docx') }}"
-                                    class="list-group-item list-group-item-action" target="_blank">
-                                    📝 Formulir Magang
                                 </a>
                                 <a href="{{ asset('files/sertifikat_sample.pdf') }}"
                                     class="list-group-item list-group-item-action" target="_blank">
