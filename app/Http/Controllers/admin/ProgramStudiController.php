@@ -25,9 +25,9 @@ class ProgramStudiController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('aksi', function ($item) {
-                    $btn  = '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+                    $btn  = '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/show') . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/edit') . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button> ';
+                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/delete') . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
                     return $btn;
                 })
                 ->rawColumns(['aksi'])

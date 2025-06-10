@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use Carbon\Carbon;
@@ -11,229 +12,196 @@ class MahasiswaMagangPengajuanSkillSeeder extends Seeder
 {
     public function run(): void
     {
-        // Di dalam method run():
         $now   = Carbon::now();
         $faker = Factory::create('id_ID');
 
-// --- PRASYARAT: Pastikan Seeder Dosen, Prodi, DetailSkill, Lowongan sudah berjalan ---
-        $this->command->info('Memastikan data master Dosen, Prodi, DetailSkill, Lowongan sudah ada...');
+        // =================================================================
+        // LANGKAH 1: PERSIAPAN DATA MASTER DAN MAPPING
+        // =================================================================
+        $this->command->info('Memuat data master Dosen, Prodi, Lowongan, dan Skill...');
 
-        $dpaIds = DB::table('m_dosen')->where('role_dosen', 'dpa')->pluck('dosen_id')->toArray();
-        if (empty($dpaIds)) {
-            $this->command->error('Tidak ada Dosen DPA. Hentikan seeder Mahasiswa karena semua butuh DPA.');
+        $dpaIds    = DB::table('m_dosen')->where('role_dosen', 'dpa')->pluck('dosen_id')->toArray();
+        $pembimbingIds = DB::table('m_dosen')->where('role_dosen', 'pembimbing')->pluck('dosen_id')->toArray();
+
+        // **PERUBAHAN DISINI**: Menyesuaikan nama tabel dan kolom prodi
+        $prodiMap  = DB::table('tabel_prodi')->pluck('prodi_id', 'nama_prodi')->toArray();
+
+        $skillMap  = DB::table('m_detail_skill')->pluck('skill_id', 'skill_nama')->toArray();
+
+        // Mapping Lowongan ke Skill yang dibutuhkan
+        $lowonganSkills = DB::table('lowongan_skill')->get(['lowongan_id', 'skill_id']);
+        $lowonganToSkillsMap = [];
+        foreach ($lowonganSkills as $ls) {
+            $lowonganToSkillsMap[$ls->lowongan_id][] = $ls->skill_id;
+        }
+
+        // Validasi data master
+        if (empty($dpaIds) || empty($prodiMap) || empty($skillMap) || empty($lowonganToSkillsMap)) {
+            $this->command->error('Satu atau lebih data master (DPA, Prodi, Skill, Lowongan) kosong. Seeder dihentikan.');
             return;
         }
 
-        $pembimbingIds = DB::table('m_dosen')->where('role_dosen', 'pembimbing')->pluck('dosen_id')->toArray();
-        if (empty($pembimbingIds)) {
-            $this->command->warn('Tidak ada Dosen Pembimbing. Mahasiswa magang tidak akan memiliki pembimbing dari seeder ini.');
-            // $pembimbingIds = DB::table('m_dosen')->pluck('dosen_id')->toArray(); // Fallback jika ingin tetap ada dosen_id
+        // =================================================================
+        // LANGKAH 2: DEFINISI PERSONA MAHASISWA DAN SKILL MEREKA
+        // =================================================================
+        // **PERUBAHAN DISINI**: Persona disesuaikan dengan 3 prodi yang tersedia.
+        $personas = [
+            'Backend Developer' => [
+                'prodi' => 'Teknik Informatika',
+                'skills' => ['PHP', 'Laravel', 'MySQL', 'RESTful API Design', 'Git & Version Control', 'Node.js', 'PostgreSQL'],
+            ],
+            'Frontend Developer' => [
+                'prodi' => 'Sistem Informasi',
+                'skills' => ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'React.js', 'Vue.js', 'Tailwind CSS', 'Figma'],
+            ],
+            'Mobile Developer' => [
+                'prodi' => 'Teknik Informatika', // Mobile dev lebih dekat ke computer science/teknik informatika
+                'skills' => ['Kotlin (Android)', 'Swift (iOS)', 'Flutter (Dart)', 'Java (Android)', 'RESTful API Design'],
+            ],
+            'Data Analyst' => [
+                'prodi' => 'Sistem Informasi', // Sistem Informasi sering mencakup analisis data bisnis
+                'skills' => ['Python (Data - Pandas, NumPy, SciPy)', 'SQL (Analitik Data)', 'Tableau', 'Power BI', 'ETL (Extract, Transform, Load)'],
+            ],
+            'UI/UX Designer' => [
+                'prodi' => 'Manajemen Informatika', // Prodi ini sering menjadi jembatan antara teknis dan pengguna
+                'skills' => ['Figma', 'Adobe XD', 'User Research', 'Wireframing & Prototyping', 'Komunikasi Teknis'],
+            ],
+            'DevOps Engineer' => [
+                'prodi' => 'Teknik Informatika',
+                'skills' => ['Docker', 'Kubernetes', 'Amazon Web Services (AWS)', 'CI/CD (Jenkins, GitLab CI)', 'Network Security'],
+            ],
+        ];
+
+        // Konversi nama skill di persona menjadi ID
+        foreach ($personas as $name => &$persona) {
+            $persona['prodi_id'] = $prodiMap[$persona['prodi']] ?? null;
+            $persona['skill_ids'] = collect($persona['skills'])->map(fn ($skillName) => $skillMap[$skillName] ?? null)->filter()->toArray();
         }
 
-        $lowonganIds = DB::table('m_detail_lowongan')->pluck('lowongan_id')->toArray();
-        if (empty($lowonganIds)) {
-            $this->command->warn('Tidak ada data lowongan. Pengajuan dan Magang tidak bisa dibuat.');
-        }
-
-        $skillIds = DB::table('m_detail_skill')->pluck('skill_id')->toArray();
-        if (empty($skillIds)) {
-            $this->command->warn('Tidak ada data detail skill. MahasiswaSkill tidak bisa dibuat.');
-        }
-
-// --- SEEDER UNTUK m_mahasiswa ---
-        $this->command->info('Memulai seeding tabel m_mahasiswa...');
-        $mahasiswaData   = [];
+        // =================================================================
+        // LANGKAH 3: BUAT DATA MAHASISWA BERDASARKAN PERSONA
+        // =================================================================
+        $this->command->info('Membuat data mahasiswa berdasarkan persona...');
+        $mahasiswaData = [];
+        $mahasiswaToPersonaMap = []; // Menyimpan persona untuk setiap mahasiswa_id
         $jumlahMahasiswa = 50;
+        $personaKeys = array_keys($personas);
+
+        // Map kode prodi untuk pembuatan NIM
+        $prodiKodeMap = DB::table('tabel_prodi')->pluck('kode_prodi', 'prodi_id')->toArray();
 
         for ($i = 1; $i <= $jumlahMahasiswa; $i++) {
+            $personaName = $faker->randomElement($personaKeys);
+            $currentPersona = $personas[$personaName];
+
+            if (!$currentPersona['prodi_id']) continue; // Lewati jika prodi untuk persona ini tidak ditemukan
+
+            $kodeProdi = $prodiKodeMap[$currentPersona['prodi_id']] ?? 'XX';
+            $nim = $kodeProdi . '.' . (2022 - rand(0, 2)) . '.' . $faker->unique()->numerify('#####');
+
             $mahasiswaData[] = [
-                'nama_lengkap'      => $faker->name,
-                'email'             => $faker->unique()->safeEmail,
-                'password'          => Hash::make('mahasiswa123'),
-                'nim'               => 'MHS' . str_pad($i, 4, '0', STR_PAD_LEFT) . $faker->numerify('##'),
-                'ipk'               => round($faker->randomFloat(2, 2.80, 4.00), 2),
-                'status'            => 1,
+                'nama_lengkap'    => $faker->name,
+                'email'           => $faker->unique()->safeEmail,
+                'password'        => Hash::make('mahasiswa123'),
+                'nim'             => $nim,
+                'ipk'             => round($faker->randomFloat(2, 3.20, 4.00), 2),
+                'status'          => 1,
                 'status_verifikasi' => "Pending",
-                'alasan'            => null,
-                'prodi_id'          => rand(1, 10), // Asumsi ada 10 prodi
-                'dpa_id'            => $dpaIds[array_rand($dpaIds)],
-                'dosen_id'          => null, // Dosen Pembimbing diisi nanti
-                'created_at'        => $now,
-                'updated_at'        => $now,
+                'prodi_id'        => $currentPersona['prodi_id'],
+                'dpa_id'          => $dpaIds[array_rand($dpaIds)],
+                'dosen_id'        => null,
+                'created_at'      => $now,
+                'updated_at'      => $now,
             ];
+            // Simpan sementara persona yang dipilih untuk mahasiswa ini
+            $mahasiswaToPersonaMap[$i] = $currentPersona;
         }
-// DB::table('m_mahasiswa')->delete(); // Hati-hati
+
         DB::table('m_mahasiswa')->insert($mahasiswaData);
         $this->command->info(count($mahasiswaData) . ' data mahasiswa telah ditambahkan.');
-
         $allCreatedMahasiswaIds = DB::table('m_mahasiswa')->pluck('mahasiswa_id')->toArray();
 
-// --- SEEDER UNTUK t_pengajuan DAN mahasiswa_magang ---
-        $this->command->info('Memulai seeding t_pengajuan dan mahasiswa_magang...');
-        $pengajuanDataToInsert           = [];
-        $magangDataToInsert              = [];
-        $mahasiswaSudahAdaPengajuanFinal = []; // Melacak mahasiswa yg sudah punya status akhir di pengajuan/magang
-        $mahasiswaIdsDenganMagangAktif   = []; // Untuk mahasiswa yang statusnya 'belum' atau 'sedang' di MagangModel
 
-        if (! empty($lowonganIds)) {
-                                                                                                                          // 1. Mahasiswa DITERIMA magang (dan masuk ke MagangModel)
-            $jumlahDiterima = ! empty($allCreatedMahasiswaIds) ? min(15, floor(count($allCreatedMahasiswaIds) * 0.3)) : 0; // 30% diterima
+        // =================================================================
+        // LANGKAH 4: BUAT DATA PENGAJUAN & MAGANG SECARA LOGIS
+        // =================================================================
+        $this->command->info('Membuat data pengajuan & magang secara logis...');
+        $pengajuanDataToInsert = [];
+        $magangDataToInsert = [];
+        $mahasiswaSkillDataToInsert = [];
+        $usedMahasiswaIds = [];
 
-            for ($i = 0; $i < $jumlahDiterima; $i++) {
-                if (empty($allCreatedMahasiswaIds) || empty($pembimbingIds)) {
-                    break;
+        foreach ($allCreatedMahasiswaIds as $index => $mahasiswaId) {
+            $mahasiswaIndexForPersona = $index + 1;
+            if (!isset($mahasiswaToPersonaMap[$mahasiswaIndexForPersona])) continue;
+
+            $persona = $mahasiswaToPersonaMap[$mahasiswaIndexForPersona];
+            $mahasiswaSkills = $persona['skill_ids'];
+
+            // Buat data skill untuk mahasiswa ini
+            foreach ($mahasiswaSkills as $skillId) {
+                 $mahasiswaSkillDataToInsert[] = [
+                    'mahasiswa_id'      => $mahasiswaId,
+                    'skill_id'          => $skillId,
+                    'level_kompetensi'  => $faker->randomElement(['Beginner', 'Intermediate']),
+                    'status_verifikasi' => 'Pending',
+                    'created_at'        => $now,
+                ];
+            }
+
+            // Tentukan lowongan yang cocok untuk mahasiswa ini
+            $cocokLowonganIds = [];
+            foreach ($lowonganToSkillsMap as $lowonganId => $requiredSkills) {
+                // Lowongan dianggap cocok jika minimal 50% skillnya dimiliki mahasiswa
+                $matchCount = count(array_intersect($mahasiswaSkills, $requiredSkills));
+                if ($matchCount > 0 && ($matchCount / count($requiredSkills)) >= 0.5) {
+                    $cocokLowonganIds[] = $lowonganId;
                 }
+            }
 
-                $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));
-                if (! $mahasiswaId) {$faker->unique(false);
-                    $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));if (! $mahasiswaId) {
-                        continue;
-                    }
-                }                      // Reset unique jika semua sudah terpakai
-                $faker->unique(false); // Penting untuk reset unique agar bisa dipakai di loop selanjutnya
+            if (empty($cocokLowonganIds)) continue; // Tidak ada lowongan cocok, mahasiswa ini tidak melamar
 
-                $lowonganId   = $lowonganIds[array_rand($lowonganIds)];
-                $statusMagang = $faker->randomElement(['belum', 'sedang']); // Status awal di MagangModel
+            // Tentukan status akhir pengajuan
+            $statusPengajuan = $faker->randomElement(['diterima', 'diterima', 'ditolak', 'belum', 'belum']);
 
-                $magangDataToInsert[] = [
+            if (in_array($mahasiswaId, $usedMahasiswaIds)) continue; // Pastikan 1 mahasiswa 1 pengajuan
+
+            $lowonganPilihanId = $faker->randomElement($cocokLowonganIds);
+
+            $pengajuanDataToInsert[] = [
+                'mahasiswa_id'    => $mahasiswaId,
+                'lowongan_id'     => $lowonganPilihanId,
+                'tanggal_mulai'   => Carbon::parse("2025-08-01")->toDateString(),
+                'tanggal_selesai' => Carbon::parse("2025-12-31")->toDateString(),
+                'status'          => $statusPengajuan,
+                'alasan_penolakan'=> $statusPengajuan === 'ditolak' ? 'Kompetensi atau IPK belum memenuhi syarat.' : null,
+                'created_at'      => $now,
+                'updated_at'      => $now,
+            ];
+
+            if ($statusPengajuan === 'diterima') {
+                 $magangDataToInsert[] = [
                     'mahasiswa_id' => $mahasiswaId,
-                    'lowongan_id'  => $lowonganId,
-                    'status'       => $statusMagang,
+                    'lowongan_id'  => $lowonganPilihanId,
+                    'status'       => $faker->randomElement(['belum', 'sedang']),
                     'evaluasi'     => null,
                     'created_at'   => $now,
                     'updated_at'   => $now,
                 ];
-                $mahasiswaIdsDenganMagangAktif[$mahasiswaId] = true; // Tandai mahasiswa ini aktif/akan magang
-
-                $pengajuanDataToInsert[] = [
-                    'mahasiswa_id'     => $mahasiswaId,
-                    'lowongan_id'      => $lowonganId,
-                    'tanggal_mulai'    => Carbon::parse($now)->addDays(rand(5, 20))->toDateString(),
-                    'tanggal_selesai'  => Carbon::parse($now)->addDays(rand(90, 110))->toDateString(),
-                    'status'           => 'diterima',
-                    'alasan_penolakan' => null,
-                    'created_at'       => $now,
-                    'updated_at'       => $now,
-                ];
-
-                // Update dosen_id (pembimbing) di m_mahasiswa
-                if (! empty($pembimbingIds)) {
-                    DB::table('m_mahasiswa')
-                        ->where('mahasiswa_id', $mahasiswaId)
-                        ->update(['dosen_id' => $pembimbingIds[array_rand($pembimbingIds)], 'updated_at' => $now]);
+                // Update dosen pembimbing & verifikasi skill untuk yg diterima
+                if (!empty($pembimbingIds)) {
+                     DB::table('m_mahasiswa')->where('mahasiswa_id', $mahasiswaId)->update(['dosen_id' => $faker->randomElement($pembimbingIds)]);
                 }
-                $mahasiswaSudahAdaPengajuanFinal[] = $mahasiswaId;
+                DB::table('mahasiswa_skill')->where('mahasiswa_id', $mahasiswaId)->update(['status_verifikasi' => 'Valid']);
             }
-
-                                                                                                                         // 2. Mahasiswa DITOLAK pengajuannya
-            $jumlahDitolak = ! empty($allCreatedMahasiswaIds) ? min(10, floor(count($allCreatedMahasiswaIds) * 0.2)) : 0; // 20% ditolak
-            for ($i = 0; $i < $jumlahDitolak; $i++) {
-                if (empty($allCreatedMahasiswaIds)) {
-                    break;
-                }
-
-                $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));
-                if (! $mahasiswaId) {$faker->unique(false);
-                    $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));if (! $mahasiswaId) {
-                        continue;
-                    }
-                }
-                $faker->unique(false);
-
-                $lowonganId              = $lowonganIds[array_rand($lowonganIds)];
-                $pengajuanDataToInsert[] = [
-                    'mahasiswa_id'     => $mahasiswaId,
-                    'lowongan_id'      => $lowonganId,
-                    'tanggal_mulai'    => Carbon::parse($now)->addDays(rand(5, 20))->toDateString(),
-                    'tanggal_selesai'  => Carbon::parse($now)->addDays(rand(90, 110))->toDateString(),
-                    'status'           => 'ditolak',
-                    'alasan_penolakan' => $faker->boolean(70) ? $faker->sentence(8) : null, // 70% ada alasan
-                    'created_at'       => $now,
-                    'updated_at'       => $now,
-                ];
-                $mahasiswaSudahAdaPengajuanFinal[] = $mahasiswaId;
-            }
-
-                                                                                                                       // 3. Mahasiswa dengan pengajuan 'BELUM' (pending)
-            $jumlahBelum = ! empty($allCreatedMahasiswaIds) ? min(15, floor(count($allCreatedMahasiswaIds) * 0.3)) : 0; // 30% pending
-            for ($i = 0; $i < $jumlahBelum; $i++) {
-                if (empty($allCreatedMahasiswaIds)) {
-                    break;
-                }
-
-                $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));
-                if (! $mahasiswaId) {$faker->unique(false);
-                    $mahasiswaId = $faker->unique(true)->randomElement(array_diff($allCreatedMahasiswaIds, $mahasiswaSudahAdaPengajuanFinal));if (! $mahasiswaId) {
-                        continue;
-                    }
-                }
-                $faker->unique(false);
-
-                $lowonganId              = $lowonganIds[array_rand($lowonganIds)];
-                $pengajuanDataToInsert[] = [
-                    'mahasiswa_id'     => $mahasiswaId,
-                    'lowongan_id'      => $lowonganId,
-                    'tanggal_mulai'    => Carbon::parse($now)->addDays(rand(5, 20))->toDateString(),
-                    'tanggal_selesai'  => Carbon::parse($now)->addDays(rand(90, 110))->toDateString(),
-                    'status'           => 'belum',
-                    'alasan_penolakan' => null,
-                    'created_at'       => $now,
-                    'updated_at'       => $now,
-                ];
-                $mahasiswaSudahAdaPengajuanFinal[] = $mahasiswaId; // Masukkan juga yang 'belum' agar tidak ada pengajuan ganda
-            }
-        } // End if !empty($lowonganIds)
-
-// Insert data magang dan pengajuan
-        if (! empty($magangDataToInsert)) {
-            DB::table('mahasiswa_magang')->insert($magangDataToInsert);
-            $this->command->info(count($magangDataToInsert) . ' data magang mahasiswa telah ditambahkan.');
-        }
-        if (! empty($pengajuanDataToInsert)) {
-            DB::table('t_pengajuan')->insert($pengajuanDataToInsert);
-            $this->command->info(count($pengajuanDataToInsert) . ' data pengajuan telah ditambahkan.');
+            $usedMahasiswaIds[] = $mahasiswaId;
         }
 
-// --- SEEDER UNTUK mahasiswa_skill ---
-        $this->command->info('Memulai seeding tabel mahasiswa_skill...');
-        $mahasiswaSkillDataToInsert = [];
-        $possibleLevels             = ['Beginner', 'Intermediate', 'Expert'];
-        $verificationStatusesRandom = ['Pending', 'Pending', 'Valid', 'Invalid']; // Distribusi untuk yang tidak magang
+        // Insert semua data yang sudah disiapkan
+        if (!empty($mahasiswaSkillDataToInsert)) DB::table('mahasiswa_skill')->insert($mahasiswaSkillDataToInsert);
+        if (!empty($pengajuanDataToInsert)) DB::table('t_pengajuan')->insert($pengajuanDataToInsert);
+        if (!empty($magangDataToInsert)) DB::table('mahasiswa_magang')->insert($magangDataToInsert);
 
-        if (! empty($skillIds)) { // Hanya jalan jika ada master skill
-            foreach ($allCreatedMahasiswaIds as $mahasiswaId) {
-                $jumlahSkillPerMahasiswa     = rand(2, min(6, count($skillIds)));
-                $assignedSkillIdsThisStudent = $faker->randomElements($skillIds, $jumlahSkillPerMahasiswa, false);
-
-                foreach ($assignedSkillIdsThisStudent as $skillId) {
-                    $statusVerifikasiFinal = 'Pending'; // Default
-                                                        // Jika mahasiswa ini termasuk yang magang aktif/akan datang
-                    if (isset($mahasiswaIdsDenganMagangAktif[$mahasiswaId])) {
-                        $statusVerifikasiFinal = 'Valid'; // Semua skillnya valid
-                    } else {
-                        $statusVerifikasiFinal = $faker->randomElement($verificationStatusesRandom);
-                    }
-
-                    $mahasiswaSkillDataToInsert[] = [
-                        'mahasiswa_id'      => $mahasiswaId,
-                        'skill_id'          => $skillId,
-                        'level_kompetensi'  => $faker->randomElement($possibleLevels),
-                        'status_verifikasi' => $statusVerifikasiFinal,
-                        'created_at'        => $now,
-                        // 'updated_at'      => $now, // Jika tabel mahasiswa_skill Anda punya kolom ini
-                    ];
-                }
-            }
-        }
-
-        if (! empty($mahasiswaSkillDataToInsert)) {
-            // DB::table('mahasiswa_skill')->delete(); // Hati-hati
-            foreach (array_chunk($mahasiswaSkillDataToInsert, 100) as $chunk) {
-                DB::table('mahasiswa_skill')->insert($chunk);
-            }
-            $this->command->info(count($mahasiswaSkillDataToInsert) . ' data skill mahasiswa telah ditambahkan.');
-        } else {
-            $this->command->warn('Tidak ada data skill mahasiswa yang di-generate (mungkin karena tidak ada Mahasiswa atau Detail Skill).');
-        }
+        $this->command->info(count($pengajuanDataToInsert) . ' data pengajuan, ' . count($magangDataToInsert) . ' data magang, dan ' . count($mahasiswaSkillDataToInsert) . ' data skill mahasiswa telah ditambahkan.');
     }
 }

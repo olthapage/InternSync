@@ -3,7 +3,7 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
-            <h2 class="mb-4">Log Harian Industri</h2>
+            <h2 class="mb-4">Log Harian Mahasiswa</h2>
 
             <div class="row mb-4">
                 <div class="col-md-3">

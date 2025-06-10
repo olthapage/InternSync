@@ -2,8 +2,6 @@
 namespace Database\Seeders;
 
 use Carbon\Carbon;
-use Faker\Factory;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Database\Seeders\KotaSeeder;
 use Database\Seeders\SkillSeeder;
@@ -12,6 +10,8 @@ use Database\Seeders\IndustriSeeder;
 use Illuminate\Support\Facades\Hash;
 use Database\Seeders\FasilitasSeeder;
 use Database\Seeders\TipeKerjaSeeder;
+use Database\Seeders\LowonganSkillSeeder;
+use Database\Seeders\DetailLowonganSeeder;
 use Database\Seeders\PreferensiLokasiSeeder;
 use Database\Seeders\MahasiswaMagangPengajuanSkillSeeder;
 
@@ -39,20 +39,13 @@ class DatabaseSeeder extends Seeder
                 'nama_prodi' => 'Manajemen Informatika',
             ],
         ];
-        for ($i = 4; $i <= 10; $i++) {
-            $prodiData[] = [
-                'prodi_id'   => $i,
-                'kode_prodi' => 'P' . strtoupper(Str::random(2)) . $i,
-                'nama_prodi' => 'Prodi Contoh ' . $i,
-            ];
-        }
         DB::table('tabel_prodi')->insert($prodiData);
 
         $dosenData = [
             [
                 'nama_lengkap' => 'Dr. Budi Santoso',
                 'email'        => 'budi.dpa@example.com', // Email diubah agar unik & menandakan DPA
-                'password'     => Hash::make('password123'),
+                'password'     => Hash::make('12345678'),
                 'nip'          => '19800101123456',
                 'role_dosen'   => 'dpa', // <-- DITAMBAHKAN: Peran Dosen
                 'prodi_id'     => 1,
@@ -62,7 +55,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nama_lengkap' => 'Dr. Siti Aminah',
                 'email'        => 'siti.pembimbing@example.com', // Email diubah
-                'password'     => Hash::make('password123'),
+                'password'     => Hash::make('12345678'),
                 'nip'          => '19750506123456',
                 'role_dosen'   => 'pembimbing', // <-- DITAMBAHKAN: Peran Dosen
                 'prodi_id'     => 2,
@@ -72,7 +65,7 @@ class DatabaseSeeder extends Seeder
             [ // Tambahkan satu DPA lagi secara eksplisit
                 'nama_lengkap' => 'Prof. Dr. Ahmad Dahlan',
                 'email'        => 'ahmad.dpa@example.com',
-                'password'     => Hash::make('password123'),
+                'password'     => Hash::make('12345678'),
                 'nip'          => '197803152005011001',
                 'role_dosen'   => 'dpa',
                 'prodi_id'     => 3, // Contoh prodi
@@ -82,63 +75,16 @@ class DatabaseSeeder extends Seeder
             [ // Tambahkan satu pembimbing lagi secara eksplisit
                 'nama_lengkap' => 'Dr. Indah Permata',
                 'email'        => 'indah.pembimbing@example.com',
-                'password'     => Hash::make('password123'),
+                'password'     => Hash::make('12345678'),
                 'nip'          => '198207202008012002',
                 'role_dosen'   => 'pembimbing',
-                'prodi_id'     => 4, // Contoh prodi
+                'prodi_id'     => 3, // Contoh prodi
                 'created_at'   => $now,
                 'updated_at'   => $now,
             ],
         ];
 
-// Membuat sisa dosen (6 dosen lagi agar total 10)
-// Kita akan buat 2 DPA lagi dan 4 Pembimbing dari loop ini
-        for ($i = 5; $i <= 10; $i++) {
-            $role         = ($i <= 6) ? 'dpa' : 'pembimbing'; // Dosen ke-5 & ke-6 sebagai DPA, sisanya pembimbing
-            $uniqueSuffix = Str::lower(Str::random(3));       // Untuk membuat email lebih unik
-
-            $dosenData[] = [
-                'nama_lengkap' => 'Dr. Dosen ' . Str::ucfirst(Str::random(5)) . ' ' . Str::ucfirst(Str::random(4)),
-                'email'        => 'dosen' . $i . $uniqueSuffix . '@example.com',
-                'password'     => Hash::make('password123'),
-                'nip'          => '19' . rand(70, 90) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT) . rand(100000, 999999), // Sedikit perbaikan pada NIP generator
-                'role_dosen'   => $role,                                                                                                                                                                                                                                                                  // DSN
-                'prodi_id'     => rand(1, 10),
-                'created_at'   => $now,
-                'updated_at'   => $now,
-            ];
-        }
-
         DB::table('m_dosen')->insert($dosenData);
-
-        $dpaIds = DB::table('m_dosen')->where('role_dosen', 'dpa')->pluck('dosen_id')->toArray();
-
-// 2. Ambil ID Dosen yang berperan sebagai Pembimbing
-        $pembimbingIds = DB::table('m_dosen')->where('role_dosen', 'pembimbing')->pluck('dosen_id')->toArray();
-
-// Fallback jika tidak ada pembimbing spesifik, gunakan semua dosen sebagai potensi pembimbing
-        if (empty($pembimbingIds)) {
-            $pembimbingIds = DB::table('m_dosen')->pluck('dosen_id')->toArray();
-        }
-
-// Validasi penting: Pastikan ada DPA untuk di-assign
-        if (empty($dpaIds)) {
-            // Anda bisa throw exception atau cukup tampilkan warning jika ini hanya untuk seeder
-            $this->command->warn('Tidak ada Dosen dengan peran DPA ditemukan. Kolom dpa_id untuk mahasiswa tidak akan diisi.');
-            // Jika dpa_id wajib, Anda mungkin ingin menghentikan seeder atau membuat DPA dummy dulu.
-            // Untuk contoh ini, kita biarkan dpa_id bisa null jika tidak ada DPA.
-            // Namun, permintaan Anda "mereka semua punya dpa", jadi kita idealnya pastikan $dpaIds tidak kosong.
-            // Jika $dpaIds kosong, kode di bawah akan error saat array_rand.
-            // Solusi sementara: jika tidak ada DPA, set dpa_id ke null.
-            // Atau, pastikan DosenSeeder Anda dijalankan lebih dulu dan menghasilkan DPA.
-        }
-
-// Pastikan $pembimbingIds tidak kosong untuk array_rand
-        if (empty($pembimbingIds)) {
-            $this->command->warn('Tidak ada Dosen Pembimbing ditemukan (atau Dosen secara umum). Kolom dosen_id untuk mahasiswa akan null.');
-            $pembimbingIds = [null]; // Agar array_rand tidak error, tapi hasilnya akan null
-        }
-
 
         // Mahasiswa IDs akan menjadi 1 s/d 10 secara auto-increment
 
@@ -152,67 +98,36 @@ class DatabaseSeeder extends Seeder
                 'email'        => 'admin@example.com',
                 'password'     => Hash::make('password'),
                 'created_at'   => $now,
-            ]
+            ],
         ];
         DB::table('m_user')->insert($userData);
 
         $this->call(SkillSeeder::class);
-        // m_kategori_industri (Target: 10 data)
+
         $kategoriIndustriData = [
-            ['kategori_industri_kode' => 'IND1', 'kategori_nama' => 'Teknologi Informasi', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND1', 'kategori_nama' => 'Teknologi Informasi dan Komunikasi', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND2', 'kategori_nama' => 'Keuangan dan Asuransi', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND3', 'kategori_nama' => 'Kesehatan dan Farmasi', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND4', 'kategori_nama' => 'Manufaktur dan Pengolahan', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND5', 'kategori_nama' => 'Perdagangan dan Ritel', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND6', 'kategori_nama' => 'Konstruksi dan Properti', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND7', 'kategori_nama' => 'Pariwisata dan Perhotelan', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND8', 'kategori_nama' => 'Transportasi dan Logistik', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND9', 'kategori_nama' => 'Pendidikan', 'created_at' => $now],
+            ['kategori_industri_kode' => 'IND10', 'kategori_nama' => 'Energi dan Pertambangan', 'created_at' => $now],
         ];
-        for ($i = 2; $i <= 10; $i++) {
-            $kategoriIndustriData[] = ['kategori_industri_kode' => 'IND' . $i, 'kategori_nama' => 'Kategori Industri ' . $i, 'created_at' => $now];
-        }
+
         DB::table('m_kategori_industri')->insert($kategoriIndustriData);
 
         $this->call(IndustriSeeder::class);
 
-        // Asumsi industri_id merujuk pada m_industri (ID 1-10)
-        $detailLowonganData = [
-            [
-                'judul_lowongan'    => 'Magang Web Developer',
-                'deskripsi'         => 'Mengembangkan aplikasi Laravel.',
-                'industri_id'       => 1,
-                'tanggal_mulai'     => '2025-08-01',
-                'tanggal_selesai'   => '2025-12-31',
-                'kategori_skill_id' => 1,
-                'slot'              => 3,
-                'created_at'        => $now,
-            ],
-        ];
-        for ($i = 2; $i <= 10; $i++) {
-            $detailLowonganData[] = [
-                'judul_lowongan'    => 'Lowongan Contoh ' . $i,
-                'deskripsi'         => 'Deskripsi untuk lowongan contoh ' . $i . '. Mencari kandidat berbakat.',
-                'industri_id'       => rand(1, 10),
-                'tanggal_mulai'     => '2025-08-01',
-                'tanggal_selesai'   => '2025-12-31',
-                'kategori_skill_id' => rand(1, 10),
-                'slot'              => rand(5, 10),
-                'created_at'        => $now,
-            ];
-        }
-        DB::table('m_detail_lowongan')->insert($detailLowonganData);
+        $this->call(DetailLowonganSeeder::class);
         // Detail Lowongan IDs (m_detail_lowongan_id) akan menjadi 1 s/d 10 secara auto-increment
 
         // lowongan_skill (Target: 10 data)
         // Asumsi lowongan_id merujuk pada m_detail_lowongan (m_detail_lowongan_id, ID 1-10)
         // Asumsi skill_id merujuk pada m_detail_skill (m_detail_skill_id, ID 1-10)
-        $lowonganSkillData = [
-            ['lowongan_id' => 1, 'skill_id' => 1, 'created_at' => $now], // Lowongan Magang Web Dev, Skill Laravel
-        ];
-        $usedLowonganSkill = ['1-1' => true];
-        for ($i = 0; $i < 9; $i++) { // Need 9 more
-            do {
-                $lowonganId = rand(1, 10); // Merujuk ke m_detail_lowongan_id
-                $skillId    = rand(1, 10); // Merujuk ke m_detail_skill_id
-                $combo      = $lowonganId . '-' . $skillId;
-            } while (isset($usedLowonganSkill[$combo]));
-            $lowonganSkillData[]       = ['lowongan_id' => $lowonganId, 'skill_id' => $skillId, 'created_at' => $now];
-            $usedLowonganSkill[$combo] = true;
-        }
-        DB::table('lowongan_skill')->insert($lowonganSkillData);
+        $this->call(LowonganSkillSeeder::class);
 
         $this->call(MahasiswaMagangPengajuanSkillSeeder::class);
 
@@ -284,7 +199,6 @@ class DatabaseSeeder extends Seeder
 //         }
 
         // $this->command->info(count($mahasiswaSkillData) . ' data relasi skill mahasiswa telah ditambahkan ke tabel mahasiswa_skill.');
-
 
         // Industri IDs akan menjadi 1 s/d 10 secara auto-increment
 

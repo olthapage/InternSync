@@ -50,23 +50,6 @@
     <link rel="icon" type="image/png" href="{{ asset('softTemplate/assets/img/LogoInternSync.png') }}">
 
     <style>
-        .primary {
-            background-color: #fafafa;
-        }
-
-        .bg-primary {
-            background-color: #fafafa;
-        }
-
-        .btn-primary {
-            background-color: #fafafa;
-            color: #0f0f0f;
-        }
-
-        .bg-light {
-            background-color: #fafafa;
-        }
-
         /* --- Global DataTables Pagination Styling --- */
 
         /* Wrapper umum DataTables untuk pagination */

@@ -25,13 +25,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- DataTables akan mengisi ini --}}
+
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    {{-- Modal container --}}
+
     <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-hidden="true"></div>
 @endsection
@@ -44,11 +44,6 @@
                 '<div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-body text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2">Memuat konten...</p></div></div></div>'
                 ).modal('show');
             $('#myModal').load(url, function() {
-                // Modal sudah ditampilkan oleh .modal('show') di atas.
-                // Jika Anda menggunakan instance Bootstrap 5 manual:
-                // const modalElement = document.getElementById('myModal');
-                // const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-                // modal.show();
             });
         }
 
@@ -64,7 +59,8 @@
             dataTableInstance = $('#table_mahasiswa').DataTable({ // Simpan instance ke variabel yang benar
                 processing: true, // Tampilkan pesan processing
                 serverSide: true,
-                responsive: true,
+                responsive: false,
+                scrollX: true, // Agar tabel bisa di-scroll horizontal
                 ajax: {
                     url: "{{ route('mahasiswa.list') }}", // Pastikan nama route ini benar
                     type: "POST", // Atau GET jika method list Anda GET

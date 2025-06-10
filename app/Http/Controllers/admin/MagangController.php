@@ -47,9 +47,9 @@ class MagangController extends Controller
                 return $row->status ?? '-';
             })
             ->addColumn('aksi', function ($row) {
-                $btn = '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/delete') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+                $btn = '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/show') . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/edit') . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/magang/' . $row->mahasiswa_magang_id . '/delete') . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
                 return $btn;
             })
 

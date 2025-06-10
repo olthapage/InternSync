@@ -7,6 +7,7 @@ use App\Models\DetailSkillModel;
 use App\Models\KategoriSkillModel;
 use App\Models\MahasiswaSkillModel;
 use App\Models\PortofolioMahasiswa;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -81,6 +82,7 @@ class PortofolioController extends Controller
     public function storeSkill(Request $request)
     {
         $mahasiswa = Auth::user();
+
         $validator = Validator::make($request->all(), [
             'skill_id'         => 'required|exists:m_detail_skill,skill_id',
             'level_kompetensi' => 'required|string|in:Beginner,Intermediate,Expert',

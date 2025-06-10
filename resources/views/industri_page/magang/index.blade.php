@@ -32,10 +32,7 @@
 <div class="card card-outline card-primary shadow-sm">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h3 class="mb-0 text-dark-blue">
-            <i class="fas fa-tasks me-2"></i> Manajemen Mahasiswa Magang
-            @if(isset($userIndustri) && $userIndustri->industri_nama)
-                <span class="text-muted">| {{ $userIndustri->industri_nama }}</span>
-            @endif
+            Manajemen Mahasiswa Magang
         </h3>
         {{-- Tombol Tambah Aksi Global (jika ada) --}}
         {{-- <a href="#" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i> Tambah Penilaian Global</a> --}}

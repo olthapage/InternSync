@@ -26,9 +26,9 @@ class AdminController extends Controller
         return DataTables::of($users)
             ->addIndexColumn()
             ->addColumn('aksi', function ($u) {
-                $btn  = '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/show") . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/edit") . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/delete") . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+                $btn  = '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/show") . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/edit") . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("/admin/{$u->user_id}/delete") . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
                 return $btn;
             })
             ->rawColumns(['aksi'])

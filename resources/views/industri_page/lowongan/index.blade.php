@@ -3,7 +3,7 @@
 @section('content')
 <div class="card border-dark shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center bg-white">
-        <h3 class="mb-0">Daftar Lowongan - {{ $industri->industri_nama }}</h3>
+        <h3 class="mb-0">Manajemen Lowongan</h3>
         <a href="{{ route('industri.lowongan.create') }}" class="btn btn-outline-dark btn-sm">
             <i class="fas fa-plus mr-1"></i> Tambah Lowongan
         </a>

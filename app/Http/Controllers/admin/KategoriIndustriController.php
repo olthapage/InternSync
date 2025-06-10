@@ -23,11 +23,11 @@ class KategoriIndustriController extends Controller
         return DataTables::of($kategori)
             ->addIndexColumn()
             ->addColumn('aksi', function ($row) {
-                $btn = '<a href="' . url('/kategori-industri/' . $row->kategori_industri_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn = '<a href="' . url('/kategori-industri/' . $row->kategori_industri_id . '/edit') . '" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a> ';
                 $btn .= '
                     <form action="' . url('/kategori-industri/' . $row->kategori_industri_id . '/delete') . '" method="POST" style="display:inline;">
                         ' . csrf_field() . method_field('DELETE') . '
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')">Hapus</button>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\')"><i class="fas fa-trash"></i></button>
                     </form>';
                 return $btn;
             })

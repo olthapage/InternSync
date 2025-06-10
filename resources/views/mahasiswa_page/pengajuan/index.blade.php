@@ -85,7 +85,7 @@
                                         <div class="d-flex justify-content-between mt-3">
                                             <button
                                                 onclick="modalAction('{{ url('/mahasiswa/pengajuan/' . $item->pengajuan_id . '/show') }}')"
-                                                class="btn btn-primary btn-sm mb-0 px-3 w-100 text-lg">
+                                                class="btn btn-white btn-sm mb-0 px-3 w-100 text-lg">
                                                 Lihat Detail
                                             </button>
                                         </div>
@@ -99,7 +99,7 @@
         </div>
     </div>
     <div class="modal fade animate shake" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl"> {{-- Anda bisa ganti modal-xl dengan modal-lg atau hapus untuk ukuran default --}}
+  <div class="modal-dialog modal-md"> {{-- Anda bisa ganti modal-xl dengan modal-lg atau hapus untuk ukuran default --}}
     <div class="modal-content">
       {{-- Konten awal spinner, akan diganti oleh AJAX --}}
       <div class="modal-header"><h5 class="modal-title" id="myModalLabel">Loading...</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>

@@ -340,7 +340,7 @@ class ManajemenMagangController extends Controller
             // Method decrement() aman dan tidak akan membuat angka menjadi minus.
             $magang->lowongan->industri->decrement('alumni_count');
         }
-        
+
         // =============================================================
         // Akhir dari blok sinkronisasi
         // =============================================================
@@ -458,5 +458,51 @@ class ManajemenMagangController extends Controller
 
         Log::info("LogHarianDetail_id: {$logHarianDetail_id} rejected successfully by Industri ID: {$industriIdAuth}");
         return redirect()->back()->with('success', 'Log harian berhasil ditolak.');
+    }
+    public function submitEvaluasi(Request $request, $mahasiswa_magang_id)
+    {
+        // 1. Validasi Input
+        $validator = Validator::make($request->all(), [
+            'feedback_industri' => 'required|string|min:20',
+        ], [
+            'feedback_industri.required' => 'Kolom evaluasi tidak boleh kosong.',
+            'feedback_industri.min'      => 'Evaluasi harus berisi minimal 20 karakter.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('evaluasi_error', 'Gagal menyimpan evaluasi. Mohon periksa kembali input Anda.');
+        }
+
+        // 2. Otorisasi dan Cari Data Magang
+        $userIndustri = Auth::user();
+        $industriId   = $userIndustri->industri_id ?? $userIndustri->getKey();
+
+        $magang = MagangModel::where('mahasiswa_magang_id', $mahasiswa_magang_id)
+            ->whereHas('lowongan', function ($q) use ($industriId) {
+                $q->where('industri_id', $industriId);
+            })
+            ->firstOrFail();
+
+        if (! empty($magang->feedback_industri)) {
+            return redirect()->back()
+                ->with('evaluasi_error', 'Evaluasi untuk mahasiswa ini sudah diisi dan tidak dapat diubah lagi.');
+        }
+
+        // 3. Pastikan status magang sudah 'selesai'
+        if (strtolower($magang->status) !== 'selesai') {
+            return redirect()->back()
+                ->with('evaluasi_error', 'Anda hanya dapat mengisi evaluasi jika status magang sudah "Selesai".');
+        }
+
+        // 4. Simpan data evaluasi
+        $magang->feedback_industri = $request->feedback_industri;
+        $magang->save();
+
+        // 5. Redirect dengan pesan sukses
+        return redirect()->route('industri.magang.action', $mahasiswa_magang_id)
+            ->with('evaluasi_success', 'Evaluasi dari industri berhasil disimpan.');
     }
 }
