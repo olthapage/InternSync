@@ -32,13 +32,9 @@
 @endpush
 
 @section('content')
-    <div class="card card-outline card-primary">
+    <div class="card card-outline card-info">
         <div class="card-body text-sm">
             <h2 class="mb-4">Ajukan Magang Baru</h2>
-
-            <div class="mb-3">
-                <a href="#" class="btn btn-sm btn-outline-info"><i class="fas fa-lightbulb me-1"></i> Lihat Hasil Rekomendasi SPK!</a>
-            </div>
 
             <form action="{{ route('mahasiswa.pengajuan.store') }}" method="POST" id="pengajuanMagangForm">
                 @csrf
@@ -100,11 +96,11 @@
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between mt-auto">
-                                        <button type="button" class="btn btn-sm btn-primary mb-0 w-48"
+                                        <button type="button" class="btn btn-sm btn-dark mb-0 w-48"
                                             onclick="selectLowongan('{{ $lowongan->lowongan_id }}', '{{ htmlspecialchars($lowongan->judul_lowongan, ENT_QUOTES) }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_mulai)->format('Y-m-d') }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_selesai)->format('Y-m-d') }}')">
                                             <i class="fas fa-check me-1"></i> Pilih
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-info mb-0 w-48"
+                                        <button type="button" class="btn btn-sm btn-white mb-0 w-48"
                                             onclick="showDetail('{{ $lowongan->lowongan_id }}')">
                                             <i class="fas fa-eye me-1"></i> Detail
                                         </button>
@@ -120,13 +116,13 @@
                 </div>
 
                 <div id="view-all-container" class="text-center mb-4" style="display: {{ count($lowonganList) > 4 ? 'block' : 'none' }};">
-                    <button type="button" id="view-all-btn" class="btn btn-outline-primary" onclick="toggleViewAll()">
+                    <button type="button" id="view-all-btn" class="btn btn-outline-info" onclick="toggleViewAll()">
                         <i class="fas fa-th-list me-1"></i> Lihat Semua Lowongan
                     </button>
                 </div>
 
                 <input type="hidden" id="lowongan_id" name="lowongan_id" value="{{ old('lowongan_id') }}">
-                <div id="selected-lowongan" class="mb-3 p-3 border rounded bg-light" style="display: {{ old('lowongan_id') ? 'block' : 'none' }};">
+                <div id="selected-lowongan" class="mb-3 p-3 border rounded" style="display: {{ old('lowongan_id') ? 'block' : 'none' }};">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <strong>Lowongan Terpilih:</strong>
@@ -183,8 +179,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" id="pilihDariModalBtn">Pilih Lowongan Ini</button>
+                    <button type="button" class="btn btn-white" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-dark" id="pilihDariModalBtn">Pilih Lowongan Ini</button>
                 </div>
             </div>
         </div>

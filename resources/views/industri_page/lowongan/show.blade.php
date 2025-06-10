@@ -251,9 +251,6 @@
         </div>
     </div>
 
-    {{-- ================================================================== --}}
-    {{-- MODIFIKASI DIMULAI DISINI: MODAL UNTUK EDIT DAN DELETE --}}
-    {{-- ================================================================== --}}
     @if ($lowongan->pendaftar->isEmpty())
         <div class="modal fade" id="editLowonganModal" tabindex="-1" aria-labelledby="editLowonganModalLabel"
             aria-hidden="true">
@@ -301,9 +298,6 @@
             </div>
         </div>
     @endif
-    {{-- ================================================================== --}}
-    {{-- MODIFIKASI SELESAI --}}
-    {{-- ================================================================== --}}
 
 @endsection
 
@@ -350,6 +344,7 @@
             });
 
             // Event delegation untuk form submit di dalam modal (karena form di-load AJAX)
+            // KODE BARU YANG DIPERBAIKI
             $(document).on('submit', '#formSpkKriteria-' + lowonganId, function(e) {
                 e.preventDefault(); // Mencegah submit form standar
 
@@ -357,8 +352,10 @@
                 var formData = form.serialize();
                 var resultArea = $('#spkResultArea-' + lowonganId);
                 var submitButton = form.find('button[type="submit"]');
-                var originalButtonText = submitButton.html();
+                var originalButtonText =
+                    ' <i class="fas fa-calculator me-1"></i> Hitung Ulang Rekomendasi'; // Simpan teks baru
 
+                // Tampilkan spinner
                 resultArea.html(
                     '<div class="text-center mt-3"><div class="spinner-border text-success" role="status"></div><p class="mt-2 mb-0">Menghitung rekomendasi...</p></div>'
                 );
@@ -367,97 +364,85 @@
                 ).prop('disabled', true);
 
                 $.ajax({
-                    url: '{{ route('industri.lowongan.spk.calculate', ['lowongan' => $lowongan->lowongan_id]) }}',
+                    url: form.attr('action'), // Ambil URL dari atribut action form
                     type: 'POST',
                     data: formData,
                     success: function(response) {
-                        // Tutup modal
-                        $('#editLowonganModal').modal('hide');
+                        // 1. Tampilkan response (view hasil) ke dalam div resultArea
+                        resultArea.html(response);
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: response.success, // Ambil pesan dari controller
-                            timer: 2000, // Notifikasi hilang setelah 2 detik
-                            showConfirmButton: false
-                        }).then(() => {
-                            // Reload halaman setelah notifikasi ditutup
-                            location.reload();
-                        });
+                        // 2. Kembalikan tombol ke keadaan semula dengan teks baru
+                        submitButton.html(originalButtonText).prop('disabled', false);
+
+                        // 3. (Opsional) Scroll ke area hasil agar langsung terlihat
+                        $(modalBodyId).animate({
+                            scrollTop: resultArea.offset().top - $(modalBodyId).offset()
+                                .top + $(modalBodyId).scrollTop()
+                        }, 500);
                     },
                     error: function(xhr) {
-                        var errorMessage = "Terjadi kesalahan.";
+                        // ... (logika error Anda sudah cukup baik)
+                        var errorMessage = "Gagal menghitung rekomendasi.";
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMessage = xhr.responseJSON.message;
                             if (xhr.responseJSON.errors) {
-                                let errors = xhr.responseJSON.errors;
-                                errorMessage += "<ul class='text-start ps-3 mt-2 mb-0'>";
-                                for (let key in errors) {
-                                    errors[key].forEach(function(msg) {
-                                        errorMessage += "<li>" + msg + "</li>";
-                                    });
-                                }
-                                errorMessage += "</ul>";
+                                /* ... logika tampilkan error validasi ... */
                             }
                         } else {
-                            errorMessage = "Gagal menghitung rekomendasi. Status: " + xhr
-                                .statusText;
+                            errorMessage = "Status: " + xhr.statusText;
                         }
                         resultArea.html('<div class="alert alert-danger">' + errorMessage +
                             '</div>');
-                        submitButton.html(originalButtonText).prop('disabled', false);
+                        submitButton.html(originalButtonText).prop('disabled',
+                            false); // Kembalikan tombol jika error
                         console.error(xhr);
                     }
                 });
             });
 
-            // Event listener untuk tombol "Lihat Langkah Perhitungan" (menggunakan event delegation)
-            $(document).on('click', '[id^="btnLihatLangkahEdas-"]', function() {
-                const lowonganId = $(this).data('lowongan-id'); // Ambil lowongan_id dari data attribute
-                const stepsContainer = $('#edasStepsContainer-' + lowonganId);
-                const stepsContent = $('#edasStepsContent-' + lowonganId);
-                const formKriteria = $('#formSpkKriteria-' + lowonganId); // Ambil form kriteria
 
-                if (!lowonganId || !formKriteria.length) {
-                    console.error(
-                        "Lowongan ID atau Form Kriteria tidak ditemukan untuk mengambil langkah SPK.");
-                    stepsContent.html(
-                        '<p class="text-danger">Gagal memuat langkah: ID Lowongan tidak ditemukan.</p>');
-                    stepsContainer.slideDown();
+            // Event listener untuk tombol "Lihat Langkah Perhitungan" (menggunakan event delegation)
+            // ==========================================================
+            // PERBAIKI EVENT LISTENER INI
+            // ==========================================================
+            // Event listener untuk tombol "Lihat Langkah Perhitungan"
+            $(document).on('click', '#btnLihatLangkahSpk-' + lowonganId, function() {
+                const stepsContainer = $('#spkStepsContainer-' + lowonganId);
+                const stepsContent = $('#spkStepsContent-' + lowonganId);
+                const formKriteria = $('#formSpkKriteria-' + lowonganId);
+
+                if (!formKriteria.length) {
+                    console.error("Form kriteria tidak ditemukan.");
                     return;
                 }
 
-                // Kumpulkan data bobot yang saat ini ada di form
                 const formData = formKriteria.serialize();
 
-                stepsContent.html(
-                    '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><p class="mt-2 mb-0 small">Memuat langkah perhitungan...</p></div>'
-                );
-                stepsContainer.slideToggle(); // Toggle tampilan
-
+                // Toggle tampilan dan muat konten jika container terlihat
+                stepsContainer.slideToggle();
                 if (stepsContainer.is(':visible')) {
+                    stepsContent.html(
+                        '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><p class="mt-2 mb-0 small">Memuat...</p></div>'
+                        );
+
                     $.ajax({
-                        url: '{{ route('industri.lowongan.spk.get_langkah_edas', ['lowongan' => ':lowonganIdPlaceholder']) }}'
-                            .replace(':lowonganIdPlaceholder', lowonganId),
-                        type: 'POST', // Gunakan POST untuk mengirim data bobot
-                        data: formData, // Kirim bobot yang sedang digunakan
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                'content') // Jangan lupa CSRF token
-                        },
+                        // Pastikan route ini benar
+                        url: '{{ route('industri.lowongan.spk.get_langkah_edas', ['lowongan' => $lowongan->lowongan_id]) }}',
+                        type: 'POST',
+                        data: formData, // Kirim bobot saat ini dari form
                         success: function(response) {
                             stepsContent.html(response);
                         },
                         error: function(xhr) {
                             stepsContent.html(
-                                '<div class="alert alert-warning small">Gagal memuat detail langkah perhitungan. (' +
-                                (xhr.responseJSON ? xhr.responseJSON.message : xhr
-                                    .statusText) + ')</div>');
-                            console.error("Error fetching EDAS steps:", xhr);
+                                '<div class="alert alert-warning small">Gagal memuat detail langkah perhitungan.</div>'
+                                );
+                            console.error("Error fetching SPK steps:", xhr);
                         }
                     });
                 }
             });
+
 
         });
 
@@ -501,7 +486,7 @@
                         error: function(xhr) {
                             modalBody.html(
                                 '<div class="alert alert-danger">Gagal memuat form. Silakan coba lagi.</div>'
-                                );
+                            );
                             console.error(xhr);
                         }
                     });
@@ -520,7 +505,7 @@
                     // Tampilkan spinner pada tombol submit
                     submitButton.html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...'
-                        ).prop('disabled', true);
+                    ).prop('disabled', true);
 
                     // Hapus pesan error sebelumnya
                     $('.form-control, .form-select').removeClass('is-invalid');
@@ -556,7 +541,8 @@
                                         0] + '</div>');
                                 });
                                 alert(
-                                    'Terdapat kesalahan pada input Anda. Silakan periksa kembali.');
+                                    'Terdapat kesalahan pada input Anda. Silakan periksa kembali.'
+                                );
                             } else {
                                 // Error lainnya
                                 alert('Terjadi kesalahan. Gagal menyimpan data.');

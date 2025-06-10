@@ -1,35 +1,35 @@
 <?php
 
-use App\Http\Controllers\admin\AdminController;
-use App\Http\Controllers\admin\DaftarSkillController;
-use App\Http\Controllers\admin\DosenController;
-use App\Http\Controllers\admin\IndustriController;
-use App\Http\Controllers\admin\KategoriIndustriController;
-use App\Http\Controllers\admin\LowonganController;
-use App\Http\Controllers\admin\MagangController;
-use App\Http\Controllers\admin\MahasiswaController;
-use App\Http\Controllers\admin\PengajuanController;
-use App\Http\Controllers\admin\ProgramStudiController;
-use App\Http\Controllers\admin\ValidasiAkunController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\dosen\LogHarianDosenController;
-use App\Http\Controllers\dosen\MahasiswaBimbinganController;
-use App\Http\Controllers\dosen\MahasiswaDpaController;
-use App\Http\Controllers\industri\LogHarianIndustriController;
-use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
-use App\Http\Controllers\industri\ManajemenMagangController;
 use App\Http\Controllers\InternController;
-use App\Http\Controllers\LogHarianController;
 use App\Http\Controllers\LokasiController;
-use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
-use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
-use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
-use App\Http\Controllers\mahasiswa\PortofolioController as MahasiswaPortofolioController;
-use App\Http\Controllers\mahasiswa\VerifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
-use App\Models\ValidasiAkun;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LogHarianController;
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\DosenController;
+use App\Http\Controllers\admin\MagangController;
+use App\Http\Controllers\admin\IndustriController;
+use App\Http\Controllers\admin\LowonganController;
+use App\Http\Controllers\admin\MahasiswaController;
+use App\Http\Controllers\admin\PengajuanController;
+use App\Http\Controllers\admin\DaftarSkillController;
+use App\Http\Controllers\admin\ProgramStudiController;
+use App\Http\Controllers\admin\ValidasiAkunController;
+use App\Http\Controllers\dosen\MahasiswaDpaController;
+use App\Http\Controllers\admin\KategoriSkillController;
+use App\Http\Controllers\dosen\LogHarianDosenController;
+use App\Http\Controllers\mahasiswa\VerifikasiController;
+use App\Http\Controllers\admin\KategoriIndustriController;
+use App\Http\Controllers\dosen\MahasiswaBimbinganController;
+use App\Http\Controllers\industri\ManajemenMagangController;
+use App\Http\Controllers\industri\LogHarianIndustriController;
+use App\Http\Controllers\mahasiswa\MagangController as MahasiswaMagangController;
+use App\Http\Controllers\industri\LowonganController as IndustriLowonganController;
+use App\Http\Controllers\mahasiswa\LowonganController as MahasiswaLowonganController;
+use App\Http\Controllers\mahasiswa\PengajuanController as MahasiswaPengajuanController;
+use App\Http\Controllers\mahasiswa\PortofolioController as MahasiswaPortofolioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -195,6 +195,18 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::delete('{id}/delete', [DaftarSkillController::class, 'delete_ajax'])->name('detail-skill.delete_ajax');
     });
 
+    Route::prefix('kategori_skill')->group(function () {
+        Route::get('/', [KategoriSkillController::class, 'index'])->name('kategori-skill.index');
+        Route::get('/list', [KategoriSkillController::class, 'list'])->name('kategori-skill.list');
+        Route::get('/create', [KategoriSkillController::class, 'create'])->name('kategori-skill.create');
+        Route::post('/store', [KategoriSkillController::class, 'store'])->name('kategori-skill.store');
+        Route::get('{id}/show', [KategoriSkillController::class, 'show'])->name('kategori-skill.show');
+        Route::get('{id}/edit', [KategoriSkillController::class, 'edit'])->name('kategori-skill.edit');
+        Route::post('{id}/update', [KategoriSkillController::class, 'update'])->name('kategori-skill.update');
+        Route::get('{id}/delete', [KategoriSkillController::class, 'deleteModal'])->name('kategori-skill.deleteModal');
+        Route::delete('{id}/delete', [KategoriSkillController::class, 'delete_ajax'])->name('kategori-skill.delete_ajax');
+    });
+
     Route::prefix('lowongan')->group(function () {
         Route::get('/', [LowonganController::class, 'index'])->name('lowongan.index');
         Route::post('/list', [LowonganController::class, 'list']);
@@ -204,8 +216,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/{id}/show', [LowonganController::class, 'show'])->name('lowongan.show');
         Route::get('/{id}/edit', [LowonganController::class, 'edit'])->name('lowongan.edit');
         Route::put('/{id}/update', [LowonganController::class, 'update'])->name('lowongan.update');
-        Route::delete('/{id}/delete', [LowonganController::class, 'destroy'])->name('lowongan.destroy');
-        Route::delete('{id}/delete', [LowonganController::class, 'delete_ajax'])->name('lowongan.delete');
+        Route::get('/{id}/delete', [LowonganController::class, 'delete'])->name('lowongan.delete.form');
+        Route::delete('{id}/delete', [LowonganController::class, 'destroy'])->name('lowongan.destroy');
     });
 
     Route::prefix('pengajuan')->group(function () {
@@ -325,6 +337,7 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::post('/magang/{mahasiswa_magang_id}/update-status', [ManajemenMagangController::class, 'updateStatus'])->name('industri.magang.updateStatus');
         Route::post('/log-harian/{logHarianDetail_id}/approve', [ManajemenMagangController::class, 'approveLogHarian'])->name('industri.logHarian.approve');
         Route::post('/log-harian/{logHarianDetail_id}/reject', [ManajemenMagangController::class, 'rejectLogHarian'])->name('industri.logHarian.reject');
+        Route::post('/magang/{mahasiswa_magang_id}/submit-evaluasi', [ManajemenMagangController::class, 'submitEvaluasi'])->name('industri.magang.submitEvaluasi');
     });
     Route::prefix('logharian_industri')->group(function () {
         Route::get('/', [LogHarianIndustriController::class, 'index'])->name('logharian_industri.index');

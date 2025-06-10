@@ -38,7 +38,7 @@ class PengajuanController extends Controller
             ->addColumn('status_pengajuan', fn($row) => ucfirst($row->status) ?? '-')
             ->addColumn('aksi', function ($row) {
                 $pk = $row->pengajuan_id;
-                $btn  = '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/show") . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn  = '<button onclick="modalAction(\'' . url("/pengajuan/{$pk}/show") . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
                 return $btn;
             })
 

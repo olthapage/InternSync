@@ -218,7 +218,7 @@ class LowonganController extends Controller
         }
 
         // Ambil data mahasiswa
-        $mahasiswa = MahasiswaModel::with('skills.skill')->find(Auth::id());
+        $mahasiswa = MahasiswaModel::with('skills.detailSkill')->find(Auth::id());
         if (! $mahasiswa) {
             Log::error('Autentikasi Mahasiswa Gagal: User tidak ditemukan.');
             return response('Data mahasiswa tidak ditemukan.', 500);

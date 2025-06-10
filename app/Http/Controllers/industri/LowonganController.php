@@ -388,6 +388,7 @@ class LowonganController extends Controller
     public function getSpkModalKriteriaForm(DetailLowonganModel $lowongan)
     {
         $lowongan->load('lowonganSkill.skill');
+
         return view('industri_page.lowongan.partials.rekomendasi_kriteria_form', compact('lowongan'));
     }
 
@@ -571,7 +572,7 @@ class LowonganController extends Controller
 
         return DataTables::of($pengajuan)
             ->addIndexColumn()
-            ->addColumn('mahasiswa', fn($row) => $row->mahasiswa->nama_mahasiswa ?? 'N/A')
+            ->addColumn('mahasiswa', fn($row) => $row->mahasiswa->nama_lengkap ?? 'N/A')
             ->addColumn('lowongan', fn($row) => $row->lowongan->judul_lowongan ?? 'N/A')
             ->addColumn('tanggal_pengajuan', fn($row) => Carbon::parse($row->created_at)->isoFormat('D MMMM YYYY'))
             ->addColumn('status_pengajuan', function ($row) {

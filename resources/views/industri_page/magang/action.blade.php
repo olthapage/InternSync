@@ -52,10 +52,10 @@
 
 @section('content')
     <div class="container-fluid">
-        <a href="{{ url()->previous() }}" class="btn btn-white btn-sm mb-3">
-                    <i class="fas fa-arrow-left me-2"></i>
-                    Kembali
-                </a>
+        <a href="{{ route('industri.magang.index') }}" class="btn btn-white btn-sm mb-3">
+            <i class="fas fa-arrow-left me-2"></i>
+            Kembali
+        </a>
         <div class="row">
             {{-- Kolom Kiri: Info Mahasiswa & Kontrol Status --}}
             <div class="col-lg-4 col-md-5 mb-4">
@@ -175,6 +175,58 @@
 
             {{-- Kolom Kanan: Log Harian --}}
             <div class="col-lg-8 col-md-7">
+                @if (strtolower($magang->status) == 'selesai')
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header py-3 border-bottom text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-award me-2"></i>Evaluasi Akhir Mahasiswa
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (session('evaluasi_success'))
+                                <div class="alert alert-success">
+                                    {{ session('evaluasi_success') }}
+                                </div>
+                            @endif
+                            @if (session('evaluasi_error'))
+                                <div class="alert alert-danger">
+                                    {{ session('evaluasi_error') }}
+                                </div>
+                            @endif
+
+                            {{-- LOGIKA YANG BENAR (TANPA DUPLIKASI) --}}
+                            @if (empty($magang->feedback_industri))
+                                {{-- JIKA FEEDBACK KOSONG: Tampilkan form input --}}
+                                <p>Magang telah selesai. Mohon berikan evaluasi akhir mengenai kinerja mahasiswa selama periode magang.</p>
+                                <form action="{{ route('industri.magang.submitEvaluasi', $magang->mahasiswa_magang_id) }}" method="POST">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="feedback_industri" class="form-label"><strong>Feedback dan Evaluasi Kinerja:</strong></label>
+                                        <textarea name="feedback_industri" id="feedback_industri" class="form-control @error('feedback_industri') is-invalid @enderror" rows="6" placeholder="Contoh: Budi menunjukkan inisiatif yang tinggi...">{{ old('feedback_industri') }}</textarea>
+                                        @error('feedback_industri')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-paper-plane me-2"></i>Kirim Evaluasi
+                                    </button>
+                                </form>
+                            @else
+                                {{-- JIKA FEEDBACK SUDAH ADA: Tampilkan sebagai teks biasa --}}
+                                <p>Anda telah mengirimkan evaluasi untuk mahasiswa ini. Evaluasi tidak dapat diubah lagi.</p>
+                                <div>
+                                    <strong>Evaluasi yang Telah Diberikan:</strong>
+                                    <div class="feedback-display-box mt-2">
+                                        {!! nl2br(e($magang->feedback_industri)) !!}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+                {{-- ======================================================= --}}
+                {{-- == AKHIR BAGIAN BARU == --}}
+                {{-- ======================================================= --}}
                 <div class="card shadow-sm">
                     <div class="card-header py-3 border-bottom">
                         <h5 class="mb-0 text-dark-blue">

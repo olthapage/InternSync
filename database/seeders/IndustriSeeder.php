@@ -1,9 +1,9 @@
 <?php
+
 namespace Database\Seeders;
 
 use Carbon\Carbon;
 use Faker\Factory;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,71 +16,100 @@ class IndustriSeeder extends Seeder
     public function run(): void
     {
         $now   = Carbon::now();
-        $faker = Factory::create('id_ID'); // Inisialisasi Faker
+        $faker = Factory::create('id_ID');
 
-// 1. Ambil semua ID kota yang VALID dari tabel m_kota
+        // 1. Ambil semua ID kota yang VALID dari tabel m_kota
         $validKotaIds = DB::table('m_kota')->pluck('kota_id')->toArray();
 
-// 2. Ambil semua ID kategori industri yang VALID
-        $validKategoriIndustriIds = DB::table('m_kategori_industri')->pluck('kategori_industri_id')->toArray();
-
-// Handle jika data master (kota atau kategori industri) kosong
+        // Handle jika data master kota kosong
         if (empty($validKotaIds)) {
-            $this->command->error('Tidak ada data kota ditemukan di tabel m_kota. IndustriSeeder tidak dapat dijalankan tanpa kota_id yang valid. Jalankan KotaSeeder terlebih dahulu.');
+            $this->command->error('Tidak ada data kota ditemukan. Jalankan KotaSeeder terlebih dahulu.');
             return;
         }
-        if (empty($validKategoriIndustriIds)) {
-            $this->command->warn('Tidak ada data kategori industri ditemukan. Menggunakan ID kategori acak (1-5) sebagai fallback untuk IndustriSeeder.');
-                                                     // Fallback jika tidak ada kategori industri, Anda bisa sesuaikan rentangnya atau buat KategoriIndustriSeeder
-            $validKategoriIndustriIds = range(1, 5); // Asumsi ID 1-5 ada atau akan dibuat
+
+        // 2. Ambil semua kategori industri dan buat MAP [nama => id] untuk referensi yang mudah
+        $kategoriMap = DB::table('m_kategori_industri')->pluck('kategori_industri_id', 'kategori_nama')->toArray();
+
+        // Handle jika data kategori industri kosong
+        if (empty($kategoriMap)) {
+            $this->command->error('Tidak ada data kategori industri ditemukan. Jalankan KategoriIndustriSeeder terlebih dahulu.');
+            return;
         }
 
-        $industriData        = [];
-        $jumlahIndustriTotal = 25; // Misalnya kita ingin membuat 25 data industri
+        // 3. Definisikan daftar industri secara hardcoded dengan kategori yang relevan
+        $industriList = [
+            // Teknologi Informasi dan Komunikasi
+            ['nama' => 'PT Cipta Solusi Digital', 'email_prefix' => 'kontak.csd', 'kategori_nama' => 'Teknologi Informasi dan Komunikasi'],
+            ['nama' => 'PT Siber Kreasi Nusantara', 'email_prefix' => 'info.skn', 'kategori_nama' => 'Teknologi Informasi dan Komunikasi'],
+            ['nama' => 'PT Aplikasi Karya Bangsa', 'email_prefix' => 'support.akb', 'kategori_nama' => 'Teknologi Informasi dan Komunikasi'],
 
-// Data eksplisit (4 data awal)
-        $explicitIndustries = [
-            ['industri_nama' => 'PT Teknologi Cerdas Nusantara', 'email_prefix' => 'teknocerdas', 'kategori_preset' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)]],
-            ['industri_nama' => 'PT Solusi Digital Integrasi', 'email_prefix' => 'solusidigital', 'kategori_preset' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)]],
-            ['industri_nama' => 'PT Mitra Infosarana Prima', 'email_prefix' => 'mitrainfo', 'kategori_preset' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)]],
-            ['industri_nama' => 'PT Datamax Teknologi Global', 'email_prefix' => 'datamaxglobal', 'kategori_preset' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)]],
+            // Keuangan dan Asuransi
+            ['nama' => 'Bank Digital Sejahtera', 'email_prefix' => 'care.bds', 'kategori_nama' => 'Keuangan dan Asuransi'],
+            ['nama' => 'PT Asuransi Garda Amanah', 'email_prefix' => 'klaim.aga', 'kategori_nama' => 'Keuangan dan Asuransi'],
+
+            // Kesehatan dan Farmasi
+            ['nama' => 'Rumah Sakit Harapan Medika', 'email_prefix' => 'admisi.rshm', 'kategori_nama' => 'Kesehatan dan Farmasi'],
+            ['nama' => 'PT Bio Farma Sehat', 'email_prefix' => 'cs.bfs', 'kategori_nama' => 'Kesehatan dan Farmasi'],
+            ['nama' => 'Klinik Utama Sentosa', 'email_prefix' => 'pendaftaran.kus', 'kategori_nama' => 'Kesehatan dan Farmasi'],
+
+            // Manufaktur dan Pengolahan
+            ['nama' => 'PT Indofood Sukses Makmur Tbk', 'email_prefix' => 'hrd.indofood', 'kategori_nama' => 'Manufaktur dan Pengolahan'],
+            ['nama' => 'PT Garmen Jaya Abadi', 'email_prefix' => 'produksi.gja', 'kategori_nama' => 'Manufaktur dan Pengolahan'],
+
+            // Perdagangan dan Ritel
+            ['nama' => 'PT Ramayana Lestari Sentosa Tbk', 'email_prefix' => 'store.ramayana', 'kategori_nama' => 'Perdagangan dan Ritel'],
+            ['nama' => 'Toko Swalayan Maju Bersama', 'email_prefix' => 'grosir.mb', 'kategori_nama' => 'Perdagangan dan Ritel'],
+
+            // Konstruksi dan Properti
+            ['nama' => 'PT Adhi Karya Persada Properti', 'email_prefix' => 'proyek.adhi', 'kategori_nama' => 'Konstruksi dan Properti'],
+            ['nama' => 'PT Wijaya Karya Bangun Gedung', 'email_prefix' => 'tender.wika', 'kategori_nama' => 'Konstruksi dan Properti'],
+
+            // Pariwisata dan Perhotelan
+            ['nama' => 'Hotel Santika Premiere', 'email_prefix' => 'reservasi.santika', 'kategori_nama' => 'Pariwisata dan Perhotelan'],
+            ['nama' => 'Pesona Nusantara Tour & Travel', 'email_prefix' => 'paket.pesona', 'kategori_nama' => 'Pariwisata dan Perhotelan'],
+            ['nama' => 'Java Heritage Hotel', 'email_prefix' => 'booking.javaheritage', 'kategori_nama' => 'Pariwisata dan Perhotelan'],
+
+            // Transportasi dan Logistik
+            ['nama' => 'PT Garuda Indonesia Logistik', 'email_prefix' => 'cargo.garuda', 'kategori_nama' => 'Transportasi dan Logistik'],
+            ['nama' => 'JNE Express Utama', 'email_prefix' => 'tracking.jne', 'kategori_nama' => 'Transportasi dan Logistik'],
+
+            // Pendidikan
+            ['nama' => 'Universitas Pelita Bangsa', 'email_prefix' => 'info.upb', 'kategori_nama' => 'Pendidikan'],
+            ['nama' => 'Bimbingan Belajar Cendekia', 'email_prefix' => 'kelas.cendekia', 'kategori_nama' => 'Pendidikan'],
+
+            // Energi dan Pertambangan
+            ['nama' => 'PT Pertamina Hulu Energi', 'email_prefix' => 'corporate.phe', 'kategori_nama' => 'Energi dan Pertambangan'],
+            ['nama' => 'PT Adaro Energy Tbk', 'email_prefix' => 'relations.adaro', 'kategori_nama' => 'Energi dan Pertambangan'],
+            ['nama' => 'PT Bukit Asam Tbk', 'email_prefix' => 'csr.bukitasam', 'kategori_nama' => 'Energi dan Pertambangan'],
         ];
 
-        foreach ($explicitIndustries as $index => $ind) {
+        $industriData = [];
+        foreach ($industriList as $industri) {
+            // Cocokkan nama kategori dengan ID yang ada di map
+            $kategoriId = $kategoriMap[$industri['kategori_nama']] ?? null;
+
+            // Lewati jika karena suatu hal nama kategori di array tidak cocok dengan yang ada di DB
+            if (!$kategoriId) {
+                $this->command->warn("Kategori '{$industri['kategori_nama']}' tidak ditemukan. Melewatkan industri '{$industri['nama']}'.");
+                continue;
+            }
+
             $industriData[] = [
-                'industri_nama'        => $ind['industri_nama'],
-                'kota_id'              => $validKotaIds[array_rand($validKotaIds)],
-                'kategori_industri_id' => $ind['kategori_preset'],
-                'email'                => $ind['email_prefix'] . ($index + 1) . '@example.com',
+                'industri_nama'        => $industri['nama'],
+                'kota_id'              => $faker->randomElement($validKotaIds),
+                'kategori_industri_id' => $kategoriId,
+                'email'                => $industri['email_prefix'] . '@example.com',
                 'telepon'              => $faker->unique()->numerify('081#########'),
-                'password'             => Hash::make('password123'),
+                'password'             => Hash::make('12345678'),
                 'created_at'           => $now,
             ];
         }
 
-// Loop untuk membuat sisa data industri secara dinamis
-        for ($i = count($industriData) + 1; $i <= $jumlahIndustriTotal; $i++) {
-            $namaPerusahaan = $faker->company;
-            $industriData[] = [
-                'industri_nama'        => $namaPerusahaan,
-                'kota_id'              => $validKotaIds[array_rand($validKotaIds)],
-                'kategori_industri_id' => $validKategoriIndustriIds[array_rand($validKategoriIndustriIds)],
-                'email'                => Str::slug(explode(' ', $namaPerusahaan)[0], '') . $i . '@example.net', // Email unik berbasis nama
-                'telepon'              => $faker->unique()->numerify('08##########'),
-                'password'             => Hash::make('industriPass'),
-                'created_at'           => $now,
-                // 'updated_at'        => $now, // Jika ada
-            ];
-        }
-
-// Hapus data lama jika perlu (opsional, hati-hati)
-// DB::table('m_industri')->delete();
-
-// Insert data baru secara chunk
+        // Insert data baru secara chunk untuk efisiensi
         foreach (array_chunk($industriData, 50) as $chunk) {
             DB::table('m_industri')->insert($chunk);
         }
 
-        $this->command->info(count($industriData) . ' data industri telah ditambahkan.');
+        $this->command->info(count($industriData) . ' data industri hardcoded telah ditambahkan.');
     }
 }

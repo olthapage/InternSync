@@ -122,7 +122,8 @@
                             href="{{ route('mahasiswa.index') }}">
                             <i
                                 class="fas fa-user-graduate me-2 {{ $activeMenu == 'mahasiswa' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link {{ $activeMenu == 'mahasiswa' ? 'text-success' : 'text-dark' }}">Mahasiswa</span>
+                            <span
+                                class="nav-link {{ $activeMenu == 'mahasiswa' ? 'text-success' : 'text-dark' }}">Mahasiswa</span>
                         </a>
                     </li>
 
@@ -177,7 +178,9 @@
                             href="{{ route('kategori-industri.index') }}">
                             <i
                                 class="fas fa-industry me-2 {{ $activeMenu == 'kategori-industri' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link {{ $activeMenu == 'kategori-industri' ? 'active text-success' : '' }}">Kategori Industri</span>
+                            <span
+                                class="nav-link {{ $activeMenu == 'kategori-industri' ? 'active text-success' : '' }}">Kategori
+                                Industri</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -185,29 +188,41 @@
                             href="{{ route('industri.index') }}">
                             <i
                                 class="fas fa-shop me-2 {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}">Daftar Industri</span>
+                            <span class="nav-link {{ $activeMenu == 'industri' ? 'text-success' : 'text-dark' }}">Daftar
+                                Industri</span>
                         </a>
                     </li>
                 </ul>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle {{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'active text-success' : '' }}"
+                <a class="nav-link dropdown-toggle {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'active text-success' : '' }}"
                     href="#" id="navbarDropdownSkill" role="button" data-bs-toggle="collapse"
                     data-bs-target="#dropdownMenuSkill"
-                    aria-expanded="{{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'true' : 'false' }}"
+                    aria-expanded="{{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'true' : 'false' }}"
                     aria-controls="dropdownMenuSkill">
                     <i
-                        class="fas fa-book me-2 {{ $activeMenu == 'kategori_industri' ? 'text-success' : 'text-dark' }}"></i>
+                        class="fas fa-book me-2 {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'text-success' : 'text-dark' }}"></i>
                     <span class="nav-link-text ms-1">Skill</span>
                 </a>
-                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'show' : '' }}"
+                <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'show' : '' }}"
                     id="dropdownMenuSkill">
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'daftar_skill' ? 'active text-success' : '' }}"
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'kategori_skill' ? 'active text-success' : '' }}"
+                            href="{{ route('kategori-skill.index') }}">
+                            <i
+                                class="fas fa-tags me-2 {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'text-success' : 'text-dark' }}"></i>
+                            <span
+                                class="nav-link {{ $activeMenu == 'kategori_skill' ? 'text-success' : 'text-dark' }}">Kategori
+                                Skill</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'skill' ? 'active text-success' : '' }}"
                             href="{{ route('detail-skill.index') }}">
                             <i
-                                class="fas fa-list-alt me-2 {{ in_array($activeMenu, ['kategori_skill', 'daftar_skill']) ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link">Daftar Skill</span>
+                                class="fas fa-list-alt me-2 {{ $activeMenu == 'skill' ? 'text-success' : 'text-dark' }}"></i>
+                            <span class="nav-link {{ $activeMenu == 'skill' ? 'text-success' : 'text-dark' }}">Daftar
+                                Skill</span>
                         </a>
                     </li>
                 </ul>
@@ -250,8 +265,7 @@
             <div class="card-body text-start p-3 w-100">
                 <div
                     class="icon icon-shape icon-sm bg-white shadow text-center mb-3 d-flex align-items-center justify-content-center border-radius-md">
-                    <i class="fas fa-headset text-dark text-lg top-0" aria-hidden="true"
-                        id="sidenavCardIcon"></i>
+                    <i class="fas fa-headset text-dark text-lg top-0" aria-hidden="true" id="sidenavCardIcon"></i>
                 </div>
                 <div class="docs-info">
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
