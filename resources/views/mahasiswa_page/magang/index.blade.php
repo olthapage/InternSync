@@ -34,11 +34,11 @@
 
 
             @if ($magang->isEmpty())
-                <div class="alert alert-info text-center" role="alert">
+                <div class="alert bg-white text-center" role="alert">
                     <h4 class="alert-heading">Informasi</h4>
                     <p>Anda saat ini belum terdaftar atau diterima pada program magang manapun.</p>
                     <p class="mb-0">Silakan coba untuk mengajukan diri (apply) pada lowongan yang tersedia.</p>
-                    <a href="{{ route('mahasiswa.lowongan.index') }}" class="btn btn-primary mt-3">Lihat Lowongan Magang</a>
+                    <a href="{{ route('mahasiswa.lowongan.index') }}" class="btn bg-gradient-info mt-3">Lihat Lowongan Magang</a>
                 </div>
             @else
                 {{-- Tidak perlu div card lagi di sini karena sudah ada di luar --}}
@@ -104,35 +104,46 @@
 
                         {{-- Bagian Evaluasi --}}
                         @if ($item->status == 'selesai')
-                            @if ($item->evaluasi)
-                                <div class="mt-3">
-                                    <p><strong>Evaluasi Anda:</strong></p>
-                                    <div class="p-3 bg-white border rounded shadow-sm">
-                                        {!! nl2br(e($item->evaluasi)) !!}
-                                    </div>
+                            <div class="d-flex justify-content-between align-items-start border-top pt-3 mt-3">
+                                <div>
+                                    <p class="mb-2"><strong>Surat Keterangan Selesai Magang.</strong></p>
+                                    {{-- TOMBOL UNDUH SURAT KETERANGAN --}}
+                                    <a href="{{ route('mahasiswa.magang.surat_keterangan.download', ['magang_id' => $item->mahasiswa_magang_id]) }}"
+                                        class="btn btn-success" target="_blank">
+                                        <i class="fas fa-certificate"></i> Unduh Surat Keterangan
+                                    </a>
                                 </div>
-                            @else
-                                <div class="mt-3">
-                                    <p><strong>Magang Anda telah selesai. Silakan isi evaluasi Anda:</strong></p>
-                                    <form method="POST"
-                                        action="{{ route('mahasiswa.magang.evaluasi.store', $item->mahasiswa_magang_id) }}">
-                                        @csrf
-                                        <div class="form-group">
-                                            <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis Evaluasi
-                                                Anda</label>
-                                            <textarea class="form-control @error('evaluasi', 'evaluasi_' . $item->mahasiswa_magang_id) is-invalid @enderror"
-                                                id="evaluasi-{{ $item->mahasiswa_magang_id }}" name="evaluasi" rows="5" required>{{ old('evaluasi') }}</textarea>
-                                            @error('evaluasi', 'evaluasi_' . $item->mahasiswa_magang_id)
-                                                {{-- Error bag specific to this form --}}
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
+
+                                {{-- Form Evaluasi yang sudah ada --}}
+                                <div style="width: 60%;">
+                                    @if ($item->evaluasi)
+                                        <div class="mt-0">
+                                            <p><strong>Evaluasi Anda:</strong></p>
+                                            <div class="p-3 bg-white border rounded shadow-sm">
+                                                {!! nl2br(e($item->evaluasi)) !!}
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn btn-primary mt-2">Kirim Evaluasi</button>
-                                    </form>
+                                    @else
+                                        <div class="mt-0">
+                                            <p><strong>Magang Anda telah selesai. Silakan isi evaluasi Anda:</strong></p>
+                                            <form method="POST"
+                                                action="{{ route('mahasiswa.magang.evaluasi.store', $item->mahasiswa_magang_id) }}">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis Evaluasi
+                                                        Anda</label>
+                                                    <textarea class="form-control @error('evaluasi') is-invalid @enderror" id="evaluasi-{{ $item->mahasiswa_magang_id }}"
+                                                        name="evaluasi" rows="4" required>{{ old('evaluasi') }}</textarea>
+                                                    @error('evaluasi')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <button type="submit" class="btn btn-success mt-2">Kirim Evaluasi</button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         @elseif ($item->evaluasi)
                             <div class="mt-3">
                                 <p><strong>Evaluasi Telah Diberikan:</strong></p>
@@ -165,10 +176,15 @@
                         <input type="date" id="tanggal" class="form-control" placeholder="Filter tanggal...">
                     </div>
                     <div class="col-md-9 d-flex justify-content-end">
-                        <button onclick="modalAction('{{ route('logHarian.create') }}')"
-                            class="btn btn-sm btn-primary me-2">
-                            Tambah Log Harian
-                        </button>
+                        {{-- ===== PERUBAHAN DIMULAI DI SINI ===== --}}
+                        @if ($magang->whereIn('status', ['diterima', 'sedang'])->isNotEmpty())
+                            <button onclick="modalAction('{{ route('logHarian.create') }}')"
+                                class="btn btn-sm btn-primary me-2">
+                                Tambah Log Harian
+                            </button>
+                        @endif
+                        {{-- ===== PERUBAHAN SELESAI DI SINI ===== --}}
+
                         <a href="{{ route('logHarian.export_pdf') }}" class="btn btn-sm btn-secondary">
                             <i class="fa fa-file-pdf"></i> Export Log Book (pdf)
                         </a>
@@ -181,7 +197,8 @@
                                 <th class="text-start">Tanggal</th>
                                 <th>Isi Log</th>
                                 <th>Lokasi Kegiatan</th>
-                                <th>Status</th>
+                                <th>Status Dosen</th>
+                                <th>Status Industri</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -311,6 +328,12 @@
                     {
                         data: 'status_approval_dosen',
                         name: 'status_approval_dosen',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'status_approval_industri',
+                        name: 'status_approval_industri',
                         orderable: false,
                         searchable: false
                     },

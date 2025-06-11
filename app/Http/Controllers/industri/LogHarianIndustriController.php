@@ -1,12 +1,13 @@
 <?php
 namespace App\Http\Controllers\industri;
 
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\LogHarianModel;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\LogHarianDetailModel;
-use App\Models\LogHarianModel;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class LogHarianIndustriController extends Controller
@@ -40,7 +41,6 @@ class LogHarianIndustriController extends Controller
             'logHarian.mahasiswaMagang.mahasiswa',
             'logHarian.mahasiswaMagang.lowongan', // Pastikan lowongan di-load untuk filter
         ])
-            ->select('m_logharian_detail.*')
         // Filter berdasarkan industri_id yang ada di tabel lowongan (m_detail_lowongan)
         // melalui rantai relasi: LogHarianDetail -> LogHarian -> MahasiswaMagang -> Lowongan -> industri_id
             ->whereHas('logHarian.mahasiswaMagang.lowongan', function ($q_lowongan) use ($industriId) {
@@ -70,12 +70,15 @@ class LogHarianIndustriController extends Controller
         // ... (sisa addColumn Anda sama seperti sebelumnya) ...
             ->addIndexColumn()
             ->addColumn('tanggal', function ($row) {
-                $tanggal = optional(optional($row->logHarian)->tanggal)->toDateTimeString();
-                if (is_null($row->logHarian) || is_null($tanggal)) {
-                    Log::warning("[LogHarianIndustriController@list] addColumn 'tanggal': logHarian atau tanggal adalah null untuk logHarianDetail_id: {$row->logHarianDetail_id}. Relasi logHarian: " . ($row->relationLoaded('logHarian') && $row->logHarian ? 'Ada' : 'Tidak ada/Null'));
+                // Sekarang $row->logHarian tidak akan null lagi
+                $tanggal = $row->tanggal_kegiatan;
+
+                if (is_null($tanggal)) {
+                    Log::warning("[LogHarianIndustriController@list] addColumn 'tanggal': tanggal adalah null untuk detail ID: {$row->logHarianDetail_id}");
                     return '-';
                 }
-                return \Carbon\Carbon::parse($tanggal)->isoFormat('D MMM YYYY'); // Format sedikit diubah untuk tahun penuh
+                // Langsung parse tanpa toDateTimeString()
+                return Carbon::parse($tanggal)->isoFormat('D MMM YY');
             })
             ->addColumn('mahasiswa', function ($row) {
                 $nama_lengkap = optional(optional(optional($row->logHarian)->mahasiswaMagang)->mahasiswa)->nama_lengkap;
@@ -89,39 +92,69 @@ class LogHarianIndustriController extends Controller
             ->addColumn('status_dosen', function ($row) {
                 $status = $row->status_approval_dosen ?? 'pending';
                 if ($status == 'disetujui') {
-                    return '<span class="badge bg-success">Disetujui</span>';
+                    return '<span class="badge bg-gradient-success">Disetujui</span>';
                 }
 
                 if ($status == 'ditolak') {
-                    return '<span class="badge bg-danger">Ditolak</span>';
+                    return '<span class="badge bg-gradient-danger">Ditolak</span>';
                 }
 
-                return '<span class="badge bg-warning text-dark">Pending</span>';
+                return '<span class="badge bg-gradient-primary text-white">Pending</span>';
             })
             ->addColumn('status_industri', function ($row) {
                 $status = $row->status_approval_industri ?? 'pending';
                 if ($status == 'disetujui') {
-                    return '<span class="badge bg-success">Disetujui</span>';
+                    return '<span class="badge bg-gradient-success">Disetujui</span>';
                 }
 
                 if ($status == 'ditolak') {
-                    return '<span class="badge bg-danger">Ditolak</span>';
+                    return '<span class="badge bg-gradient-danger">Ditolak</span>';
                 }
 
-                return '<span class="badge bg-warning text-dark">Pending</span>';
+                return '<span class="badge bg-gradient-primary text-white">Pending</span>';
             })
             ->addColumn('aksi', function ($row) {
-                if (empty($row->logHarian) || empty($row->logHarian->logHarian_id)) {
-                    Log::error("[LogHarianIndustriController@list] addColumn 'aksi': logHarian atau logHarian->logHarian_id kosong untuk logHarianDetail_id: {$row->logHarianDetail_id}. Tidak bisa membuat URL detail.");
-                    return '<button class="btn btn-sm btn-secondary" disabled title="Data logHarian tidak lengkap">Detail Error</button>';
-                }
+                // $row adalah instance dari LogHarianDetailModel
+                $buttons = '<div class="btn-group" role="group">';
+
+                // --- Tombol Detail (untuk membuka modal) ---
                 try {
-                    $detailUrl = route('logharian_industri.show', ['id' => $row->logHarian->logHarian_id]);
-                    return '<button class="btn btn-sm btn-info" onclick="modalAction(\'' . $detailUrl . '\')">Detail</button>';
+                    $logHarianId = optional($row->logHarian)->logHarian_id;
+
+                    if ($logHarianId) {
+                        $detailUrl = route('logharian_industri.show', $logHarianId);
+                        $buttons .= '<button class="btn btn-xs btn-outline-info" title="Lihat Detail Log" onclick="modalAction(\'' . $detailUrl . '\')"><i class="fas fa-eye"></i></button>';
+                    } else {
+                        // Nonaktifkan tombol jika relasi ke log harian header tidak ada
+                        Log::warning("[LogHarianIndustriController@list] addColumn 'aksi': logHarianId tidak ditemukan untuk detail ID: {$row->logHarianDetail_id}");
+                        $buttons .= '<button class="btn btn-xs btn-outline-secondary disabled" title="Data tidak lengkap"><i class="fas fa-eye"></i></button>';
+                    }
                 } catch (\Exception $e) {
-                    Log::error("[LogHarianIndustriController@list] addColumn 'aksi': Gagal membuat URL untuk route 'logharian_industri.show'. Error: " . $e->getMessage());
-                    return '<button class="btn btn-sm btn-danger" disabled title="Route error">Detail N/A</button>';
+                    // Tangani error jika route 'logharian_industri.show' tidak ditemukan
+                    Log::error("Error membuat URL 'detail' untuk log detail ID {$row->logHarianDetail_id}: " . $e->getMessage());
+                    $buttons .= '<button class="btn btn-xs btn-outline-danger disabled" title="Route error"><i class="fas fa-eye"></i></button>';
                 }
+
+                // --- Tombol Kelola (untuk redirect ke halaman lain) ---
+                try {
+                    $mahasiswaMagangId = optional(optional($row->logHarian)->mahasiswaMagang)->mahasiswa_magang_id;
+
+                    if ($mahasiswaMagangId) {
+                        $actionUrl = route('industri.magang.action', $mahasiswaMagangId);
+                        $buttons .= '<a href="' . $actionUrl . '" class="btn btn-xs btn-outline-primary" title="Kelola Magang Mahasiswa"><i class="fas fa-tasks"></i></a>';
+                    } else {
+                        // Nonaktifkan tombol jika relasi ke magang mahasiswa tidak ada
+                        Log::warning("[LogHarianIndustriController@list] addColumn 'aksi': mahasiswaMagangId tidak ditemukan untuk detail ID: {$row->logHarianDetail_id}");
+                        $buttons .= '<a href="#" class="btn btn-xs btn-outline-secondary disabled" title="Data tidak lengkap"><i class="fas fa-tasks"></i></a>';
+                    }
+                } catch (\Exception $e) {
+                    // Tangani error jika route 'industri.magang.action' tidak ditemukan
+                    Log::error("Error membuat URL 'kelola' untuk log detail ID {$row->logHarianDetail_id}: " . $e->getMessage());
+                    $buttons .= '<a href="#" class="btn btn-xs btn-outline-danger disabled" title="Route error"><i class="fas fa-tasks"></i></a>';
+                }
+
+                $buttons .= '</div>';
+                return $buttons;
             })
             ->rawColumns(['status_dosen', 'status_industri', 'aksi'])
             ->make(true);

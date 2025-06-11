@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
+use App\Models\MagangModel;
 use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use App\Models\MahasiswaModel;
@@ -18,45 +19,58 @@ class PengajuanController extends Controller
     public function index()
     {
         $activeMenu = 'pengajuan';
-        $mahasiswa = auth()->user(); // Ambil user yang sedang login
-        $mahasiswaId = $mahasiswa->mahasiswa_id; // Asumsi ada field mahasiswa_id di tabel users atau relasi
+        $mahasiswa = auth()->user();
+        $mahasiswaId = $mahasiswa->mahasiswa_id;
 
+        // Ambil riwayat pengajuan untuk ditampilkan (tidak ada perubahan di sini)
         $pengajuan = PengajuanModel::with(['lowongan.industri'])
             ->where('mahasiswa_id', $mahasiswaId)
-            ->orderBy('created_at', 'desc') // Urutkan berdasarkan terbaru
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        // Logika untuk mengecek status pengajuan aktif
-        $statusPengajuanAktif = null; // Default tidak ada pengajuan aktif yang menghalangi
-        $alasanTidakBisaAjukan = '';
+        // --- LOGIKA BARU UNTUK MENGHUBUNGKAN STATUS MAGANG ---
+        if ($pengajuan->isNotEmpty()) {
+            // 1. Kumpulkan semua lowongan_id dari pengajuan yang ada
+            $lowonganIds = $pengajuan->pluck('lowongan_id')->unique();
 
-        // Cek apakah mahasiswa sudah memiliki pengajuan 'diproses' atau 'diterima'
-        // Asumsi status 'diproses' adalah pengganti 'belum' untuk pengajuan yang sedang berjalan
-        $pengajuanDiproses = $pengajuan->firstWhere('status', 'belum');
-        $pengajuanDiterima = $pengajuan->firstWhere('status', 'diterima');
+            // 2. Ambil semua data magang yang relevan dalam satu query
+            $dataMagang = MagangModel::where('mahasiswa_id', $mahasiswaId)
+                                     ->whereIn('lowongan_id', $lowonganIds)
+                                     ->get()
+                                     // 3. Kelompokkan berdasarkan lowongan_id untuk pencarian cepat
+                                     ->keyBy('lowongan_id');
 
-        if ($pengajuanDiterima) {
-            $statusPengajuanAktif = 'diterima';
-            $alasanTidakBisaAjukan = 'Anda sudah diterima magang dan tidak dapat membuat pengajuan baru.';
-        } elseif ($pengajuanDiproses) {
-            $statusPengajuanAktif = 'belum';
-            $alasanTidakBisaAjukan = 'Anda sudah memiliki pengajuan magang yang sedang diproses. Harap tunggu hasilnya sebelum membuat pengajuan baru.';
+            // 4. Lampirkan data magang ke setiap item pengajuan
+            $pengajuan->each(function ($item) use ($dataMagang) {
+                // Buat properti baru 'magang' di setiap item pengajuan
+                $item->magang = $dataMagang->get($item->lowongan_id);
+            });
         }
 
-        // Cek kelengkapan profil mahasiswa
-        // Anda mungkin perlu mengambil data mahasiswa lengkap jika status_verifikasi ada di tabel mahasiswa, bukan users
-        // Untuk contoh ini, kita asumsikan $mahasiswa dari auth()->user() sudah punya status_verifikasi
-        // Jika tidak, Anda perlu: $mahasiswaModel = MahasiswaModel::find($mahasiswaId);
-        // dan $profilLengkap = $mahasiswaModel && $mahasiswaModel->status_verifikasi == 'valid';
+        // Logika untuk kontrol pengajuan (tidak ada perubahan di sini)
+        $bisaAjukan = true;
+        $alasanTidakBisaAjukan = '';
+        $pengajuanDiproses = $pengajuan->firstWhere('status', 'belum');
+        if ($pengajuanDiproses) {
+            $bisaAjukan = false;
+            $alasanTidakBisaAjukan = 'Anda masih memiliki pengajuan yang sedang diproses. Mohon tunggu hasilnya sebelum membuat pengajuan baru.';
+        } else {
+            $magangAktif = MagangModel::where('mahasiswa_id', $mahasiswaId)
+                                      ->whereIn('status', ['belum', 'sedang'])
+                                      ->exists();
+            if ($magangAktif) {
+                $bisaAjukan = false;
+                $alasanTidakBisaAjukan = 'Anda sedang dalam periode magang aktif. Anda baru dapat mengajukan magang lagi setelah periode saat ini selesai.';
+            }
+        }
 
         $profilLengkap = $mahasiswa && $mahasiswa->status_verifikasi == 'valid';
-
 
         return view('mahasiswa_page.pengajuan.index', compact(
             'activeMenu',
             'pengajuan',
-            'profilLengkap', // Kirim juga variabel ini
-            'statusPengajuanAktif',
+            'profilLengkap',
+            'bisaAjukan',
             'alasanTidakBisaAjukan'
         ));
     }
@@ -150,6 +164,14 @@ class PengajuanController extends Controller
         }
         Log::info('MahasiswaPengajuanController@show: Pengajuan found. Pengajuan ID: ' . $pengajuan->pengajuan_id . ', Belongs to Mahasiswa ID: ' . $pengajuan->mahasiswa_id);
 
+         $magang = null; // Default null
+        // Hanya cari data magang jika status pengajuan sudah 'diterima'
+        if (strtolower($pengajuan->status) === 'diterima') {
+            $magang = MagangModel::where('mahasiswa_id', $pengajuan->mahasiswa_id)
+                                 ->where('lowongan_id', $pengajuan->lowongan_id)
+                                 ->first();
+        }
+
         $user = Auth::user(); // Ini seharusnya instance MahasiswaModel
 
         if (!$user || !($user instanceof \App\Models\MahasiswaModel)) {
@@ -176,7 +198,7 @@ class PengajuanController extends Controller
 
         if ($request->ajax()) {
             Log::info('MahasiswaPengajuanController@show: AJAX request. Returning view mahasiswa_page.pengajuan.show for Pengajuan ID: ' . $id);
-            return view('mahasiswa_page.pengajuan.show', compact('pengajuan'));
+            return view('mahasiswa_page.pengajuan.show', compact('pengajuan', 'magang'));
         }
 
         Log::info('MahasiswaPengajuanController@show: Non-AJAX request. Redirecting for Pengajuan ID: ' . $id);

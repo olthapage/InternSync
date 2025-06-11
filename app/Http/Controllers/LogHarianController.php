@@ -54,6 +54,16 @@ class LogHarianController extends Controller
                 }
                 return '<span class="badge bg-warning">Pending</span>';
             })
+
+            ->addColumn('status_approval_industri', function ($row) {
+                $status = $row->detail->first()->status_approval_industri ?? 'pending';
+                 if ($status == 'disetujui') {
+                    return '<span class="badge bg-success">Disetujui</span>';
+                } elseif ($status == 'ditolak') {
+                    return '<span class="badge bg-danger">Ditolak</span>';
+                }
+                return '<span class="badge bg-warning">Pending</span>';
+            })
             ->addColumn('aksi', function ($row) {
                 $editUrl   = route('logHarian.edit', ['id' => $row->logHarian_id]);
                 $detailUrl = route('logHarian.show', ['id' => $row->logHarian_id]);
@@ -66,7 +76,7 @@ class LogHarianController extends Controller
             ->editColumn('tanggal', function ($row) {
                 return date('d-m-Y', strtotime($row->tanggal));
             })
-            ->rawColumns(['isi', 'aksi', 'status_approval_dosen'])
+            ->rawColumns(['isi', 'aksi', 'status_approval_dosen', 'status_approval_industri'])
             ->make(true);
     }
 
@@ -210,7 +220,7 @@ class LogHarianController extends Controller
             return view('mahasiswa_page.logharian.show', compact('logharian'));
         }
     }
-    
+
     public function delete_ajax(Request $request, $id)
     {
         if (! $request->ajax()) {
@@ -222,34 +232,43 @@ class LogHarianController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Unauthorized. Silakan login kembali.',
-            ], 401); // Unauthorized
+            ], 401);
         }
 
+        // ... (kode untuk get mahasiswa dan magang tetap sama) ...
         $mahasiswa = MahasiswaModel::where('nim', $user->nim)->first();
         if (! $mahasiswa) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Data mahasiswa tidak ditemukan.',
-            ], 404); // Not Found
+            return response()->json(['status' => false, 'message' => 'Data mahasiswa tidak ditemukan.'], 404);
         }
-
         $magang = MagangModel::where('mahasiswa_id', $mahasiswa->mahasiswa_id)->first();
         if (! $magang) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Anda belum terdaftar pada program magang.',
-            ], 403); // Forbidden - Mahasiswa tidak punya magang
+            return response()->json(['status' => false, 'message' => 'Anda belum terdaftar pada program magang.'], 403);
         }
 
-        $log = LogHarianModel::where('logHarian_id', $id)
-            ->where('mahasiswa_magang_id', $magang->mahasiswa_magang_id) // Pastikan log milik mahasiswa yang login
+                                              // Eager load relasi 'detail' untuk pengecekan
+        $log = LogHarianModel::with('detail') // Muat relasi detail
+            ->where('logHarian_id', $id)
+            ->where('mahasiswa_magang_id', $magang->mahasiswa_magang_id)
             ->first();
 
         if (! $log) {
             return response()->json([
                 'status'  => false,
                 'message' => 'Log harian tidak ditemukan atau Anda tidak memiliki izin untuk menghapusnya.',
-            ], 404); // Not Found atau Forbidden (disamarkan sebagai Not Found)
+            ], 404);
+        }
+
+        // Cek apakah ada 'detail' dari log ini yang sudah disetujui oleh dosen ATAU industri.
+        $isApproved = $log->detail->contains(function ($detail) {
+            return $detail->status_approval_dosen == 'disetujui' || $detail->status_approval_industri == 'disetujui';
+        });
+
+        if ($isApproved) {
+            // Jika sudah ada yang disetujui, gagalkan penghapusan.
+            return response()->json([
+                'status'  => false,
+                'message' => 'Gagal! Log harian tidak dapat dihapus karena sudah divalidasi (disetujui).',
+            ], 403); // 403 Forbidden - Aksi tidak diizinkan
         }
 
         try {
@@ -267,7 +286,7 @@ class LogHarianController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Terjadi kesalahan saat menghapus log harian. Silakan coba lagi.',
-            ], 500); // Internal Server Error
+            ], 500);
         }
     }
 

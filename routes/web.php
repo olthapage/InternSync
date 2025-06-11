@@ -302,6 +302,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
     Route::prefix('mahasiswa/magang')->group(function () {
         Route::get('/', [MahasiswaMagangController::class, 'index'])->name('mahasiswa.magang.index');
         Route::post('/{magang_id}/evaluasi', [MahasiswaMagangController::class, 'storeEvaluasi'])->name('mahasiswa.magang.evaluasi.store');
+        Route::get('/magang/{magang_id}/surat-keterangan', [MahasiswaMagangController::class, 'generateSuratKeterangan'])
+         ->name('mahasiswa.magang.surat_keterangan.download');
     });
 
     Route::prefix('mahasiswa/portofolio')->group(function () {

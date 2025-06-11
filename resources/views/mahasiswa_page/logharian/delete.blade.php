@@ -14,6 +14,11 @@
   </div>
 </div>
 @else
+@php
+    $isApproved = $log->detail->contains(function ($detail) {
+        return $detail->status_approval_dosen == 'disetujui' || $detail->status_approval_industri == 'disetujui';
+    });
+@endphp
 <form action="{{ route('logHarian.delete', $log->id) }}" method="POST" id="form-delete-logharian">
   @csrf
   @method('DELETE')
@@ -23,6 +28,17 @@
         <h5 class="modal-title">Hapus Data Log Harian</h5>
       </div>
       <div class="modal-body">
+                @if($isApproved)
+                    <div class="alert alert-danger">
+                        <h5><i class="icon fas fa-ban"></i> Aksi Ditolak!</h5>
+                        Data log harian ini tidak dapat dihapus karena salah satu atau lebih aktivitas di dalamnya telah **disetujui** oleh pembimbing.
+                    </div>
+                @else
+                    <div class="alert alert-warning">
+                        <h5><i class="icon fas fa-exclamation-triangle"></i> Konfirmasi!</h5>
+                        Apakah Anda yakin ingin menghapus data log harian berikut ini?
+                    </div>
+                @endif
         <div class="alert alert-warning">
           <h5><i class="icon fas fa-exclamation-triangle"></i> Konfirmasi !!!</h5>
           Apakah Anda yakin ingin menghapus data log harian berikut ini?

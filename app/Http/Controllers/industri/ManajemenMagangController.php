@@ -129,30 +129,15 @@ class ManajemenMagangController extends Controller
                 $textClass    = '';             // Kelas untuk warna teks, defaultnya kontras dengan background (biasanya putih untuk bg gelap)
 
                 // Sesuaikan logika warna badge berdasarkan kemungkinan nilai status Anda
-                if (in_array($statusLower, ['aktif', 'berjalan', 'diterima'])) {
-                    $badgeBgClass = 'bg-success';
+                if (in_array($statusLower, ['aktif', 'berjalan', 'diterima', 'sedang'])) {
+                    $badgeBgClass = 'bg-gradient-primary';
                 } elseif (in_array($statusLower, ['selesai', 'lulus'])) {
-                    $badgeBgClass = 'bg-primary';
-                } elseif (in_array($statusLower, ['dalam penilaian', 'evaluasi'])) {
-                    $badgeBgClass = 'bg-info';
+                    $badgeBgClass = 'bg-gradient-success';
+                } elseif ($statusLower == 'belum') {
+                    $badgeBgClass = 'bg-gradient-info';
                     // Untuk bg-info bawaan BS5, teks default (putih) biasanya sudah kontras.
                     // Jika tema Anda membuat bg-info terang, tambahkan: $textClass = 'text-dark';
-                } elseif (in_array($statusLower, ['dibatalkan', 'tidak lulus', 'ditolak'])) {
-                    $badgeBgClass = 'bg-danger';
-                } elseif (in_array($statusLower, ['menunggu konfirmasi', 'pending'])) {
-                    $badgeBgClass = 'bg-warning';
-                    $textClass    = 'text-dark'; // Latar kuning biasanya butuh teks gelap agar terbaca
-                } elseif ($status == 'Belum Ada Status') {
-                    $badgeBgClass = 'bg-light';  // Latar terang
-                    $textClass    = 'text-dark'; // Teks gelap agar terbaca
                 }
-                // Anda bisa menambahkan lebih banyak kondisi 'else if' sesuai variasi status Anda
-
-                // Pengecekan tambahan jika tema Anda membuat bg-secondary terlalu terang
-                // if ($badgeBgClass == 'bg-secondary') {
-                //     $textClass = 'text-dark'; // Uncomment jika bg-secondary Anda terang
-                // }
-
                 return '<span class="badge ' . $badgeBgClass . ' ' . $textClass . '">' . ucfirst(htmlspecialchars($status)) . '</span>';
             })
             ->addColumn('aksi', function ($row) {
