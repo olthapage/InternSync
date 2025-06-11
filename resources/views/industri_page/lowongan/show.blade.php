@@ -194,7 +194,7 @@
                                                 </td>
                                                 <td>
                                                     <span
-                                                        class="badge text-dark badge-{{ $pengajuan->status == 'diterima' ? 'success' : ($pengajuan->status == 'ditolak' ? 'danger' : 'warning') }}">
+                                                        class="badge text-white bg-{{ $pengajuan->status == 'diterima' ? 'gradient-success' : ($pengajuan->status == 'ditolak' ? 'gradient-danger' : 'gradient-warning') }}">
                                                         {{ ucfirst($pengajuan->status) }}
                                                     </span>
                                                 </td>

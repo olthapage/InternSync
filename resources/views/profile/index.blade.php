@@ -112,111 +112,19 @@
     </div>
     <div class="container-fluid py-4">
         <div class="row">
-            {{-- Quick Links --}}
-            <div class="col-12 mb-4 mb-xl-4">
-                <div class="card h-100">
-                    <div class="card-header pb-0 p-3">
-                        <h6 class="mb-0">📥 Quick Links</h6>
-                    </div>
-                    <div class="card-body p-3">
-                        <ul class="list-group">
-                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🏠 Dashboard</a>
-
-                            {{-- Tampilkan Notifikasi untuk semua kecuali Mahasiswa --}}
-                            @if (!Auth::guard('mahasiswa')->check())
-                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🔔
-                                    Notifikasi</a>
-                            @endif
-
-                            {{-- Tampilkan Laporan Magang hanya untuk Mahasiswa --}}
-                            @if (Auth::guard('mahasiswa')->check())
-                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">📝 Laporan
-                                    Magang</a>
-                            @endif
-
-                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">⚙ Pengaturan</a>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Kolom kedua: Konten dinamis berdasarkan guard --}}
-            <div class="col-12 mb-4 mb-xl-0">
-                {{-- Tampilkan untuk Admin, Dosen, dan Industri --}}
-                @if (Auth::guard('web')->check() || Auth::guard('dosen')->check() || Auth::guard('industri')->check())
-                <div class="d-flex flex-column h-100">
-                    <div class="card mb-3">
-                        <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">⚙ Status Sistem</h6>
-                        </div>
-                        <div class="card-body p-3 small">
-                            <ul class="list-unstyled mb-0">
-                                <li>Database: <span class="text-success">Online ✅</span></li>
-                                <li>Backup terakhir: <small class="text-muted">{{ now()->subHours(2)->format('H:i') }}
-                                        WIB</small></li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="card flex-grow-1">
-                        <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">📥 Unduhan Cepat</h6>
-                        </div>
-                        <div class="card-body p-3">
-                            <ul class="list-group">
-                                <a href="{{ asset('files/panduan_internsync.pdf') }}"
-                                    class="list-group-item list-group-item-action" target="_blank">
-                                    📄 Panduan InternSync
-                                </a>
-                                <a href="{{ asset('files/sertifikat_sample.pdf') }}"
-                                    class="list-group-item list-group-item-action" target="_blank">
-                                    🎖 Contoh Sertifikat
-                                </a>
-                            </ul>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- Tampilkan hanya untuk Mahasiswa --}}
-                @if (Auth::guard('mahasiswa')->check())
-                    <div class="card mb-3">
-                        <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">💡 Tip Singkat</h6>
-                        </div>
-                        <div class="card-body p-3 small">
-                            <ul class="list-unstyled">
-                                <li>Gunakan filter skill untuk hasil lebih tepat.</li>
-                                <li>Unggah foto profil agar lebih personal.</li>
-                                <li>Perbarui kontak untuk notifikasi lancar.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card mb-3">
-                        <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">📘 Informasi Tambahan</h6>
-                        </div>
-                        <div class="card-body p-3 small">
-                            <p>Pastikan data akademik dan preferensi lokasi kamu selalu diperbarui untuk memperbesar peluang
-                                diterima di industri pilihan.</p>
-                            <p>Konten profil yang lengkap juga akan lebih menarik perhatian perekrut dan pihak industri.</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
-
-            {{-- Quick Action (hanya untuk Mahasiswa) --}}
             @if (Auth::guard('mahasiswa')->check())
-                <div class="col-12 col-xl-4">
+                <div class="mb-4 w-100">
                     <div class="card h-100">
                         <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">🚀 Quick Action</h6>
+                            <h6 class="mb-0">Lengkapi Profil</h6>
                         </div>
                         <div class="card-body p-3">
                             <div class="d-grid gap-2">
-                                <button type="button" id="btn-academic-profile" class="btn btn-outline-success"
+                                <button type="button" id="btn-academic-profile" class="btn bg-gradient-success text-start px-3 "
                                     data-bs-toggle="modal" data-bs-target="#academicModal">
-                                    🎓 Isi Profil Akademik
+                                    Formulir Wajib Akademik
                                 </button>
+                                <small>Wajib dilengkapi dan menunggu validasi dari admin sebelum mengajukan magang.</small>
                                 {{-- Anda bisa menambahkan tombol lain di sini jika perlu --}}
                             </div>
                         </div>
@@ -286,6 +194,100 @@
                     </script>
                 @endpush
             @endif
+            {{-- Quick Links --}}
+            <div class="col-12 mb-4 mb-xl-4">
+                <div class="card h-100">
+                    <div class="card-header pb-0 p-3">
+                        <h6 class="mb-0">📥 Quick Links</h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-group">
+                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🏠 Dashboard</a>
+
+                            {{-- Tampilkan Notifikasi untuk semua kecuali Mahasiswa --}}
+                            @if (!Auth::guard('mahasiswa')->check())
+                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🔔
+                                    Notifikasi</a>
+                            @endif
+
+                            {{-- Tampilkan Laporan Magang hanya untuk Mahasiswa --}}
+                            @if (Auth::guard('mahasiswa')->check())
+                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">📝 Laporan
+                                    Magang</a>
+                            @endif
+
+                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">⚙ Pengaturan</a>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Kolom kedua: Konten dinamis berdasarkan guard --}}
+            <div class="col-12 mb-4 mb-xl-0">
+                {{-- Tampilkan untuk Admin, Dosen, dan Industri --}}
+                @if (Auth::guard('web')->check() || Auth::guard('dosen')->check() || Auth::guard('industri')->check())
+                    <div class="d-flex flex-column h-100">
+                        <div class="card mb-3">
+                            <div class="card-header pb-0 p-3">
+                                <h6 class="mb-0">⚙ Status Sistem</h6>
+                            </div>
+                            <div class="card-body p-3 small">
+                                <ul class="list-unstyled mb-0">
+                                    <li>Database: <span class="text-success">Online ✅</span></li>
+                                    <li>Backup terakhir: <small class="text-muted">{{ now()->subHours(2)->format('H:i') }}
+                                            WIB</small></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card flex-grow-1">
+                            <div class="card-header pb-0 p-3">
+                                <h6 class="mb-0">📥 Unduhan Cepat</h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <ul class="list-group">
+                                    <a href="{{ asset('files/panduan_internsync.pdf') }}"
+                                        class="list-group-item list-group-item-action" target="_blank">
+                                        📄 Panduan InternSync
+                                    </a>
+                                    <a href="{{ asset('files/sertifikat_sample.pdf') }}"
+                                        class="list-group-item list-group-item-action" target="_blank">
+                                        🎖 Contoh Sertifikat
+                                    </a>
+                                </ul>
+                            </div>
+                        </div>
+                @endif
+
+                {{-- Tampilkan hanya untuk Mahasiswa --}}
+                @if (Auth::guard('mahasiswa')->check())
+                    <div class="card mb-3">
+                        <div class="card-header pb-0 p-3">
+                            <h6 class="mb-0">💡 Tip Singkat</h6>
+                        </div>
+                        <div class="card-body p-3 small">
+                            <ul class="list-unstyled">
+                                <li>Gunakan filter skill untuk hasil lebih tepat.</li>
+                                <li>Unggah foto profil agar lebih personal.</li>
+                                <li>Perbarui kontak untuk notifikasi lancar.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card mb-3">
+                        <div class="card-header pb-0 p-3">
+                            <h6 class="mb-0">📘 Informasi Tambahan</h6>
+                        </div>
+                        <div class="card-body p-3 small">
+                            <p>Pastikan data akademik dan preferensi lokasi kamu selalu diperbarui untuk memperbesar peluang
+                                diterima di industri pilihan.</p>
+                            <p>Konten profil yang lengkap juga akan lebih menarik perhatian perekrut dan pihak industri.</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Quick Action (hanya untuk Mahasiswa) --}}
+
         </div>
     </div>
 @endsection

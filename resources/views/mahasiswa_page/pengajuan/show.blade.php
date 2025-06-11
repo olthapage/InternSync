@@ -42,15 +42,28 @@
             {{ \Carbon\Carbon::parse($pengajuan->tanggal_mulai)->isoFormat('D MMMM YYYY') }} -
             {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->isoFormat('D MMMM YYYY') }}
         </p>
-        <p class="mb-0"><strong>Status Pengajuan:</strong>
+         <p class="mb-0"><strong>Status Pengajuan:</strong>
+            {{-- --- FIX: Logika status badge disesuaikan --- --}}
             @php
                 $status = strtolower($pengajuan->status);
-                $badgeClass = 'bg-secondary'; // default
-                $statusText = ucfirst($pengajuan->status);
+                $badgeClass = 'bg-secondary';
+                $statusText = 'Status Tidak Diketahui';
 
-                if ($status == 'belum') { $badgeClass = 'bg-warning text-dark'; $statusText = 'Menunggu Review';}
-                elseif ($status == 'diterima') { $badgeClass = 'bg-success'; $statusText = 'Diterima oleh Perusahaan';}
-                elseif ($status == 'ditolak') { $badgeClass = 'bg-danger'; $statusText = 'Ditolak oleh Perusahaan';}
+                if ($status == 'belum') {
+                    $badgeClass = 'bg-gradient-warning text-dark';
+                    $statusText = 'Menunggu Review';
+                } elseif ($status == 'diterima') {
+                    if (isset($magang) && $magang->status == 'selesai') {
+                        $badgeClass = 'bg-gradient-success';
+                        $statusText = 'Telah Selesai';
+                    } else {
+                        $badgeClass = 'bg-gradient-info';
+                        $statusText = 'Diterima (Magang Aktif/Akan Datang)';
+                    }
+                } elseif ($status == 'ditolak') {
+                    $badgeClass = 'bg-gradient-danger';
+                    $statusText = 'Ditolak oleh Perusahaan';
+                }
             @endphp
             <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
         </p>
@@ -63,7 +76,28 @@
         @endif
 
         {{-- Tombol Aksi Mahasiswa (Ambil/Tolak Tawaran) SUDAH DIHAPUS --}}
+        @if(isset($magang) && $magang->status == 'selesai')
+            <hr class="my-3">
+            <h6><i class="fas fa-star me-1 text-warning"></i>Hasil dan Feedback Magang</h6>
 
+            @if($magang->feedback_dosen)
+                <div class="mt-2 alert alert-light border py-2 px-3 small">
+                    <p class="fw-bold mb-1 text-primary"><i class="fas fa-user-tie me-1"></i>Feedback Dosen Pembimbing:</p>
+                    <p class="mb-0 fst-italic">"{{ nl2br(htmlspecialchars($magang->feedback_dosen)) }}"</p>
+                </div>
+            @endif
+
+            @if($magang->feedback_industri)
+                 <div class="mt-2 alert alert-light border py-2 px-3 small">
+                    <p class="fw-bold mb-1 text-success"><i class="fas fa-building me-1"></i>Feedback Industri:</p>
+                    <p class="mb-0 fst-italic">"{{ nl2br(htmlspecialchars($magang->feedback_industri)) }}"</p>
+                </div>
+            @else
+                 <div class="mt-2 alert alert-secondary py-2 px-3 small">
+                    <p class="mb-0"><i class="fas fa-info-circle me-1"></i>Belum ada feedback dari Dosen atau Industri.</p>
+                </div>
+            @endif
+        @endif
     @else
         <p class="text-center text-danger">Gagal memuat detail pengajuan.</p>
     @endif

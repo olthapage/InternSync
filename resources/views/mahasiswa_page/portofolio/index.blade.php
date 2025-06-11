@@ -129,7 +129,7 @@
                             @enderror
                         </div>
                         <div class="col-md-2 d-flex flex-column justify-content-end">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah</button>
+                            <button type="submit" class="btn bg-gradient-info"><i class="fas fa-plus me-1"></i> Tambah</button>
                         </div>
                     </div>
                 </form>
@@ -314,7 +314,7 @@
                     </div>
 
 
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Tambah
+                    <button type="submit" class="btn bg-gradient-success"><i class="fas fa-plus me-1"></i> Tambah
                         Portofolio</button>
                 </form>
 
@@ -376,7 +376,7 @@
                                             <div class="mt-2">
                                                 <p class="small mb-1"><strong>Skill Terkait:</strong></p>
                                                 @foreach ($item->linkedMahasiswaSkills as $linkedSkill)
-                                                    <span class="badge bg-primary skill-tag">
+                                                    <span class="badge bg-gradient-info skill-tag">
                                                         {{ $linkedSkill->detailSkill->skill_nama ?? 'N/A' }}
                                                         ({{ $linkedSkill->level_kompetensi }})
                                                         @if ($linkedSkill->pivot->deskripsi_penggunaan_skill)
@@ -395,7 +395,7 @@
                                                     class="fas fa-external-link-alt"></i></a>
                                         @elseif($item->tipe_portofolio == 'file' || $item->tipe_portofolio == 'gambar')
                                             <a href="{{ asset('storage/' . $item->lokasi_file_atau_url) }}"
-                                                target="_blank" class="btn btn-sm btn-outline-primary me-1"
+                                                target="_blank" class="btn btn-sm bg-gradient-primary me-1"
                                                 title="Lihat File"><i class="fas fa-download"></i></a>
                                         @endif
                                         {{-- <button type="button" class="btn btn-sm btn-outline-secondary me-1" title="Edit Portofolio"><i class="fas fa-edit"></i></button> --}}
@@ -405,7 +405,7 @@
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus item portofolio ini?');">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            <button type="submit" class="btn btn-sm bg-gradient-danger"
                                                 title="Hapus Portofolio"><i class="fas fa-trash"></i></button>
                                         </form>
                                     </div>

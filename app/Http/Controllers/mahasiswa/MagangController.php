@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\mahasiswa;
 
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\MagangModel;
 use Illuminate\Http\Request;
 use App\Models\PengajuanModel;
@@ -95,5 +97,60 @@ class MagangController extends Controller
         $magangItem->save();
 
         return redirect()->route('mahasiswa.magang.index')->with('success', 'Evaluasi berhasil dikirim. Terima kasih atas partisipasi Anda.');
+    }
+
+    public function generateSuratKeterangan($magang_id)
+    {
+        $mahasiswaId = Auth::id();
+
+        // 1. Ambil data magang dengan relasi yang dibutuhkan
+        $magang = MagangModel::with([
+            'mahasiswa.prodi',
+            'mahasiswa.dosen', // Dosen Pembimbing
+            'lowongan.industri',
+        ])
+        ->where('mahasiswa_magang_id', $magang_id)
+        ->where('mahasiswa_id', $mahasiswaId)
+        ->first();
+
+        // 2. Validasi Keamanan dan Status
+        if (!$magang) {
+            return redirect()->route('mahasiswa.magang.index')->with('error', 'Data magang tidak ditemukan.');
+        }
+
+        if ($magang->status !== 'selesai') {
+            return redirect()->route('mahasiswa.magang.index')->with('error', 'Surat keterangan hanya bisa diunduh untuk magang yang telah selesai.');
+        }
+
+        // 3. Ambil periode magang dari tabel pengajuan (seperti di method index)
+        $pengajuan = PengajuanModel::where('mahasiswa_id', $magang->mahasiswa_id)
+                                  ->where('lowongan_id', $magang->lowongan_id)
+                                  ->where('status', 'diterima') // Pastikan ambil pengajuan yang diterima
+                                  ->first();
+
+        if (!$pengajuan) {
+            // Fallback jika data pengajuan tidak ditemukan, meskipun seharusnya ada
+            return redirect()->route('mahasiswa.magang.index')->with('error', 'Detail periode magang tidak ditemukan.');
+        }
+
+        // 4. Siapkan semua data untuk di-pass ke view PDF
+        $data = [
+            'nomor_surat'       => 'SKM/' . date('Y') . '/' . $magang->mahasiswa_magang_id,
+            'tanggal_terbit'    => Carbon::now()->isoFormat('D MMMM YYYY'),
+            'mahasiswa'         => $magang->mahasiswa,
+            'industri'          => $magang->lowongan->industri,
+            'lowongan'          => $magang->lowongan,
+            'pengajuan'         => $pengajuan,
+            'dosen_pembimbing'  => $magang->mahasiswa->dosen,
+        ];
+
+        // 5. Generate PDF
+        $pdf = PDF::loadView('sertifikat.surat_keterangan_template', $data);
+
+        // Atur nama file yang akan di-download
+        $fileName = 'Surat_Keterangan_Magang_' . str_replace(' ', '_', $magang->mahasiswa->nama_lengkap) . '.pdf';
+
+        // Tampilkan PDF di browser atau langsung download
+        return $pdf->stream($fileName);
     }
 }

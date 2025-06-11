@@ -73,11 +73,28 @@
 <script>
     $(function () {
         let aktivitasIndex = 1;
-        // Mengambil default lokasi magang dari controller untuk baris baru
+        // Tentukan batas maksimal aktivitas yang bisa ditambahkan
+        const maxAktivitas = 3;
+
         const defaultLokasiMagangJs = @json($defaultLokasiMagang ?? 'Alamat tidak tersedia');
 
-        // Tambah baris aktivitas
+        // --- FUNGSI BARU ---
+        // Fungsi untuk memeriksa dan mengatur status tombol "Tambah Aktivitas"
+        function updateAddButtonState() {
+            const rowCount = $('#aktivitasTable tbody tr').length;
+            if (rowCount >= maxAktivitas) {
+                // Jika jumlah baris sudah mencapai atau melebihi batas, nonaktifkan tombol
+                $('#addAktivitas').prop('disabled', true);
+            } else {
+                // Jika belum, pastikan tombol aktif
+                $('#addAktivitas').prop('disabled', false);
+            }
+        }
+
+        // --- MODIFIKASI: Event click untuk Tambah Aktivitas ---
         $('#addAktivitas').click(function () {
+            // Pengecekan dilakukan di dalam fungsi updateAddButtonState
+            // jadi kita tidak perlu cek di sini lagi sebelum menambah
             const today = new Date().toISOString().slice(0, 10);
             const newRow = `
                 <tr>
@@ -91,7 +108,7 @@
                         <input type="text" name="aktivitas[${aktivitasIndex}][lokasi]" class="form-control" value="${defaultLokasiMagangJs}" required>
                     </td>
                     <td>
-                        <select name="aktivitas[${aktivitasIndex}][status_approval_dosen]" class="form-select" disabled>
+                        <select name="aktivitas[${aktivitasIndex}][status_approval]" class="form-select" disabled>
                             <option value="pending" selected>Pending</option>
                         </select>
                     </td>
@@ -102,14 +119,23 @@
             `;
             $('#aktivitasTable tbody').append(newRow);
             aktivitasIndex++;
+
+            // Panggil fungsi untuk update status tombol setelah menambah baris baru
+            updateAddButtonState();
         });
 
-        // Hapus baris aktivitas
+        // --- MODIFIKASI: Event click untuk Hapus Aktivitas ---
         $('#aktivitasTable').on('click', '.remove-row', function () {
             $(this).closest('tr').remove();
+
+            // Panggil fungsi untuk update status tombol setelah menghapus baris
+            updateAddButtonState();
         });
 
-        // Submit form dengan AJAX
+        // Panggil fungsi saat halaman pertama kali dimuat untuk memastikan status tombol sudah benar
+        updateAddButtonState();
+
+        // --- Bagian AJAX Submit Form (Tidak ada perubahan) ---
         $('#formTambahLog').submit(function (e) {
             e.preventDefault();
             const form = $(this);
@@ -125,7 +151,6 @@
                     if (typeof $('#table_logharian').DataTable === 'function') {
                         $('#table_logharian').DataTable().ajax.reload();
                     }
-
 
                     Swal.fire({
                         toast: true,
@@ -146,11 +171,8 @@
                         const errors = xhr.responseJSON.errors;
                         $('#alert-errors').removeClass('d-none');
                         $.each(errors, function (key, messages) {
-                            // Menangani error untuk field array (misal: aktivitas.0.deskripsi)
                             let fieldName = key;
                             if (key.includes('.')) {
-                                // Ambil bagian terakhir setelah titik untuk tampilan yang lebih ramah
-                                // atau sesuaikan cara Anda menampilkan pesan error untuk field array
                                 fieldName = key.split('.').slice(1).join(' ');
                                 fieldName = fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Capitalize
                             }
@@ -159,8 +181,8 @@
                             });
                         });
                     } else if (xhr.responseJSON && xhr.responseJSON.error) { // Custom error dari controller
-                         $('#alert-errors').removeClass('d-none');
-                         $('#list-errors').append('<li>' + xhr.responseJSON.error + '</li>');
+                        $('#alert-errors').removeClass('d-none');
+                        $('#list-errors').append('<li>' + xhr.responseJSON.error + '</li>');
                          Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
@@ -177,11 +199,5 @@
                 }
             });
         });
-
-        // Hapus data (AJAX untuk tombol hapus di tabel utama, jika ada)
-        // Anda sudah memiliki fungsi deleteLog() global, pastikan itu menangani AJAX atau sesuaikan ini.
-        // Jika deleteLog() sudah ada dan berfungsi, bagian ini mungkin tidak diperlukan di sini.
-        // $('#table_logharian').on('click', '.btn-hapus', function () { ... }); // (Kode AJAX hapus Anda)
-
     });
 </script>

@@ -295,43 +295,59 @@ class LowonganController extends Controller
 
     public function terimaPengajuan(Request $request, PengajuanModel $pengajuan)
     {
+        // 1. Validasi Autentikasi Industri
         $loggedInIndustri = Auth::guard('industri')->user();
-        if (! $loggedInIndustri) {
+        if (!$loggedInIndustri) {
             return redirect()->back()->with('error', 'Sesi tidak valid.');
         }
         $authenticatedIndustriId = $loggedInIndustri->industri_id;
 
+        // 2. Validasi Otorisasi (Pastikan industri hanya bisa menerima pengajuan untuk lowongannya sendiri)
         if ($pengajuan->lowongan->industri_id !== $authenticatedIndustriId) {
             return redirect()->back()->with('error', 'Aksi tidak diizinkan untuk pengajuan ini.');
         }
 
+        // 3. Validasi Status Pengajuan (Cegah proses ulang)
         if (strtolower($pengajuan->status) !== 'belum') {
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
                 ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
         }
 
-        if ($pengajuan->lowongan->slotTersedia() <= 0) { // Pastikan slotTersedia() benar
+        // 4. Validasi Slot Lowongan
+        if ($pengajuan->lowongan->slotTersedia() <= 0) {
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
                 ->with('error', 'Slot untuk lowongan ini sudah penuh.');
         }
 
+        // 5. Proses Penerimaan dalam Transaksi Database
         DB::beginTransaction();
         try {
-            $pengajuan->status = 'diterima';
-            $pengajuan->save();
+            MagangModel::where('mahasiswa_id', $pengajuan->mahasiswa_id)->delete();
 
+            // Buat data magang yang baru berdasarkan pengajuan yang diterima.
             MagangModel::create([
                 'mahasiswa_id' => $pengajuan->mahasiswa_id,
                 'lowongan_id'  => $pengajuan->lowongan_id,
-                'status'       => 'belum', // Status awal di MagangModel
+                'status'       => 'belum', // Status awal untuk mahasiswa yang baru mulai magang
             ]);
 
+            // Update status pengajuan menjadi 'diterima'.
+            $pengajuan->status = 'diterima';
+            $pengajuan->save();
+
+            // Jika semua berhasil, commit transaksi.
             DB::commit();
+
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
                 ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.');
+
         } catch (\Exception $e) {
+            // Jika terjadi error, batalkan semua perubahan (rollback).
             DB::rollBack();
+
+            // Catat error untuk debugging.
             Log::error('Error saat menerima pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage() . "\nStack: " . $e->getTraceAsString());
+
             return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
                 ->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
         }
