@@ -144,7 +144,7 @@ class IndustriController extends Controller
                 'kategori_industri_id' => 'required|exists:m_kategori_industri,kategori_industri_id',
                 'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
                 'email'                => 'required|email|max:255',
-                'telepon'              => 'required|min:9|max:15',
+                'telepon'              => 'nullable|min:9|max:15',
             ];
 
             $validator = Validator::make($request->all(), $rules);
