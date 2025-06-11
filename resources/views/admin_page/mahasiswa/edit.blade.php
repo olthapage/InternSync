@@ -38,7 +38,7 @@
                             </div>
                             <div class="form-group mb-3">
                                 <label class="form-label">Telepon <span class="text-danger">*</span></label>
-                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}" required>
+                                <input type="text" name="telepon" class="form-control" value="{{ old('telepon', $mahasiswa->telepon) }}">
                             </div>
                              <div class="form-group mb-3">
                                 <label class="form-label">NIM <span class="text-danger">*</span></label>
@@ -198,10 +198,16 @@
     //        toggleDosenPembimbingField(); // Panggil saat load
     //     }
     // });
-    jQuery.validator.addMethod("phoneID", function (value, element) {
+     jQuery.validator.addMethod("phoneID", function (value, element) {
+        if (this.optional(element)) {
+            return true;
+        }
+
+        // Jika ada isinya, baru jalankan validasi seperti biasa.
         const cleaned = value.replace(/\D/g, ''); // hanya angka
         return (value.startsWith("0") || value.startsWith("+62")) && cleaned.length >= 9 && cleaned.length <= 15;
     }, "Masukkan nomor telepon yang valid");
+
     // Untuk jQuery Validate dan file input:
     $(document).ready(function() {
         $('#foto').on('change', function() {
@@ -219,7 +225,6 @@
                 nama_lengkap: { required: true, minlength: 3 },
                 email: { required: true, email: true },
                 telepon: {
-                    required: true,
                     minlength: 9,
                     maxlength: 15,
                     phoneID: true

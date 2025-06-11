@@ -207,11 +207,11 @@ class MahasiswaController extends Controller
             $rules = [
                 'nama_lengkap' => 'required|string|max:255',
                 'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
-                'telepon'      => 'required|string|min:9|max:15',
+                'telepon'      => 'nullable|string|min:9|max:15',
                 'nim'          => 'required|string|max:15|unique:m_mahasiswa,nim,' . $id . ',mahasiswa_id',
                 'ipk'          => 'nullable|numeric|min:0|max:4.00',
                 'status'       => 'required|boolean',
-                'prodi_id'     => 'required|exists:m_prodi,prodi_id', // Nama tabel diperbaiki
+                'prodi_id'     => 'required|exists:tabel_prodi,prodi_id',
                 'dpa_id'       => 'nullable|exists:m_dosen,dosen_id',
                 'dosen_id'     => 'nullable|exists:m_dosen,dosen_id',
                 'password'     => 'nullable|string|min:6|max:20',
@@ -226,7 +226,7 @@ class MahasiswaController extends Controller
             $rules = [
                 'nama_lengkap' => 'required|string|max:255',
                 'email'        => 'required|email|unique:m_mahasiswa,email,' . $id . ',mahasiswa_id',
-                'telepon'      => 'required|string|min:9|max:15',
+                'telepon'      => 'nullable|string|min:9|max:15',
                 'password'     => 'nullable|string|min:6|max:20',
                 'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ];

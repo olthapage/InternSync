@@ -78,9 +78,15 @@
 
 <script>
     jQuery.validator.addMethod("phoneID", function (value, element) {
+        if (this.optional(element)) {
+            return true;
+        }
+
+        // Jika ada isinya, baru jalankan validasi seperti biasa.
         const cleaned = value.replace(/\D/g, ''); // hanya angka
         return (value.startsWith("0") || value.startsWith("+62")) && cleaned.length >= 9 && cleaned.length <= 15;
     }, "Masukkan nomor telepon yang valid");
+    
     $(document).ready(function() {
         $("#form-edit").validate({
             rules: {
