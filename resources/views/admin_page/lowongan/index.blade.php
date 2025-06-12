@@ -5,7 +5,7 @@
         <div class="card-body text-sm">
             <h2 class="mb-4">Daftar Lowongan</h2>
             <div class="d-flex justify-content-end mb-3">
-                <button onclick="modalAction('{{ url('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah Lowongan</button>
+                <button onclick="modalAction('{{ route('lowongan.create') }}')" class="btn btn-sm btn-primary">+ Tambah Lowongan</button>
             </div>
             <div class="form-group row">
                 <label class="col-2 control-label col-form-label">Filter Periode:</label>
