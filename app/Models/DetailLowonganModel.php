@@ -27,7 +27,7 @@ class DetailLowonganModel extends Model
         'lokasi_provinsi_id',
         'lokasi_kota_id',
         'lokasi_alamat_lengkap',
-        'upah',];
+        'upah'];
 
     protected $casts = [
         'tanggal_mulai'               => 'date',
@@ -96,9 +96,8 @@ class DetailLowonganModel extends Model
     }
     public function slotTerisi(): int
     {
-        return $this->hasMany(MagangModel::class, 'lowongan_id', 'lowongan_id')
-            ->where('status', 'diterima')
-            ->count();
+        // Cukup hitung semua record di MagangModel yang terkait dengan lowongan_id ini.
+        return $this->hasMany(MagangModel::class, 'lowongan_id', 'lowongan_id')->count();
     }
     public function slotTersedia(): int
     {

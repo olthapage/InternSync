@@ -27,7 +27,7 @@
                         </div>
                     @else
                         {{-- Tampilkan tombol jika bisa mengajukan magang --}}
-                        <a href="{{ route('mahasiswa.pengajuan.create') }}" class="btn btn-gradient-success btn-lg">
+                        <a href="{{ route('mahasiswa.pengajuan.create') }}" class="btn bg-gradient-success btn-lg">
                             <i class="fas fa-plus me-2"></i>Tambah Pengajuan
                         </a>
                     @endif
@@ -70,20 +70,18 @@
                                                 <i class="fas fa-info-circle text-primary me-2"></i>
                                                 <span class="text-sm">
                                                     Status:
+                                                    {{-- ===== PERBAIKAN LOGIKA STATUS DIMULAI DI SINI ===== --}}
                                                     @if ($item->status == 'diterima')
-                                                        {{-- Jika status pengajuan diterima, cek status magangnya --}}
-                                                        @if (isset($item->magang) && $item->magang->status == 'selesai')
-                                                            <span class="badge bg-primary">Telah Selesai</span>
-                                                        @else
-                                                            <span class="badge bg-success">Diterima</span>
-                                                        @endif
+                                                        <span class="badge bg-success">Diterima</span>
                                                     @elseif ($item->status == 'ditolak')
                                                         <span class="badge bg-danger">Ditolak</span>
                                                     @elseif ($item->status == 'belum')
                                                         <span class="badge bg-warning text-dark">Diproses</span>
                                                     @else
+                                                        {{-- Fallback untuk status lain jika ada --}}
                                                         <span class="badge bg-secondary">{{ ucfirst($item->status) }}</span>
                                                     @endif
+                                                    {{-- ===== PERBAIKAN LOGIKA STATUS SELESAI ===== --}}
                                                 </span>
                                             </div>
                                         </div>

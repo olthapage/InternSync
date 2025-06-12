@@ -210,17 +210,17 @@
                 <ul class="collapse list-unstyled ps-4 {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'show' : '' }}"
                     id="dropdownMenuSkill">
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'kategori_skill' ? 'active text-success' : '' }}"
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm border-bottom {{ $activeMenu == 'kategori_skill' ? 'active text-success' : '' }}"
                             href="{{ route('kategori-skill.index') }}">
                             <i
-                                class="fas fa-tags me-2 {{ in_array($activeMenu, ['kategori_skill', 'skill']) ? 'text-success' : 'text-dark' }}"></i>
+                                class="fas fa-tags me-2 {{ $activeMenu == 'kategori_skill' ? 'text-success' : 'text-dark' }}"></i>
                             <span
                                 class="nav-link {{ $activeMenu == 'kategori_skill' ? 'text-success' : 'text-dark' }}">Kategori
                                 Skill</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center py-2 text-sm {{ $activeMenu == 'skill' ? 'active text-success' : '' }}"
+                        <a class="dropdown-item d-flex align-items-center py-2 text-sm border-bottom {{ $activeMenu == 'skill' ? 'active text-success' : '' }}"
                             href="{{ route('detail-skill.index') }}">
                             <i
                                 class="fas fa-list-alt me-2 {{ $activeMenu == 'skill' ? 'text-success' : 'text-dark' }}"></i>

@@ -1,12 +1,12 @@
 <?php
 namespace App\Http\Controllers\mahasiswa;
 
+use Carbon\Carbon;
 use App\Models\MagangModel;
 use Illuminate\Http\Request;
 use App\Models\IndustriModel;
 use App\Models\MahasiswaModel;
 use App\Models\PengajuanModel;
-use Illuminate\Support\Carbon;
 use App\Models\KategoriSkillModel;
 use App\Models\DetailLowonganModel;
 use Illuminate\Support\Facades\Log;
@@ -22,32 +22,13 @@ class PengajuanController extends Controller
         $mahasiswa = auth()->user();
         $mahasiswaId = $mahasiswa->mahasiswa_id;
 
-        // Ambil riwayat pengajuan untuk ditampilkan (tidak ada perubahan di sini)
+        // Ambil riwayat pengajuan (tidak perlu melampirkan data magang lagi di sini)
         $pengajuan = PengajuanModel::with(['lowongan.industri'])
             ->where('mahasiswa_id', $mahasiswaId)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // --- LOGIKA BARU UNTUK MENGHUBUNGKAN STATUS MAGANG ---
-        if ($pengajuan->isNotEmpty()) {
-            // 1. Kumpulkan semua lowongan_id dari pengajuan yang ada
-            $lowonganIds = $pengajuan->pluck('lowongan_id')->unique();
-
-            // 2. Ambil semua data magang yang relevan dalam satu query
-            $dataMagang = MagangModel::where('mahasiswa_id', $mahasiswaId)
-                                     ->whereIn('lowongan_id', $lowonganIds)
-                                     ->get()
-                                     // 3. Kelompokkan berdasarkan lowongan_id untuk pencarian cepat
-                                     ->keyBy('lowongan_id');
-
-            // 4. Lampirkan data magang ke setiap item pengajuan
-            $pengajuan->each(function ($item) use ($dataMagang) {
-                // Buat properti baru 'magang' di setiap item pengajuan
-                $item->magang = $dataMagang->get($item->lowongan_id);
-            });
-        }
-
-        // Logika untuk kontrol pengajuan (tidak ada perubahan di sini)
+        // Logika untuk kontrol tombol "Tambah Pengajuan" (tidak berubah)
         $bisaAjukan = true;
         $alasanTidakBisaAjukan = '';
         $pengajuanDiproses = $pengajuan->firstWhere('status', 'belum');
@@ -55,9 +36,10 @@ class PengajuanController extends Controller
             $bisaAjukan = false;
             $alasanTidakBisaAjukan = 'Anda masih memiliki pengajuan yang sedang diproses. Mohon tunggu hasilnya sebelum membuat pengajuan baru.';
         } else {
+            // Cek magang aktif langsung ke tabel magang
             $magangAktif = MagangModel::where('mahasiswa_id', $mahasiswaId)
-                                      ->whereIn('status', ['belum', 'sedang'])
-                                      ->exists();
+                                       ->whereIn('status', ['belum', 'sedang'])
+                                       ->exists();
             if ($magangAktif) {
                 $bisaAjukan = false;
                 $alasanTidakBisaAjukan = 'Anda sedang dalam periode magang aktif. Anda baru dapat mengajukan magang lagi setelah periode saat ini selesai.';
@@ -77,14 +59,23 @@ class PengajuanController extends Controller
 
     public function create($id = null)
     {
-        $lowonganList      = DetailLowonganModel::with(['industri', 'kategoriSkill'])->get();
-        $industriList      = IndustriModel::all();
-        $kategoriSkillList = KategoriSkillModel::all();
-        $activeMenu = 'pengajuan';
+        $today = Carbon::today();
 
+        // Ambil lowongan yang pendaftarannya masih valid
+        $lowonganList = DetailLowonganModel::with(['industri', 'kategoriSkill', 'pendaftar'])
+            ->whereDate('pendaftaran_tanggal_selesai', '>=', $today)
+            ->get();
+
+        // Ambil data untuk filter dropdown
+        $industriList      = IndustriModel::orderBy('industri_nama')->get();
+        $kategoriSkillList = KategoriSkillModel::orderBy('kategori_nama')->get();
+        $activeMenu        = 'pengajuan';
+
+        // Cek jika ada lowongan yang dipilih dari halaman lain
         $selectedLowongan = null;
         if ($id) {
-            $selectedLowongan = DetailLowonganModel::with(['industri', 'kategoriSkill'])->find($id);
+            // Cari dari daftar lowongan yang sudah difilter
+            $selectedLowongan = $lowonganList->find($id);
         }
 
         return view('mahasiswa_page.pengajuan.create', compact('lowonganList', 'industriList', 'kategoriSkillList', 'selectedLowongan', 'activeMenu'));

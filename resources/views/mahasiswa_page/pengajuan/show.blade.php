@@ -43,7 +43,7 @@
             {{ \Carbon\Carbon::parse($pengajuan->tanggal_selesai)->isoFormat('D MMMM YYYY') }}
         </p>
          <p class="mb-0"><strong>Status Pengajuan:</strong>
-            {{-- --- FIX: Logika status badge disesuaikan --- --}}
+           {{-- ===== BLOK STATUS YANG DIPERBAIKI ===== --}}
             @php
                 $status = strtolower($pengajuan->status);
                 $badgeClass = 'bg-secondary';
@@ -53,13 +53,8 @@
                     $badgeClass = 'bg-gradient-warning text-dark';
                     $statusText = 'Menunggu Review';
                 } elseif ($status == 'diterima') {
-                    if (isset($magang) && $magang->status == 'selesai') {
-                        $badgeClass = 'bg-gradient-success';
-                        $statusText = 'Telah Selesai';
-                    } else {
-                        $badgeClass = 'bg-gradient-info';
-                        $statusText = 'Diterima (Magang Aktif/Akan Datang)';
-                    }
+                    $badgeClass = 'bg-gradient-success';
+                    $statusText = 'Diterima';
                 } elseif ($status == 'ditolak') {
                     $badgeClass = 'bg-gradient-danger';
                     $statusText = 'Ditolak oleh Perusahaan';

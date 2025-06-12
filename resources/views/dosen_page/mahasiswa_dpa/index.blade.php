@@ -47,11 +47,11 @@
                     <table class="table table-hover align-middle mb-0 text-center" id="table_mahasiswa_dpa" style="width:100%">
                         <thead>
                             <tr>
-                                <th style="width: 5%;">No</th>
-                                <th style="width: 40%;">Mahasiswa</th>
-                                <th style="width: 30%;">Program Studi</th>
-                                <th style="width: 15%;">Skill Pending</th>
-                                <th style="width: 10%;">Aksi</th>
+                                <th>No</th>
+                                <th>Mahasiswa</th>
+                                <th>Program Studi</th>
+                                <th>Skill Pending</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,7 +92,7 @@
                     columns: [
                         { data: 'DT_RowIndex', name: 'DT_RowIndex', className: 'text-center', orderable: false, searchable: false },
                         { data: 'nama_lengkap_mahasiswa', name: 'nama_lengkap', className: 'text-start' },
-                        { data: 'prodi_mahasiswa', name: 'prodi.nama_prodi' }, // Untuk sorting/searching server-side by prodi.nama_prodi
+                        { data: 'prodi_mahasiswa', name: 'prodi.nama_prodi', visible:false }, // Untuk sorting/searching server-side by prodi.nama_prodi
                         { data: 'skill_pending_count', name: 'skill_pending_count', className: 'text-center', orderable: false, searchable: false },
                         { data: 'aksi', name: 'aksi', className: 'text-center', orderable: false, searchable: false }
                     ],

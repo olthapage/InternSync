@@ -3,7 +3,7 @@
 @section('content')
     <div class="card card-outline card-primary">
         <div class="card-body text-sm">
-            <h2 class="mb-4">Log Harian Dosen</h2>
+            <h2 class="mb-4">Log Harian Mahasiswa</h2>
 
             <div class="row mb-4">
                 <div class="col-md-3">
@@ -76,12 +76,12 @@
                 info: "Menampilkan START sampai END dari TOTAL data",
                 infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
                 infoFiltered: "(disaring dari MAX total data)",
-                paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
-                    previous: "Sebelumnya"
-                }
+                 paginate: {
+                        first: "<i class='fas fa-angle-double-left'></i>",
+                        last: "<i class='fas fa-angle-double-right'></i>",
+                        next: "<i class='fas fa-angle-right'></i>",
+                        previous: "<i class='fas fa-angle-left'></i>"
+                    }
             },
             order: [[1, 'desc']]
         });

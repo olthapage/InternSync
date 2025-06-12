@@ -7,9 +7,12 @@
         Sistem memberi kebebasan dalam menentukan bobot, namun disarankan untuk <strong>skill yang lebih penting diberikan bobot lebih tinggi.</strong>
     </p>
 
+    <div id="kriteriaCountError-{{ $lowongan->lowongan_id }}" class="alert alert-warning py-2 mb-2" style="display: none; font-size: 0.875rem;"></div>
     <div id="totalBobotError-{{ $lowongan->lowongan_id }}" class="alert py-2" style="display: none; font-size: 0.875rem;"></div>
-    <div class="mb-3 text-end">
-        <span class="fw-bold text-white">Total Bobot Saat Ini: <span id="currentTotalBobot-{{ $lowongan->lowongan_id }}">0</span>%</span>
+
+    <div class="d-flex justify-content-end align-items-center mb-3 text-end">
+        <span class="fw-bold me-4">Kriteria Terpilih: <span id="currentKriteriaCount-{{ $lowongan->lowongan_id }}">0</span></span>
+        <span class="fw-bold">Total Bobot: <span id="currentTotalBobot-{{ $lowongan->lowongan_id }}">0</span>%</span>
     </div>
 
     <h6 class="text-dark-blue fw-bold border-bottom pb-2 mb-3">Kriteria Keahlian (Skill)</h6>
@@ -124,52 +127,74 @@
             const formSpk = document.getElementById('formSpkKriteria-' + lowonganId);
             if (!formSpk) return;
 
+            const MIN_KRITERIA = 5; // Tentukan jumlah minimal kriteria di sini
+
+            // Elemen UI
             const currentTotalBobotSpan = document.getElementById('currentTotalBobot-' + lowonganId);
             const totalBobotErrorDiv = document.getElementById('totalBobotError-' + lowonganId);
+            const currentKriteriaCountSpan = document.getElementById('currentKriteriaCount-' + lowonganId);
+            const kriteriaCountErrorDiv = document.getElementById('kriteriaCountError-' + lowonganId);
             const submitButton = formSpk.querySelector('button[type="submit"]');
 
-            function calculateAndDisplayTotalBobot() {
-                if (!currentTotalBobotSpan || !totalBobotErrorDiv) return;
+            function updateFormState() {
+                if (!currentTotalBobotSpan || !totalBobotErrorDiv || !currentKriteriaCountSpan || !kriteriaCountErrorDiv) return;
+
                 let totalBobot = 0;
+                let kriteriaCount = formSpk.querySelectorAll('input[name^="bobot_skill"]').length;
+
                 const bobotInputs = formSpk.querySelectorAll('.spk-bobot-input');
 
+                // Hitung total bobot
                 bobotInputs.forEach(input => {
-                    const kriteriaKey = input.name.startsWith('bobot_skill[') ? 'skill' : input.name.replace('bobot_', '');
-                    const checkboxId = kriteriaKey === 'skill' ? null : 'gunakan_' + kriteriaKey + '-' + lowonganId;
-                    const checkbox = checkboxId ? formSpk.querySelector('#' + checkboxId) : null;
-
-                    let isKriteriaAktif = true;
-                    if (checkbox) {
-                        isKriteriaAktif = checkbox.checked;
-                    }
-
-                    if (input.offsetParent !== null && isKriteriaAktif) {
+                    if (input.offsetParent !== null) { // Hanya hitung input yang terlihat
                         totalBobot += parseFloat(input.value) || 0;
                     }
                 });
 
+                // Hitung jumlah kriteria tambahan yang aktif
+                formSpk.querySelectorAll('.spk-bobot-toggle:checked').forEach(() => {
+                    kriteriaCount++;
+                });
+
+                // Update tampilan jumlah
                 currentTotalBobotSpan.textContent = totalBobot;
-                // ... (logika display error/info/success total bobot Anda) ...
-                 if (totalBobot > 100) {
+                currentKriteriaCountSpan.textContent = kriteriaCount;
+
+                // Validasi dan tampilkan pesan untuk jumlah kriteria
+                const isKriteriaValid = kriteriaCount >= MIN_KRITERIA;
+                if (!isKriteriaValid) {
+                    kriteriaCountErrorDiv.textContent = `Peringatan: Anda harus memilih minimal ${MIN_KRITERIA} kriteria untuk perhitungan (saat ini ${kriteriaCount} terpilih).`;
+                    kriteriaCountErrorDiv.className = 'alert alert-danger py-2 mb-2 text-white';
+                    kriteriaCountErrorDiv.style.display = 'block';
+                } else {
+                    kriteriaCountErrorDiv.style.display = 'none';
+                }
+
+                // Validasi dan tampilkan pesan untuk total bobot
+                let isBobotValid = false;
+                if (totalBobot > 100) {
                     totalBobotErrorDiv.textContent = 'Peringatan: Total bobot melebihi 100% (' + totalBobot + '%). Sistem akan menormalisasi bobot ini, namun disarankan total bobot adalah 100%.';
-                    totalBobotErrorDiv.className = 'alert alert-danger py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
-                    if(submitButton) submitButton.classList.add('btn-warning');
+                    totalBobotErrorDiv.className = 'alert alert-warning py-2 text-white';
+                    totalBobotErrorDiv.style.display = 'block';
                 } else if (totalBobot < 100 && totalBobot > 0) {
                     totalBobotErrorDiv.textContent = 'Info: Total bobot saat ini adalah ' + totalBobot + '%. Idealnya 100%. Sistem akan menormalisasi bobot ini.';
-                    totalBobotErrorDiv.className = 'alert alert-info py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
-                     if(submitButton) submitButton.classList.remove('btn-warning');
+                    totalBobotErrorDiv.className = 'alert alert-info py-2 text-white';
+                    totalBobotErrorDiv.style.display = 'block';
                 } else if (totalBobot === 100) {
                     totalBobotErrorDiv.textContent = 'Total bobot sudah 100%. Sempurna!';
-                    totalBobotErrorDiv.className = 'alert alert-success py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
-                     if(submitButton) submitButton.classList.remove('btn-warning');
+                    totalBobotErrorDiv.className = 'alert alert-success py-2 text-white';
+                    totalBobotErrorDiv.style.display = 'block';
+                    isBobotValid = true; // Anggap valid jika pas 100
                 } else {
                     totalBobotErrorDiv.style.display = 'none';
-                    if(submitButton) submitButton.classList.remove('btn-warning');
+                }
+
+                // Aktifkan atau nonaktifkan tombol submit
+                if(submitButton) {
+                    submitButton.disabled = !isKriteriaValid;
                 }
             }
 
-            // Definisikan fungsi toggle di scope yang bisa diakses oleh onchange
-            // atau pasang event listener secara dinamis
             window['toggleKriteriaTambahan'] = function(checkboxElement, kriteriaNama, lwId) {
                 if (lwId !== lowonganId) return;
 
@@ -184,28 +209,21 @@
                         requiredStarEl.style.display = 'inline';
                     } else {
                         bobotDiv.style.display = 'none';
-                        // bobotInputEl.value = ''; // Jangan reset value agar bisa di-toggle tanpa kehilangan input
                         bobotInputEl.required = false;
                         requiredStarEl.style.display = 'none';
                     }
-                    calculateAndDisplayTotalBobot();
+                    updateFormState(); // Panggil update setiap kali checkbox di-toggle
                 }
             };
 
+            // Tambahkan event listener ke semua input dan checkbox
             formSpk.querySelectorAll('.spk-bobot-input, .spk-bobot-toggle').forEach(input => {
-                input.addEventListener('input', calculateAndDisplayTotalBobot);
-                input.addEventListener('change', calculateAndDisplayTotalBobot);
+                input.addEventListener('input', updateFormState);
+                input.addEventListener('change', updateFormState);
             });
 
-            // Inisialisasi tampilan untuk semua checkbox kriteria tambahan
-            formSpk.querySelectorAll('.spk-bobot-toggle').forEach(checkbox => {
-                const kriteriaNama = checkbox.name.replace('gunakan_', '');
-                 if (typeof window['toggleKriteriaTambahan'] === "function") {
-                    window['toggleKriteriaTambahan'](checkbox, kriteriaNama, lowonganId);
-                }
-            });
-
-            calculateAndDisplayTotalBobot();
+            // Panggil fungsi saat halaman pertama kali dimuat
+            updateFormState();
         })();
     </script>
 
@@ -217,7 +235,7 @@
 
     <div id="spkResultArea-{{ $lowongan->lowongan_id }}" class="mt-4"></div>
     <hr class="my-4">
-    <div class="alert alert-secondary small" role="alert" style="background-color: #f8f9fa; border-color: #e9ecef;">
-        {{-- ... (Disclaimer Anda) ... --}}
+    <div class="alert alert-outline-white small" role="alert" style="background-color: #f8f9fa; border-color: #e9ecef;">
+        Rekomendasi kriteria ini akan membantu dalam menentukan kandidat terbaik berdasarkan bobot yang telah ditentukan. Pastikan untuk meninjau hasil rekomendasi sebelum membuat keputusan akhir.
     </div>
 </form>

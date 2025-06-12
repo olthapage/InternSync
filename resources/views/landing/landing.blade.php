@@ -138,32 +138,22 @@
             text-decoration: none;
         }
 
+        /* ===== PERBAIKAN MARQUEE DIMULAI DI SINI ===== */
         @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        @keyframes marquee2 {
-            0% {
-                transform: translateX(100%);
-            }
-
-            100% {
-                transform: translateX(0%);
-            }
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
         }
 
         .animate-marquee {
-            animation: marquee 35s linear infinite;
+            animation: marquee 40s linear infinite;
         }
 
-        .animate-marquee2 {
-            animation: marquee2 35s linear infinite;
+        .group:hover .animate-marquee {
+            animation-play-state: paused;
+        }
+        /* ===== PERBAIKAN MARQUEE SELESAI ===== */
+        .animate-marquee {
+            animation: marquee 35s linear infinite;
         }
 
         .group:hover .pause-animation {
@@ -201,7 +191,6 @@
                 <a href="#about" class="text-slate-600 hover:text-sky-600 transition duration-300">Tentang Kami</a>
                 <a href="#features" class="text-slate-600 hover:text-sky-600 transition duration-300">Fitur</a>
                 <a href="#team" class="text-slate-600 hover:text-sky-600 transition duration-300">Tim Kami</a>
-                <a href="#testimonials" class="text-slate-600 hover:text-sky-600 transition duration-300">Testimoni</a>
                 <a href="{{ route('login') }}"
                     class="py-2 px-4 text-slate-600 hover:text-sky-600 transition duration-300">Masuk</a>
                 <a href="{{ route('signup') }}"
@@ -226,8 +215,6 @@
                 Kami</a>
             <a href="#features" class="block text-slate-600 hover:text-sky-600 transition duration-300 py-2">Fitur</a>
             <a href="#team" class="block text-slate-600 hover:text-sky-600 transition duration-300 py-2">Tim Kami</a>
-            <a href="#testimonials"
-                class="block text-slate-600 hover:text-sky-600 transition duration-300 py-2">Testimoni</a>
             <hr class="border-slate-200 my-2">
             <a href="{{ route('login') }}"
                 class="block text-slate-600 hover:text-sky-600 transition duration-300 py-2">Masuk</a>
@@ -276,9 +263,10 @@
                 <h1
                     class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-6 reveal animation-delay-100 text-center">
                     <em>Intern
-                    <span class="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent inline-block">
-                        Sync
-                    </span>
+                        <span
+                            class="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent inline-block">
+                            Sync
+                        </span>
                     </em>
                     <br>
                     Jembatan Menuju Karir Impian
@@ -292,12 +280,16 @@
 
                 <div
                     class="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row justify-center items-center reveal animation-delay-300 mb-12 w-full sm:w-auto">
+                    <!-- Tombol utama -->
                     <a href="{{ route('signup') }}"
-                        class="w-full sm:w-auto btn-primary text-base font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">Cari
-                        Magang Sekarang</a>
+                        class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-500 text-white text-base font-medium py-3 px-8 rounded-full shadow hover:shadow-lg transition duration-300">
+                        Cari Magang Sekarang
+                    </a>
+                    <!-- Tombol sekunder -->
                     <a href="#about"
-                        class="w-full sm:w-auto btn-secondary text-base font-semibold py-3 px-8 rounded-lg shadow-sm hover:shadow-md transition duration-300">Pelajari
-                        Lebih Lanjut</a>
+                        class="w-full sm:w-auto bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 text-base font-medium py-3 px-8 rounded-full shadow-sm hover:shadow-md transition duration-300">
+                        Pelajari Lebih Lanjut
+                    </a>
                 </div>
 
 
@@ -317,6 +309,16 @@
 
                             <div class="carousel-slide min-w-full">
                                 <img src="{{ asset('images/corausel/corausel2.png') }}"
+                                    alt="InternSync Platform Mockup 2" class="rounded-xl w-full h-auto object-cover"
+                                    style="max-height: 500px;">
+                            </div>
+                            <div class="carousel-slide min-w-full">
+                                <img src="{{ asset('images/corausel/corausel3.png') }}"
+                                    alt="InternSync Platform Mockup 2" class="rounded-xl w-full h-auto object-cover"
+                                    style="max-height: 500px;">
+                            </div>
+                            <div class="carousel-slide min-w-full">
+                                <img src="{{ asset('images/corausel/corausel4.png') }}"
                                     alt="InternSync Platform Mockup 2" class="rounded-xl w-full h-auto object-cover"
                                     style="max-height: 500px;">
                             </div>
@@ -373,18 +375,6 @@
                                 </div>
                             @endforeach
                         </div>
-
-
-                        <div
-                            class="absolute top-0 py-8 animate-marquee2 whitespace-nowrap flex items-center group-hover:pause-animation">
-                            @foreach ($industriesForMarquee as $industry)
-                                <div class="mx-6 flex-shrink-0 flex items-center justify-center h-16 w-auto sm:h-20"
-                                    title="{{ $industry->industri_nama }}">
-                                    <img src="{{ $industry->logo_url }}" alt="{{ $industry->industri_nama }} Logo"
-                                        class="max-h-full max-w-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300 transform hover:scale-110 cursor-pointer">
-                                </div>
-                            @endforeach
-                        </div>
                     </div>
                 @else
                     <div class="text-center py-8">
@@ -396,13 +386,13 @@
                 <div class="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-center">
                     <div
                         class="p-6 bg-white rounded-xl border border-slate-200 hover:shadow-xl transition-shadow duration-300">
-                        <div class="text-4xl font-bold text-sky-600 mb-2">20+</div>
-                        <div class="text-slate-600 text-sm font-medium">Perusahaan Partner</div>
+                        <div class="text-4xl font-bold text-purple-600 mb-2">{{ $jumlahMahasiswa }}</div>
+                        <div class="text-slate-600 text-sm font-medium">Mahasiswa JTI Kompeten</div>
                     </div>
                     <div
                         class="p-6 bg-white rounded-xl border border-slate-200 hover:shadow-xl transition-shadow duration-300">
-                        <div class="text-4xl font-bold text-purple-600 mb-2">2K+</div>
-                        <div class="text-slate-600 text-sm font-medium">Mahasiswa JTI Kompeten</div>
+                        <div class="text-4xl font-bold text-sky-600 mb-2">{{ $jumlahIndustri }}</div>
+                        <div class="text-slate-600 text-sm font-medium">Perusahaan Partner</div>
                     </div>
 
                     <div
@@ -725,9 +715,10 @@
                     <h3 class="text-2xl font-bold text-slate-900 mb-1">Ananda Satria Putra Nugroho</h3>
                     <p class="text-md text-sky-600 font-medium mb-4">Technical Writer & Documentation Specialist </p>
                     <hr class="my-4 border-slate-200">
-                    <p class="text-base text-slate-700 leading-relaxed text-left">Ananda adalah arsitek pengetahuan di balik InternSync, 
-                        yang mengubah kompleksitas teknis menjadi panduan yang mudah dicerna. Dengan ketelitiannya, 
-                        ia menciptakan dokumentasi proyek yang komprehensif dan panduan pengguna yang intuitif, 
+                    <p class="text-base text-slate-700 leading-relaxed text-left">Ananda adalah arsitek pengetahuan di
+                        balik InternSync,
+                        yang mengubah kompleksitas teknis menjadi panduan yang mudah dicerna. Dengan ketelitiannya,
+                        ia menciptakan dokumentasi proyek yang komprehensif dan panduan pengguna yang intuitif,
                         menjembatani kesenjangan antara teknologi dengan pengguna akhir maupun developer.</p>
                 </div>
             </div>
@@ -753,7 +744,7 @@
     <footer class="bg-slate-800 text-slate-300 border-t border-slate-700 py-12">
         <div class="container mx-auto px-4 sm:px-6">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 text-center sm:text-left">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 text-center sm:text-left">
                 <div>
                     <h5 class="text-lg font-semibold text-white mb-4">InternSync</h5>
                     <p class="text-sm text-slate-400">Menghubungkan talenta muda dengan peluang karir terbaik.</p>
@@ -769,36 +760,17 @@
                         </li>
                         <li><a href="#team"
                                 class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Tim</a></li>
-                        <li><a href="#testimonials"
-                                class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Testimoni</a>
-                        </li>
                     </ul>
                 </div>
-                <div>
-                    <h5 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Untuk Pengguna</h5>
-                    <ul class="space-y-2">
-                        <li><a href="#"
-                                class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Mahasiswa</a>
-                        </li>
-                        <li><a href="#"
-                                class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Perusahaan</a>
-                        </li>
-                        <li><a href="#"
-                                class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Institusi
-                                Pendidikan</a></li>
-                        <li><a href="#"
-                                class="text-sm text-slate-400 hover:text-sky-300 transition duration-300">Pusat
-                                Bantuan</a></li>
-                    </ul>
-                </div>
+
                 <div>
                     <h5 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Ikuti Kami</h5>
                     <div class="flex space-x-4 justify-center sm:justify-start">
-                        <a href="#" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
+                        <a href="https://x.com/" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
                                 class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
+                        <a href="https://www.linkedin.com/" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
                                 class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
+                        <a href="https://www.instagram.com/" class="text-slate-400 hover:text-sky-300 transition duration-300 text-xl"><i
                                 class="fab fa-instagram"></i></a>
                     </div>
                 </div>

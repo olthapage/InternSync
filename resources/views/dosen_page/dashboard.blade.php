@@ -5,6 +5,33 @@
     $namaDosen = $dosen->nama_lengkap;
 @endphp
 
+@push('css')
+    <style>
+        #table_mahasiswa_dpa th,
+        #table_mahasiswa_dpa td {
+            vertical-align: middle;
+        }
+        .avatar.avatar-sm { /* Ukuran avatar di tabel */
+            width: 38px !important;
+            height: 38px !important;
+        }
+        .table th, .table td { /* Mencegah text wrap agar rapi */
+            white-space: nowrap;
+        }
+        .badge { /* Ukuran badge agar lebih pas */
+            font-size: 0.85em;
+            padding: 0.4em 0.65em;
+        }
+
+        /* ===== PERUBAHAN DI SINI ===== */
+        /* Menambahkan class untuk membuat kontainer tabel bisa di-scroll */
+        .table-container-scrollable {
+            max-height: 400px; /* Anda bisa sesuaikan tinggi maksimalnya */
+            overflow-y: auto;  /* Tambahkan scroll vertikal jika konten lebih tinggi dari max-height */
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="row">
         {{-- HEADER (Tetap Sama) --}}
@@ -37,7 +64,7 @@
             <div class="row">
                 @if ($roleDosen == 'pembimbing')
                     {{-- Kartu Statistik untuk Dosen Pembimbing --}}
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-xl-4 col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -51,7 +78,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-xl-4 col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -65,21 +92,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <p class="text-sm mb-1 text-dark font-weight-bold">Menunggu Evaluasi</p>
-                                        <h4 class="font-weight-bolder text-dark mb-0">{{ $menungguEvaluasi }}</h4>
-                                    </div>
-                                    <div class="icon icon-shape bg-warning text-white rounded-circle shadow text-center"><i
-                                            class="fas fa-clock"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-xl-4 col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -95,7 +108,7 @@
                     </div>
                 @elseif ($roleDosen == 'dpa')
                     {{-- Kartu Statistik untuk DPA --}}
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-xl-6 col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -110,21 +123,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <p class="text-sm mb-1 text-dark font-weight-bold">Mhs Aktif (Wali)</p>
-                                        <h4 class="font-weight-bolder text-dark mb-0">{{ $mahasiswaAktifWali }}</h4>
-                                    </div>
-                                    <div class="icon icon-shape bg-info text-white rounded-circle shadow text-center"><i
-                                            class="fas fa-user-clock"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="col-xl-6 col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -134,20 +133,6 @@
                                     </div>
                                     <div class="icon icon-shape bg-warning text-white rounded-circle shadow text-center"><i
                                             class="fas fa-tasks"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <p class="text-sm mb-1 text-dark font-weight-bold">Pengajuan Lainnya</p>
-                                        <h4 class="font-weight-bolder text-dark mb-0">{{ $pengajuanLain }}</h4>
-                                    </div>
-                                    <div class="icon icon-shape bg-danger text-white rounded-circle shadow text-center"><i
-                                            class="fas fa-file-signature"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +152,7 @@
                             <a href="{{ route('mahasiswa-bimbingan.index') }}" class="btn btn-sm bg-gradient-primary mb-0">Lihat Semua</a>
                         </div>
                         <div class="card-body p-3">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-container-scrollable">
                                 {{-- Tabel Mahasiswa Bimbingan --}}
                                 <table class="table align-items-center mb-0">
                                     <thead>
@@ -319,16 +304,16 @@
                                             @php
                                                 $statusClass = 'text-secondary';
                                                 if ($skill->status_verifikasi == 'Valid') {
-                                                    $statusClass = 'text-success';
+                                                    $statusClass = 'text-success fas fa-check';
                                                 }
-                                                if ($skill->status_verifikasi == 'Belum Diverifikasi') {
-                                                    $statusClass = 'text-warning';
+                                                if ($skill->status_verifikasi == 'Pending') {
+                                                    $statusClass = 'text-success fas fa-spinner';
                                                 }
-                                                if ($skill->status_verifikasi == 'Tidak Valid') {
-                                                    $statusClass = 'text-danger';
+                                                if ($skill->status_verifikasi == 'Invalid') {
+                                                    $statusClass = 'text-success fas fa-times';
                                                 }
                                             @endphp
-                                            <i class="fas fa-check {{ $statusClass }} text-gradient"></i>
+                                            <i class="{{ $statusClass }} text-gradient"></i>
                                         </span>
                                         <div class="timeline-content">
                                             <h6 class="text-dark text-sm font-weight-bold mb-0">

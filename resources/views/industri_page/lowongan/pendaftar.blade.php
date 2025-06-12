@@ -464,55 +464,57 @@
                                                 $pengajuanStatusClass = 'bg-pending';
                                             }
                                         @endphp
-                                        <span
-                                            class="badge custom-badge {{ $pengajuanStatusClass }} fs-6">{{ ucfirst($pengajuan->status) }}</span>
+                                        <span class="badge custom-badge {{ $pengajuanStatusClass }} fs-6"
+                                            id="status-badge">{{ ucfirst($pengajuan->status) }}</span>
                                     </p>
                                     <hr>
-                                    @if (strtolower($pengajuan->status) === 'belum')
-                                        <p class="mb-2 fw-bold">Ubah Status Menjadi:</p>
-                                        <div class="d-grid gap-2">
-                                            <form
-                                                action="{{ route('industri.lowongan.pengajuan.terima', $pengajuan->pengajuan_id) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin MENERIMA pengajuan mahasiswa ini?');">
-                                                @csrf
-                                                <button type="submit" class="btn btn-action-main w-100 mb-2">
-                                                    <i class="fas fa-user-check me-1"></i> Terima Pengajuan
-                                                </button>
-                                            </form>
-                                            <form
-                                                action="{{ route('industri.lowongan.pengajuan.tolak', $pengajuan->pengajuan_id) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin MENOLAK pengajuan mahasiswa ini?');">
-                                                @csrf
-                                                <div class="mb-2 text-start">
-                                                    <label for="alasan_penolakan_{{ $pengajuan->pengajuan_id }}"
-                                                        class="form-label small text-muted">Alasan Penolakan
-                                                        (Opsional):</label>
-                                                    <textarea name="alasan_penolakan" id="alasan_penolakan_{{ $pengajuan->pengajuan_id }}"
-                                                        class="form-control form-control-sm @error('alasan_penolakan') is-invalid @enderror" rows="3"
-                                                        placeholder="Berikan alasan jika perlu...">{{ old('alasan_penolakan') }}</textarea>
-                                                    @error('alasan_penolakan')
-                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <button type="submit" class="btn btn-action-danger w-100">
-                                                    <i class="fas fa-user-times me-1"></i> Tolak Pengajuan
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @else
-                                        <p class="text-muted">Status pengajuan ini sudah final
-                                            ({{ ucfirst($pengajuan->status) }}).</p>
-                                        @if (strtolower($pengajuan->status) === 'ditolak' && $pengajuan->alasan_penolakan)
-                                            <div class="mt-3 text-start">
-                                                <p class="fw-bold mb-1 small text-danger"><i
-                                                        class="fas fa-comment-dots me-1"></i>Alasan Penolakan:</p>
-                                                <p class="text-muted small bg-light p-2 rounded fst-italic">
-                                                    "{{ nl2br(htmlspecialchars($pengajuan->alasan_penolakan)) }}"</p>
+                                    <div id="action-buttons">
+                                        @if (strtolower($pengajuan->status) === 'belum')
+                                            <p class="mb-2 fw-bold">Ubah Status Menjadi:</p>
+                                            <div class="d-grid gap-2">
+                                                {{-- PERUBAHAN: Beri ID pada form terima dan hapus onsubmit --}}
+                                                <form
+                                                    action="{{ route('industri.lowongan.pengajuan.terima', $pengajuan->pengajuan_id) }}"
+                                                    method="POST" id="form-terima-pengajuan">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-action-main w-100 mb-2">
+                                                        <i class="fas fa-user-check me-1"></i> Terima Pengajuan
+                                                    </button>
+                                                </form>
+                                                {{-- PERUBAHAN: Beri ID pada form tolak dan hapus onsubmit --}}
+                                                <form
+                                                    action="{{ route('industri.lowongan.pengajuan.tolak', $pengajuan->pengajuan_id) }}"
+                                                    method="POST" id="form-tolak-pengajuan">
+                                                    @csrf
+                                                    <div class="mb-2 text-start">
+                                                        <label for="alasan_penolakan_{{ $pengajuan->pengajuan_id }}"
+                                                            class="form-label small text-muted">Alasan Penolakan
+                                                            (Opsional):</label>
+                                                        <textarea name="alasan_penolakan" id="alasan_penolakan_{{ $pengajuan->pengajuan_id }}"
+                                                            class="form-control form-control-sm @error('alasan_penolakan') is-invalid @enderror" rows="3"
+                                                            placeholder="Berikan alasan jika perlu...">{{ old('alasan_penolakan') }}</textarea>
+                                                        @error('alasan_penolakan')
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <button type="submit" class="btn btn-action-danger w-100">
+                                                        <i class="fas fa-user-times me-1"></i> Tolak Pengajuan
+                                                    </button>
+                                                </form>
                                             </div>
+                                        @else
+                                            <p class="text-muted">Status pengajuan ini sudah final
+                                                ({{ ucfirst($pengajuan->status) }}).</p>
+                                            @if (strtolower($pengajuan->status) === 'ditolak' && $pengajuan->alasan_penolakan)
+                                                <div class="mt-3 text-start">
+                                                    <p class="fw-bold mb-1 small text-danger"><i
+                                                            class="fas fa-comment-dots me-1"></i>Alasan Penolakan:</p>
+                                                    <p class="text-muted small bg-light p-2 rounded fst-italic">
+                                                        "{{ nl2br(e($pengajuan->alasan_penolakan)) }}"</p>
+                                                </div>
+                                            @endif
                                         @endif
-                                    @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -525,6 +527,102 @@
 
 @push('js')
     <script>
-        // JS tidak ada yang spesifik dibutuhkan untuk tampilan ini saat ini.
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Tangani form "Terima Pengajuan"
+            const formTerima = document.getElementById('form-terima-pengajuan');
+            if (formTerima) {
+                formTerima.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Hentikan submit standar
+
+                    Swal.fire({
+                        title: 'Konfirmasi Terima',
+                        text: "Apakah Anda yakin ingin MENERIMA pengajuan mahasiswa ini?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#198754', // Warna hijau sukses
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Terima!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            processForm(formTerima); // Kirim form jika dikonfirmasi
+                        }
+                    });
+                });
+            }
+
+            // Fungsi untuk memproses AJAX
+            function processForm(formElement) {
+                const url = formElement.action;
+                const formData = new FormData(formElement);
+                const submitButton = formElement.querySelector('button[type="submit"]');
+                const originalButtonHtml = submitButton.innerHTML;
+
+                // Tampilkan loading
+                submitButton.disabled = true;
+                submitButton.innerHTML =
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+
+                fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message,
+                            });
+                            // Update UI setelah berhasil
+                            updateUIAfterAction('diterima');
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: data.message || 'Terjadi kesalahan.',
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                    })
+                    .finally(() => {
+                        // Kembalikan tombol ke keadaan semula (meskipun akan disembunyikan)
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonHtml;
+                    });
+            }
+
+            // Fungsi untuk update UI
+            function updateUIAfterAction(newStatus) {
+                const statusBadge = document.getElementById('status-badge');
+                const actionButtonsDiv = document.getElementById('action-buttons');
+
+                if (statusBadge) {
+                    statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1); // "Diterima"
+                    statusBadge.className = 'badge custom-badge fs-6'; // Reset class
+                    if (newStatus === 'diterima') {
+                        statusBadge.classList.add('bg-valid');
+                    } else {
+                        statusBadge.classList.add('bg-invalid');
+                    }
+                }
+
+                if (actionButtonsDiv) {
+                    // Ganti tombol dengan pesan status final
+                    actionButtonsDiv.innerHTML =
+                        `<p class="text-muted">Status pengajuan ini sudah final (${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}).</p>`;
+                }
+            }
+        });
     </script>
 @endpush
