@@ -16,34 +16,54 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        $evaluasi = MagangModel::all();
+        // Redirect jika user sudah login
         if (auth()->check()) {
             return redirect('/dashboard');
         }
-        return view('landing.landing', compact('evaluasi'));
+
+        // Ambil data yang sudah ada
+        $evaluasi = MagangModel::all();
+
+        // PERUBAHAN: Hitung jumlah mahasiswa dan industri
+        $jumlahMahasiswa = MahasiswaModel::count();
+        $jumlahIndustri = IndustriModel::count();
+
+        // Kirim semua data ke view
+        return view('landing.landing', compact('evaluasi', 'jumlahMahasiswa', 'jumlahIndustri'));
     }
 
     public function landing()
     {
-
-        $industriesForMarquee = IndustriModel::inRandomOrder() // Ambil secara acak
-            ->take(10)                                             // Batasi jumlahnya agar tidak terlalu banyak
+        // === PERUBAHAN DI SINI ===
+        // Menambahkan filter untuk hanya mengambil industri yang memiliki logo
+        $industriesForMarquee = IndustriModel::whereNotNull('logo')
+            ->where('logo', '!=', '') // Memastikan kolom logo tidak hanya spasi kosong
+            ->inRandomOrder()        // Ambil secara acak
+            ->take(5)               // Ambil 15 data untuk marquee
             ->get();
-        if ($industriesForMarquee->count() > 0 && $industriesForMarquee->count() < 7) {
+
+        // Logika untuk duplikasi jika data kurang untuk memenuhi marquee
+        if ($industriesForMarquee->count() > 0 && $industriesForMarquee->count() < 15) {
             $tempIndustries = collect();
-            $repetitions    = ceil(10 / $industriesForMarquee->count());
+            // Hitung berapa kali perlu diulang untuk setidaknya mendapatkan 15 item
+            $repetitions = ceil(15 / $industriesForMarquee->count());
+
             for ($i = 0; $i < $repetitions; $i++) {
                 $tempIndustries = $tempIndustries->merge($industriesForMarquee);
             }
-            $industriesForMarquee = $tempIndustries->take(15); // Batasi total setelah duplikasi
+            // Ambil persis 15 item dari koleksi yang sudah diduplikasi
+            $industriesForMarquee = $tempIndustries->take(15);
         }
 
+        $jumlahMahasiswa = MahasiswaModel::count();
+        $jumlahIndustri = IndustriModel::count();
         $evaluasi = MagangModel::whereIn('mahasiswa_magang_id', [1, 2, 3])->get();
+
         if (auth()->check()) {
             return redirect()->route('home');
         }
 
-        return view('landing.landing', compact('evaluasi', 'industriesForMarquee'));
+        return view('landing.landing', compact('evaluasi', 'industriesForMarquee', 'jumlahMahasiswa', 'jumlahIndustri'));
     }
 
     public function industri(Request $request)
@@ -165,17 +185,11 @@ class WelcomeController extends Controller
                 $sedangMagang   = MagangModel::whereIn('mahasiswa_id', $mahasiswaBimbinganIds)->where('status', 'sedang')->count();
                 $selesaiMagang  = MagangModel::whereIn('mahasiswa_id', $mahasiswaBimbinganIds)->where('status', 'selesai')->count();
 
-                // Menghitung log harian yang menunggu approval dosen
-                $menungguEvaluasi = LogHarianDetailModel::where('status_approval_dosen', 'belum')
-                    ->whereHas('logHarian.mahasiswaMagang', function ($query) use ($mahasiswaBimbinganIds) {
-                        $query->whereIn('mahasiswa_id', $mahasiswaBimbinganIds);
-                    })->count();
 
                                                                                                     // 2. Data untuk Tabel Mahasiswa Bimbingan (ambil 5 terbaru)
                 $mahasiswaBimbinganList = MahasiswaModel::with('magang.lowongan.industri', 'prodi') // Eager load relasi
                     ->where('dosen_id', $dosen->dosen_id)                                               // Filter berdasarkan ID dosen yang login
-                    ->latest()                                                                          // Ambil mahasiswa yang terbaru dibuat
-                    ->take(5)                                                                           // Batasi hanya 5 untuk ditampilkan di dashboard
+                    ->latest()                                                                          // Ambil mahasiswa yang terbaru dibuat                                                                           // Batasi hanya 5 untuk ditampilkan di dashboard
                     ->get();
 
                 // 3. Data untuk Timeline Aktivitas Terkini (5 log harian terbaru)
@@ -196,7 +210,7 @@ class WelcomeController extends Controller
 
                 return view('dosen_page.dashboard', compact(
                     'activeMenu', 'dosen',
-                    'totalBimbingan', 'sedangMagang', 'menungguEvaluasi', 'selesaiMagang',
+                    'totalBimbingan', 'sedangMagang', 'selesaiMagang',
                     'mahasiswaBimbinganList', 'aktivitasTerkini', 'chartLabels', 'chartData'
                 ));
 
@@ -211,11 +225,7 @@ class WelcomeController extends Controller
                 // 1. Kartu Statistik
                 $totalPerwalian        = $mahasiswaWaliIds->count();
                 $skillMenungguValidasi = MahasiswaSkillModel::whereIn('mahasiswa_id', $mahasiswaWaliIds)
-                    ->where('status_verifikasi', 'Belum Diverifikasi')->count();
-
-                // Contoh data dummy
-                $mahasiswaAktifWali = $totalPerwalian;
-                $pengajuanLain      = rand(0, 5);
+                    ->where('status_verifikasi', 'Pending')->count();
 
                 // 2. Data untuk Tabel Mahasiswa Perwalian (ambil 5 dari yang sudah terverifikasi)
                 $mahasiswaWaliList = $dosen->mahasiswaWali()
@@ -232,7 +242,7 @@ class WelcomeController extends Controller
 
                 return view('dosen_page.dashboard', compact(
                     'activeMenu', 'dosen',
-                    'totalPerwalian', 'mahasiswaAktifWali', 'skillMenungguValidasi', 'pengajuanLain',
+                    'totalPerwalian', 'skillMenungguValidasi',
                     'mahasiswaWaliList', 'skillTerbaru'
                 ));
             }

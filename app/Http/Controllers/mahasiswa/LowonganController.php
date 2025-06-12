@@ -32,8 +32,13 @@ class LowonganController extends Controller
 
     public function list(Request $request)
     {
+
+        $today = Carbon::today();
+
         $query = DetailLowonganModel::with(['industri.kota', 'kategoriSkill'])
-            ->select('m_detail_lowongan.*'); // Perhatikan perubahan di sini
+            ->select('m_detail_lowongan.*')
+            ->whereDate('pendaftaran_tanggal_mulai', '<=', $today)
+            ->whereDate('pendaftaran_tanggal_selesai', '>=', $today); // Perhatikan perubahan di sini
 
         // Filter berdasarkan lokasi (kota)
         if ($request->has('lokasi') && $request->lokasi != '') {

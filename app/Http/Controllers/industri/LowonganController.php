@@ -298,58 +298,65 @@ class LowonganController extends Controller
         // 1. Validasi Autentikasi Industri
         $loggedInIndustri = Auth::guard('industri')->user();
         if (!$loggedInIndustri) {
-            return redirect()->back()->with('error', 'Sesi tidak valid.');
+            return response()->json(['success' => false, 'message' => 'Sesi tidak valid.'], 401);
         }
         $authenticatedIndustriId = $loggedInIndustri->industri_id;
 
-        // 2. Validasi Otorisasi (Pastikan industri hanya bisa menerima pengajuan untuk lowongannya sendiri)
+        // 2. Validasi Otorisasi
         if ($pengajuan->lowongan->industri_id !== $authenticatedIndustriId) {
-            return redirect()->back()->with('error', 'Aksi tidak diizinkan untuk pengajuan ini.');
+            return response()->json(['success' => false, 'message' => 'Aksi tidak diizinkan untuk pengajuan ini.'], 403);
         }
 
-        // 3. Validasi Status Pengajuan (Cegah proses ulang)
+        // 3. Validasi Status Pengajuan
         if (strtolower($pengajuan->status) !== 'belum') {
-            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('warning', 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').');
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengajuan ini sudah diproses sebelumnya (' . ucfirst($pengajuan->status) . ').'
+            ], 409); // 409 Conflict
         }
 
         // 4. Validasi Slot Lowongan
         if ($pengajuan->lowongan->slotTersedia() <= 0) {
-            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('error', 'Slot untuk lowongan ini sudah penuh.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Slot untuk lowongan ini sudah penuh.'
+            ], 400);
         }
 
         // 5. Proses Penerimaan dalam Transaksi Database
         DB::beginTransaction();
         try {
+            // Hapus data magang lama jika ada untuk mahasiswa ini
             MagangModel::where('mahasiswa_id', $pengajuan->mahasiswa_id)->delete();
 
-            // Buat data magang yang baru berdasarkan pengajuan yang diterima.
+            // Buat data magang baru
             MagangModel::create([
                 'mahasiswa_id' => $pengajuan->mahasiswa_id,
                 'lowongan_id'  => $pengajuan->lowongan_id,
-                'status'       => 'belum', // Status awal untuk mahasiswa yang baru mulai magang
+                'status'       => 'belum',
             ]);
 
-            // Update status pengajuan menjadi 'diterima'.
+            // Update status pengajuan
             $pengajuan->status = 'diterima';
             $pengajuan->save();
 
-            // Jika semua berhasil, commit transaksi.
             DB::commit();
 
-            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('success', 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.');
+            // Kembalikan respons sukses dalam format JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengajuan mahasiswa ' . optional($pengajuan->mahasiswa)->nama_lengkap . ' berhasil DITERIMA.'
+            ]);
 
         } catch (\Exception $e) {
-            // Jika terjadi error, batalkan semua perubahan (rollback).
             DB::rollBack();
+            Log::error('Error saat menerima pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage());
 
-            // Catat error untuk debugging.
-            Log::error('Error saat menerima pengajuan (ID: ' . $pengajuan->pengajuan_id . '): ' . $e->getMessage() . "\nStack: " . $e->getTraceAsString());
-
-            return redirect()->route('industri.lowongan.pendaftar.show_profil', $pengajuan->pengajuan_id)
-                ->with('error', 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.');
+            // Kembalikan respons error dalam format JSON
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem saat mencoba menerima pengajuan.'
+            ], 500); // 500 Internal Server Error
         }
     }
 

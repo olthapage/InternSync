@@ -157,8 +157,8 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/{id}/show', [ProgramStudiController::class, 'show'])->name('program-studi.show');
         Route::get('/{id}/edit', [ProgramStudiController::class, 'edit'])->name('program-studi.edit');
         Route::put('/{id}', [ProgramStudiController::class, 'update'])->name('program-studi.update');
+        Route::get('/{id}/delete', [ProgramStudiController::class, 'showDeleteForm'])->name('program-studi.delete.show');
         Route::delete('/{id}/delete', [ProgramStudiController::class, 'destroy'])->name('program-studi.destroy');
-        Route::delete('{id}/delete', [ProgramStudiController::class, 'delete_ajax'])->name('program-studi.delete');
     });
 
     Route::prefix('industri')->group(function () {

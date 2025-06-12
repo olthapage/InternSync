@@ -11,18 +11,23 @@
     {{-- Status Verifikasi --}}
     <div class="mb-3">
         @if ($mahasiswa->status_verifikasi == 'invalid')
-            <div class="alert alert-light">
+            <div class="alert bg-gradient-danger text-white">
                 <strong>Status:</strong> Ditolak <br>
                 <strong>Alasan Penolakan:</strong> {{ $mahasiswa->alasan }}
             </div>
         @elseif ($mahasiswa->status_verifikasi == 'valid')
-            <div class="alert alert-light">
+            <div class="alert bg-gradient-success text-white">
                 <strong>Status:</strong> Diterima <br>
                 Data telah diverifikasi dan diterima.
             </div>
-        @else
-            <div class="alert alert-light">
+        @elseif ($mahasiswa->status_verifikasi == 'pending')
+            <div class="alert bg-gradient-warning text-white">
                 <strong>Status:</strong> Menunggu Verifikasi <br>
+                Data sedang dalam proses pemeriksaan.
+            </div>
+        @else
+            <div class="alert bg-gradient-light text-dark">
+                <strong>Status:</strong> Belum diisi <br>
                 Data sedang dalam proses pemeriksaan.
             </div>
         @endif

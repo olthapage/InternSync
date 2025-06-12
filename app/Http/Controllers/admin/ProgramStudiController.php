@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class ProgramStudiController extends Controller
 {
@@ -25,15 +26,20 @@ class ProgramStudiController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('aksi', function ($item) {
-                    $btn  = '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/show') . '\')" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></button> ';
-                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/edit') . '\')" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button> ';
-                    $btn .= '<button onclick="modalAction(\'' . url('/program-studi/' . $item->prodi_id . '/delete') . '\')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>';
+                    // PERBAIKAN: Tombol hapus sekarang memanggil modalAction
+                    $showUrl = route('program-studi.show', $item->prodi_id);
+                    $editUrl = route('program-studi.edit', $item->prodi_id);
+                    // URL baru untuk menampilkan modal konfirmasi hapus
+                    $deleteShowUrl = route('program-studi.delete.show', $item->prodi_id);
+
+                    $btn  = '<button onclick="modalAction(\'' . $showUrl . '\')" class="btn btn-info btn-sm" title="Lihat Detail"><i class="fas fa-eye"></i></button> ';
+                    $btn .= '<button onclick="modalAction(\'' . $editUrl . '\')" class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></button> ';
+                    $btn .= '<button onclick="modalAction(\'' . $deleteShowUrl . '\')" class="btn btn-danger btn-sm" title="Hapus"><i class="fas fa-trash"></i></button>';
                     return $btn;
                 })
                 ->rawColumns(['aksi'])
                 ->make(true);
         }
-
         return response()->json(['message' => 'Invalid request'], 400);
     }
 
@@ -46,27 +52,49 @@ class ProgramStudiController extends Controller
 
     public function store(Request $request)
     {
+        // 2. Log saat fungsi dimulai dan catat data yang masuk
+        Log::info('Memulai proses store Program Studi.');
+        Log::debug('Data Request:', $request->all());
+
         if ($request->ajax()) {
-        $validator = Validator::make($request->all(), [
-            'nama_prodi' => 'required|string|max:100',
-            'kode_prodi' => 'required|string|max:20|unique:tabel_prodi,kode_prodi',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi gagal',
-                'msgField' => $validator->errors()
+            $validator = Validator::make($request->all(), [
+                'nama_prodi' => 'required|string|max:100',
+                'kode_prodi' => 'required|string|max:20|unique:tabel_prodi,kode_prodi',
             ]);
+
+            if ($validator->fails()) {
+                // 3. Log jika validasi gagal
+                Log::warning('Validasi gagal untuk store Program Studi.', $validator->errors()->toArray());
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            // 4. Gunakan try-catch untuk menangani error saat menyimpan ke database
+            try {
+                $prodi = ProdiModel::create($request->only('nama_prodi', 'kode_prodi'));
+
+                // 5. Log jika berhasil disimpan
+                Log::info('Program Studi berhasil dibuat dengan ID: ' . $prodi->prodi_id);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Program Studi berhasil ditambahkan.'
+                ]);
+
+            } catch (\Exception $e) {
+                // 6. Log jika terjadi error saat proses create
+                Log::error('Gagal membuat Program Studi di database: ' . $e->getMessage());
+
+                // Kembalikan respons error server
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Terjadi kesalahan pada server. Gagal menyimpan data.'
+                ], 500); // HTTP 500 Internal Server Error
+            }
         }
-
-        ProdiModel::create($request->only('nama_prodi', 'kode_prodi'));
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Program Studi berhasil ditambahkan.'
-        ]);
-    }
 
         return redirect()->route('program-studi.index');
     }
@@ -122,6 +150,12 @@ class ProgramStudiController extends Controller
         ]);
     }
         return redirect()->route('program_studi.index');
+    }
+
+    public function showDeleteForm($id)
+    {
+        $prodi = ProdiModel::find($id);
+        return view('admin_page.program_studi.delete', compact('prodi'));
     }
 
     public function delete_ajax(Request $request, $id)

@@ -3,6 +3,13 @@ namespace App\Http\Controllers\admin;
 
 use Illuminate\Http\Request;
 use App\Models\IndustriModel;
+use App\Models\ProvinsiModel;
+use App\Models\FasilitasModel;
+use App\Models\TipeKerjaModel;
+use App\Models\DetailSkillModel;
+use App\Models\KategoriSkillModel;
+use App\Models\LowonganSkillModel;
+use Illuminate\Support\Facades\DB;
 use App\Models\DetailLowonganModel;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -66,43 +73,95 @@ class LowonganController extends Controller
         return response()->json(['message' => 'Invalid request'], 400);
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        $industri   = IndustriModel::all();
-        $activeMenu = 'lowongan';
-        if ($request->ajax()) {
-            return view('admin_page.lowongan.create', compact('industri', 'activeMenu'));
-        }
-        $activeMenu = 'lowongan';
-        return view('admin_page.lowongan.create', compact('industri', 'activeMenu'));
+        // Ambil semua data yang diperlukan untuk mengisi dropdown di form
+        $industriList = IndustriModel::orderBy('industri_nama')->get();
+        $kategoriSkills = KategoriSkillModel::orderBy('kategori_nama')->get();
+        $detailSkills = DetailSkillModel::orderBy('skill_nama')->get();
+        $provinsiList = ProvinsiModel::orderBy('provinsi_nama')->get();
+        $tipeKerjaList = TipeKerjaModel::all();
+        $fasilitasList = FasilitasModel::all();
+        $activeMenu = 'detail_lowongan';
+
+        return view('admin_page.lowongan.create', compact(
+            'industriList',
+            'kategoriSkills',
+            'detailSkills',
+            'provinsiList',
+            'tipeKerjaList',
+            'fasilitasList',
+            'activeMenu'
+        ));
     }
 
+    /**
+     * Menyimpan lowongan baru yang dibuat oleh Admin.
+     */
     public function store(Request $request)
     {
-        if ($request->ajax()) {
-            $validator = Validator::make($request->all(), [
-                'judul_lowongan' => 'required|string|max:255',
-                'deskripsi'      => 'required|string',
-                'industri_id'    => 'required|exists:m_industri,industri_id',
-            ]);
+        // Validasi yang lebih lengkap, sama seperti form industri
+        $validator = Validator::make($request->all(), [
+            'industri_id' => 'required|exists:m_industri,industri_id',
+            'judul_lowongan' => 'required|string|max:255',
+            'kategori_skill_id' => 'required|exists:m_kategori_skill,kategori_skill_id',
+            'slot' => 'required|integer|min:1',
+            'deskripsi' => 'required|string',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'pendaftaran_tanggal_mulai' => 'required|date',
+            'pendaftaran_tanggal_selesai' => 'required|date|after_or_equal:pendaftaran_tanggal_mulai',
+            'upah' => 'required|integer|min:0',
+            'tipe_kerja' => 'required|array|min:1',
+            'tipe_kerja.*' => 'exists:m_tipe_kerja,tipe_kerja_id',
+            'fasilitas' => 'nullable|array',
+            'fasilitas.*' => 'exists:m_fasilitas,fasilitas_id',
+            'skills' => 'sometimes|array',
+            'skills.*' => 'required_with:skills|exists:m_detail_skill,skill_id',
+            'levels' => 'sometimes|array',
+            'levels.*' => 'required_with:skills|string|in:Beginner,Intermediate,Expert',
+            'use_specific_location' => 'nullable|boolean',
+            'lokasi_provinsi_id' => 'required_if:use_specific_location,1|nullable|exists:m_provinsi,provinsi_id',
+            'lokasi_kota_id' => 'required_if:use_specific_location,1|nullable|exists:m_kota,kota_id',
+            'lokasi_alamat_lengkap' => 'required_if:use_specific_location,1|nullable|string|max:1000',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi gagal',
-                    'msgField' => $validator->errors(),
-                ]);
-            }
-
-            DetailLowonganModel::create($request->all());
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Lowongan berhasil ditambahkan',
-            ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        return redirect()->route('lowongan.index');
+        DB::beginTransaction();
+        try {
+            // Mengambil semua data dari request yang divalidasi
+            $validatedData = $validator->validated();
+
+            // Buat lowongan baru
+            $lowongan = DetailLowonganModel::create($validatedData);
+
+            // Simpan relasi many-to-many
+            $lowongan->tipeKerja()->sync($request->input('tipe_kerja', []));
+            $lowongan->fasilitas()->sync($request->input('fasilitas', []));
+
+            if ($request->has('skills')) {
+                foreach ($request->input('skills') as $index => $skillId) {
+                    if (!empty($skillId)) {
+                        LowonganSkillModel::create([
+                            'lowongan_id'      => $lowongan->lowongan_id,
+                            'skill_id'         => $skillId,
+                            'level_kompetensi' => $request->input('levels')[$index] ?? 'Beginner',
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('lowongan.index')->with('success', 'Lowongan baru berhasil dibuat oleh Admin.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Admin gagal membuat lowongan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal membuat lowongan: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function show(Request $request, $id)

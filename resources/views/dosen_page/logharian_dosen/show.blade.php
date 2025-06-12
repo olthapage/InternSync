@@ -1,4 +1,4 @@
-show.blade dosen 
+show.blade dosen
 
 @empty($logharian)
 <div class="modal-dialog modal-xl" style="max-width:60%;">
@@ -32,7 +32,7 @@ show.blade dosen
                     </tr>
                     <tr>
                         <th>Mahasiswa</th>
-                        <td>{{ $logharian->mahasiswa->nama_lengkap ?? '-' }}</td>
+                        <td>{{ $logharian->mahasiswaMagang->mahasiswa->nama_lengkap ?? '-' }}</td>
                     </tr>
                     <tr>
                         <th>Tanggal Log</th>
@@ -40,7 +40,7 @@ show.blade dosen
                     </tr>
                     <tr>
                         <th>Lokasi</th>
-                        <td>{{ $logharian->lokasi_kegiatan->kota_nama ?? '-' }}</td>
+                        <td>{{ $logharian->mahasiswaMagang->lowongan->getAlamatLengkapDisplayAttribute() ?? '-' }}</td>
                     </tr>
                     <tr>
                         <th>Dibuat pada</th>
@@ -142,7 +142,7 @@ document.getElementById('btnApprovalDosen').addEventListener('click', function (
             showCancelButton: true,
             confirmButtonText: 'Kirim',
             cancelButtonText: 'Batal',
-            focusConfirm: false, 
+            focusConfirm: false,
             didOpen: () => {
                 document.getElementById('swal-status').focus();
                 const textarea = document.getElementById('swal-catatan');

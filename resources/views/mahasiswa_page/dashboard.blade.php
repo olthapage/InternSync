@@ -84,6 +84,8 @@
                             <span class="badge bg-gradient-info">Sedang Magang</span>
                         @elseif(Auth::user()->magang && Auth::user()->magang->status == 'selesai')
                             <span class="badge bg-gradient-success">Magang Selesai</span>
+                        @elseif(Auth::user()->magang && Auth::user()->magang->status == 'belum')
+                            <span class="badge bg-gradient-primary">Belum Mulai</span>
                         @else
                             <div class="text-end">
                                 <span class="badge bg-gradient-warning mb-2">Belum Magang</span><br>
@@ -100,7 +102,7 @@
                                     <p class="text-sm mb-0 text-white">Jangan lupa mengisi logbook secara berkala</p>
                                 </div>
                                 <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
-                                    <a href="{{ route('mahasiswa.magang.index') }}" class="btn btn-sm btn-success mb-0">Logbook</a>
+                                    <a href="{{ route('mahasiswa.magang.index') }}" class="btn btn-sm btn-outline-white mb-0">Logbook</a>
                                 </div>
                             </div>
                         </div>
@@ -110,6 +112,15 @@
                                 <div class="col-md-8">
                                     <h6 class="text-white">Apa kata industri</h6>
                                     <p class="text-sm mb-0 text-white">{{ Auth::user()->magang->feedback_industri ?? '-' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif(Auth::user()->magang && Auth::user()->magang->status == 'belum')
+                    <div class="alert alert-primary">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="text-white">Kamu sudah diterima {{ Auth::user()->magang->lowongan->industri->industri_nama ?? '' }} !</h6>
+                                    <p class="text-sm mb-0 text-white">Tunggu periode magangmu atau diaktifkan oleh industri</p>
                                 </div>
                             </div>
                         </div>

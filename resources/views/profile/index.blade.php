@@ -89,16 +89,16 @@
                     {{-- Tombol Edit Profil berdasarkan guard --}}
                     @if (Auth::guard('mahasiswa')->check())
                         <button onclick="modalAction('{{ url('/mahasiswa/' . $user->mahasiswa_id . '/edit') }}')"
-                            class="btn btn-outline-white mb-0 btn-sm">Edit Profil</button>
+                            class="btn btn-outline-white mb-0 btn-sm">Detail dan Edit Profil</button>
                     @elseif(Auth::guard('dosen')->check())
                         <button onclick="modalAction('{{ url('/dosen/' . $user->dosen_id . '/edit') }}')"
-                            class="btn btn-outline-white mb-0 btn-sm">Edit Profil</button>
+                            class="btn btn-outline-white mb-0 btn-sm">Detail dan Edit Profil</button>
                     @elseif(Auth::guard('industri')->check())
                         <button onclick="modalAction('{{ url('/industri/' . $user->industri_id . '/edit') }}')"
-                            class="btn btn-outline-white mb-0 btn-sm">Edit Profil</button>
+                            class="btn btn-outline-white mb-0 btn-sm">Detail dan Edit Profil</button>
                     @elseif(Auth::guard('web')->check())
                         <button onclick="modalAction('{{ url('/admin/' . $user->user_id . '/edit') }}')"
-                            class="btn btn-outline-white mb-0 btn-sm">Edit Profil</button>
+                            class="btn btn-outline-white mb-0 btn-sm">Detail dan Edit Profil</button>
                     @endif
                 </div>
             </div>
@@ -115,19 +115,59 @@
             @if (Auth::guard('mahasiswa')->check())
                 <div class="mb-4 w-100">
                     <div class="card h-100">
-                        <div class="card-header pb-0 p-3">
+                        {{-- =============================================== --}}
+                        {{-- ===== PERUBAHAN DIMULAI DI SINI ===== --}}
+                        {{-- =============================================== --}}
+                        <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Lengkapi Profil</h6>
+                            @php
+                                $status = $user->status_verifikasi;
+                                $badgeClass = '';
+                                $statusText = '';
+
+                                switch ($status) {
+                                    case 'valid':
+                                        $badgeClass = 'bg-gradient-success';
+                                        $statusText = 'Terverifikasi';
+                                        break;
+                                    case 'pending':
+                                        $badgeClass = 'bg-gradient-warning';
+                                        $statusText = 'Menunggu Verifikasi';
+                                        break;
+                                    case 'invalid':
+                                        $badgeClass = 'bg-gradient-danger';
+                                        $statusText = 'Verifikasi Ditolak';
+                                        break;
+                                    default:
+                                        $badgeClass = 'bg-gradient-secondary';
+                                        $statusText = 'Belum Diverifikasi';
+                                        break;
+                                }
+                            @endphp
+                            <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
                         </div>
                         <div class="card-body p-3">
                             <div class="d-grid gap-2">
-                                <button type="button" id="btn-academic-profile" class="btn bg-gradient-success text-start px-3 "
-                                    data-bs-toggle="modal" data-bs-target="#academicModal">
+                                <button type="button" id="btn-academic-profile"
+                                    class="btn bg-gradient-success text-start px-3 " data-bs-toggle="modal"
+                                    data-bs-target="#academicModal">
                                     Formulir Wajib Akademik
                                 </button>
                                 <small>Wajib dilengkapi dan menunggu validasi dari admin sebelum mengajukan magang.</small>
-                                {{-- Anda bisa menambahkan tombol lain di sini jika perlu --}}
                             </div>
+
+                            {{-- Tampilkan alasan penolakan jika status 'invalid' --}}
+                            @if ($status === 'invalid' && !empty($user->alasan))
+                                <div class="alert alert-danger text-white mt-3 mb-0 py-2 px-3">
+                                    <h6 class="text-white mb-1"><i class="fas fa-times-circle me-1"></i> Alasan Penolakan:
+                                    </h6>
+                                    <p class="mb-0 small">{{ $user->alasan }}</p>
+                                </div>
+                            @endif
                         </div>
+                        {{-- =============================================== --}}
+                        {{-- ===== PERUBAHAN SELESAI DI SINI ===== --}}
+                        {{-- =============================================== --}}
                     </div>
                 </div>
 
@@ -194,33 +234,6 @@
                     </script>
                 @endpush
             @endif
-            {{-- Quick Links --}}
-            <div class="col-12 mb-4 mb-xl-4">
-                <div class="card h-100">
-                    <div class="card-header pb-0 p-3">
-                        <h6 class="mb-0">📥 Quick Links</h6>
-                    </div>
-                    <div class="card-body p-3">
-                        <ul class="list-group">
-                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🏠 Dashboard</a>
-
-                            {{-- Tampilkan Notifikasi untuk semua kecuali Mahasiswa --}}
-                            @if (!Auth::guard('mahasiswa')->check())
-                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">🔔
-                                    Notifikasi</a>
-                            @endif
-
-                            {{-- Tampilkan Laporan Magang hanya untuk Mahasiswa --}}
-                            @if (Auth::guard('mahasiswa')->check())
-                                <a href="{{ route('home') }}" class="list-group-item list-group-item-action">📝 Laporan
-                                    Magang</a>
-                            @endif
-
-                            <a href="{{ route('home') }}" class="list-group-item list-group-item-action">⚙ Pengaturan</a>
-                        </ul>
-                    </div>
-                </div>
-            </div>
 
             {{-- Kolom kedua: Konten dinamis berdasarkan guard --}}
             <div class="col-12 mb-4 mb-xl-0">
@@ -281,9 +294,6 @@
                     </div>
                 @endif
             </div>
-
-            {{-- Quick Action (hanya untuk Mahasiswa) --}}
-
         </div>
     </div>
 @endsection

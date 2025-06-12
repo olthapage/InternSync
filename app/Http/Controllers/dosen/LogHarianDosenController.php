@@ -33,7 +33,10 @@ class LogHarianDosenController extends Controller
                 if ($request->filled('nama')) {
                     $q->where('nama_lengkap', 'like', '%' . $request->nama . '%');
                 }
-            });
+            })
+            // ===== PERUBAHAN DI SINI =====
+            // Menambahkan filter untuk hanya menampilkan log yang sudah disetujui industri.
+            ->where('status_approval_industri', 'disetujui');
 
         return DataTables::of($query)
             ->addIndexColumn()
@@ -44,11 +47,11 @@ class LogHarianDosenController extends Controller
             ->addColumn('status_industri', function ($row) {
                 $status = $row->status_approval_industri ?? 'pending';
                 if ($status == 'disetujui') {
-                    return '<span class="badge bg-success">Disetujui</span>';
+                    return '<span class="badge bg-gradient-success">Disetujui</span>';
                 } elseif ($status == 'ditolak') {
-                    return '<span class="badge bg-danger">Ditolak</span>';
+                    return '<span class="badge bg-gradient-danger">Ditolak</span>';
                 }
-                return '<span class="badge bg-warning text-dark">Pending</span>';
+                return '<span class="badge bg-gradient-warning text-dark">Pending</span>';
             })
             ->addColumn('status_dosen', function ($row) {
                 $status = $row->status_approval_dosen ?? 'pending';

@@ -39,6 +39,10 @@
             <form action="{{ route('mahasiswa.pengajuan.store') }}" method="POST" id="pengajuanMagangForm">
                 @csrf
 
+
+
+
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="industri_id" class="form-label">Filter Industri:</label>
@@ -63,6 +67,9 @@
 
                 <div id="lowongan-container" class="row mt-4 mb-4">
                     @forelse ($lowonganList as $index => $lowongan)
+                        @php
+                            $isSlotFull = $lowongan->slotTersedia() <= 0;
+                        @endphp
                         <div class="col-xl-3 col-lg-4 col-md-6 mb-4 lowongan-card" data-industri="{{ $lowongan->industri_id }}"
                             data-kategori="{{ $lowongan->kategori_skill_id }}" data-index="{{ $index }}"
                             style="{{ $index >= 4 ? 'display: none;' : '' }}">
@@ -96,9 +103,16 @@
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between mt-auto">
-                                        <button type="button" class="btn btn-sm btn-dark mb-0 w-48"
-                                            onclick="selectLowongan('{{ $lowongan->lowongan_id }}', '{{ htmlspecialchars($lowongan->judul_lowongan, ENT_QUOTES) }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_mulai)->format('Y-m-d') }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_selesai)->format('Y-m-d') }}')">
-                                            <i class="fas fa-check me-1"></i> Pilih
+                                        {{-- ===== PERBAIKAN: Tombol Pilih dinonaktifkan jika slot penuh ===== --}}
+                                        <button type="button"
+                                                class="btn btn-sm mb-0 w-48 {{ $isSlotFull ? 'btn-secondary' : 'btn-dark' }}"
+                                                onclick="selectLowongan('{{ $lowongan->lowongan_id }}', '{{ htmlspecialchars($lowongan->judul_lowongan, ENT_QUOTES) }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_mulai)->format('Y-m-d') }}', '{{ \Carbon\Carbon::parse($lowongan->tanggal_selesai)->format('Y-m-d') }}')"
+                                                {{ $isSlotFull ? 'disabled' : '' }}>
+                                            @if ($isSlotFull)
+                                                <i class="fas fa-times-circle me-1"></i> Penuh
+                                            @else
+                                                <i class="fas fa-check me-1"></i> Pilih
+                                            @endif
                                         </button>
                                         <button type="button" class="btn btn-sm btn-white mb-0 w-48"
                                             onclick="showDetail('{{ $lowongan->lowongan_id }}')">
@@ -125,8 +139,8 @@
                 <div id="selected-lowongan" class="mb-3 p-3 border rounded" style="display: {{ old('lowongan_id') ? 'block' : 'none' }};">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>Lowongan Terpilih:</strong>
-                            <span id="selected-lowongan-title">{{ old('lowongan_id') ? ($lowonganList->firstWhere('lowongan_id', old('lowongan_id'))->judul_lowongan ?? '') : '' }}</span>
+                            <h5>Lowongan Terpilih:</h5>
+                            <h4 id="selected-lowongan-title" class="text-info">{{ old('lowongan_id') ? ($lowonganList->firstWhere('lowongan_id', old('lowongan_id'))->judul_lowongan ?? '') : '' }}</h4>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelection()">
                             <i class="fas fa-times"></i> Batal
