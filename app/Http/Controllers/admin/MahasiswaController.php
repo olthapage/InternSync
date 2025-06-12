@@ -17,9 +17,12 @@ class MahasiswaController extends Controller
 {
     public function index()
     {
-        $mahasiswa  = MahasiswaModel::with('prodi')->get();
+
         $activeMenu = 'mahasiswa';
-        return view('admin_page.mahasiswa.index', compact('mahasiswa', 'activeMenu'));
+
+        $prodi = ProdiModel::all();
+
+        return view('admin_page.mahasiswa.index', compact('activeMenu', 'prodi'));
     }
 
     public function list(Request $request)
@@ -31,6 +34,25 @@ class MahasiswaController extends Controller
             'dosenPembimbing',           // Relasi ke DosenModel untuk Pembimbing Magang
             'magang',                    // Relasi ke MagangModel untuk cek status magang
         ])->select('m_mahasiswa.*'); // Selalu baik untuk select spesifik atau semua dari tabel utama
+
+        if ($request->prodi_id) {
+            $mahasiswaQuery->where('prodi_id', $request->prodi_id);
+        }
+
+        if ($request->status_magang) {
+            $status = $request->status_magang;
+
+            if (in_array($status, ['sedang', 'selesai'])) {
+                // Cari mahasiswa yang punya relasi magang dengan status tertentu
+                $mahasiswaQuery->whereHas('magang', function ($query) use ($status) {
+                    $query->where('status', $status);
+                });
+            } elseif ($status == 'belum') {
+                // Cari mahasiswa yang TIDAK punya relasi magang sama sekali
+                $mahasiswaQuery->whereDoesntHave('magang');
+            }
+            // Status 'diterima' bisa ditambahkan jika perlu dengan logika whereHas('pengajuan', ...)
+        }
 
         return DataTables::of($mahasiswaQuery)
             ->addIndexColumn()
@@ -69,33 +91,64 @@ class MahasiswaController extends Controller
     public function create(Request $request)
     {
         $prodi = ProdiModel::all();
-        $dosen = DosenModel::all();
+
+        // Ambil SEMUA dosen dengan role 'pembimbing' untuk dropdown kedua
+        // Dropdown ini tidak akan berubah-ubah (statis)
+        $dosenPembimbing = DosenModel::where('role_dosen', 'pembimbing')
+            ->orderBy('nama_lengkap', 'asc')
+            ->get();
 
         if ($request->ajax()) {
-            return view('admin_page.mahasiswa.create', compact('prodi', 'dosen'));
+            // Kirim data prodi dan daftar dosen pembimbing
+            return view('admin_page.mahasiswa.create', compact('prodi', 'dosenPembimbing'));
         }
 
+        // Fallback untuk non-ajax
         $activeMenu = 'mahasiswa';
-        return view('admin_page.mahasiswa.create', compact('prodi', 'dosen', 'activeMenu'));
+        return view('admin_page.mahasiswa.create', compact('prodi', 'dosenPembimbing', 'activeMenu'));
+    }
+
+    // Ubah method ini agar HANYA mengembalikan DPA
+    public function getDosenByProdi($prodi_id)
+    {
+        // Filter Dosen DPA berdasarkan prodi_id
+        $dosenDpa = DosenModel::where('role_dosen', 'dpa')
+            ->where('prodi_id', $prodi_id)
+            ->orderBy('nama_lengkap', 'asc')
+            ->get(['dosen_id', 'nama_lengkap']);
+
+        // Kembalikan HANYA data DPA sebagai response JSON
+        return response()->json($dosenDpa);
     }
 
     public function store(Request $request)
     {
         if ($request->ajax()) {
+            // Log #1: Catat semua data yang masuk dari request
+            Log::info('Mencoba menambahkan mahasiswa baru.', $request->all());
+
             $rules = [
                 'nama_lengkap' => 'required',
                 'email'        => 'required|email|unique:m_mahasiswa,email',
                 'password'     => 'required|min:6',
                 'ipk'          => 'nullable|numeric|min:0|max:4',
-                'nim'          => 'required|unique:m_mahasiswa,nim',
-                'status'       => 'required|boolean',
+                'nim'          => 'required|numeric|unique:m_mahasiswa,nim',
                 'prodi_id'     => 'required',
                 'dosen_id'     => 'nullable',
                 'dpa_id'       => 'nullable',
             ];
 
-            $validator = Validator::make($request->all(), $rules);
+            $messages = [
+                'nim.numeric' => 'NIM hanya boleh berisi angka.',
+                'nim.unique'  => 'NIM ini sudah terdaftar.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
             if ($validator->fails()) {
+                // Log #2: Catat jika validasi gagal
+                Log::warning('Validasi gagal saat menambahkan mahasiswa.', $validator->errors()->toArray());
+
                 return response()->json([
                     'status'   => false,
                     'message'  => 'Validasi Gagal',
@@ -103,24 +156,42 @@ class MahasiswaController extends Controller
                 ]);
             }
 
-            MahasiswaModel::create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'email'        => $request->email,
-                'password'     => bcrypt($request->password),
-                'ipk'          => $request->ipk,
-                'nim'          => $request->nim,
-                'status'       => $request->status,
-                'prodi_id'     => $request->prodi_id,
-                'dosen_id'     => $request->dosen_id,
-                'dosen_id'     => $request->dpa_id,
-            ]);
+            try {
+                $dataToCreate = [
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'email'        => $request->email,
+                    'password'     => bcrypt($request->password),
+                    'ipk'          => $request->ipk,
+                    'nim'          => $request->nim,
+                    'prodi_id'     => $request->prodi_id,
+                    'dosen_id'     => $request->dosen_id,
+                    'dpa_id'       => $request->dpa_id,
+                ];
 
-            return response()->json([
-                'status'  => true,
-                'message' => 'Mahasiswa berhasil ditambahkan',
-            ]);
+                // Log #3: Catat data yang akan dimasukkan ke database
+                Log::info('Data siap untuk dibuat:', $dataToCreate);
+
+                $mahasiswa = MahasiswaModel::create($dataToCreate);
+
+                // Log #4: Catat jika berhasil
+                Log::info('Mahasiswa berhasil ditambahkan dengan ID: ' . $mahasiswa->mahasiswa_id);
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Mahasiswa berhasil ditambahkan',
+                ]);
+
+            } catch (\Exception $e) {
+                // Log #5: TANGKAP DAN CATAT ERROR KRUSIAL!
+                Log::error('Terjadi exception saat membuat mahasiswa: ' . $e->getMessage());
+                Log::error('Stack Trace: ' . $e->getTraceAsString()); // Untuk detail lebih lanjut
+
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Terjadi kesalahan pada server. Silakan cek log.',
+                ], 500); // Kirim status 500
+            }
         }
-
         return redirect('/');
     }
 

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
@@ -65,7 +66,7 @@ class AdminController extends Controller
                 'nama_lengkap' => $request->nama_lengkap,
                 'email'        => $request->email,
                 'telepon'      => $request->telepon,
-                'password'     => bcrypt($request->password),
+                'password' => Hash::make($request->password),
             ]);
             return response()->json([
                 'status'  => true,

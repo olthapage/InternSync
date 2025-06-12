@@ -104,51 +104,80 @@
 
                         {{-- Bagian Evaluasi --}}
                         @if ($item->status == 'selesai')
-                            <div class="d-flex justify-content-between align-items-start border-top pt-3 mt-3">
-                                <div>
-                                    <p class="mb-2"><strong>Surat Keterangan Selesai Magang.</strong></p>
-                                    {{-- TOMBOL UNDUH SURAT KETERANGAN --}}
-                                    <a href="{{ route('mahasiswa.magang.surat_keterangan.download', ['magang_id' => $item->mahasiswa_magang_id]) }}"
-                                        class="btn btn-success" target="_blank">
-                                        <i class="fas fa-certificate"></i> Unduh Surat Keterangan
-                                    </a>
+                            <hr>
+                            <div class="mt-3">
+                                <h4 class="mb-3">Ulasan & Hasil Akhir Magang</h4>
+
+                                {{-- Tombol Unduh Sertifikat --}}
+                                <div class="mb-4">
+                                     <p class="mb-2"><strong>Surat Keterangan Selesai Magang.</strong></p>
+                                     <a href="{{ route('mahasiswa.magang.surat_keterangan.download', ['magang_id' => $item->mahasiswa_magang_id]) }}"
+                                         class="btn btn-success" target="_blank">
+                                         <i class="fas fa-certificate me-2"></i>Unduh Surat Keterangan
+                                     </a>
                                 </div>
 
-                                {{-- Form Evaluasi yang sudah ada --}}
-                                <div style="width: 60%;">
-                                    @if ($item->evaluasi)
-                                        <div class="mt-0">
-                                            <p><strong>Evaluasi Anda:</strong></p>
-                                            <div class="p-3 bg-white border rounded shadow-sm">
-                                                {!! nl2br(e($item->evaluasi)) !!}
+                                {{-- Baris untuk Evaluasi & Feedback --}}
+                                <div class="row">
+                                    {{-- Kolom 1: Evaluasi dari Mahasiswa --}}
+                                    <div class="col-lg-4 mb-3 d-flex align-items-stretch">
+                                        <div class="card h-100 w-100">
+                                            <div class="card-header">
+                                                <h6 class="card-title fw-bold"><i class="fas fa-user-edit me-2"></i>Evaluasi Anda</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                @if ($item->evaluasi)
+                                                    <p class="text-muted fst-italic">"{!! nl2br(e($item->evaluasi)) !!}"</p>
+                                                @else
+                                                    <form method="POST"
+                                                        action="{{ route('mahasiswa.magang.evaluasi.store', $item->mahasiswa_magang_id) }}">
+                                                        @csrf
+                                                        <div class="form-group">
+                                                            <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis evaluasi Anda tentang pengalaman magang.</label>
+                                                            <textarea class="form-control @error('evaluasi') is-invalid @enderror" id="evaluasi-{{ $item->mahasiswa_magang_id }}"
+                                                                name="evaluasi" rows="4" required>{{ old('evaluasi') }}</textarea>
+                                                            @error('evaluasi')
+                                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success mt-2">Kirim Evaluasi</button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </div>
-                                    @else
-                                        <div class="mt-0">
-                                            <p><strong>Magang Anda telah selesai. Silakan isi evaluasi Anda:</strong></p>
-                                            <form method="POST"
-                                                action="{{ route('mahasiswa.magang.evaluasi.store', $item->mahasiswa_magang_id) }}">
-                                                @csrf
-                                                <div class="form-group">
-                                                    <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis Evaluasi
-                                                        Anda</label>
-                                                    <textarea class="form-control @error('evaluasi') is-invalid @enderror" id="evaluasi-{{ $item->mahasiswa_magang_id }}"
-                                                        name="evaluasi" rows="4" required>{{ old('evaluasi') }}</textarea>
-                                                    @error('evaluasi')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                                <button type="submit" class="btn btn-success mt-2">Kirim Evaluasi</button>
-                                            </form>
+                                    </div>
+
+                                    {{-- Kolom 2: Feedback dari Dosen --}}
+                                    <div class="col-lg-4 mb-3 d-flex align-items-stretch">
+                                        <div class="card h-100 w-100">
+                                            <div class="card-header">
+                                                 <h6 class="card-title fw-bold"><i class="fas fa-user-tie me-2"></i>Feedback Dosen Pembimbing</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                @if (!empty($item->feedback_dosen))
+                                                    <p class="text-muted fst-italic">"{!! nl2br(e($item->feedback_dosen)) !!}"</p>
+                                                @else
+                                                    <p class="text-muted fst-italic">Belum ada feedback dari dosen.</p>
+                                                @endif
+                                            </div>
                                         </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @elseif ($item->evaluasi)
-                            <div class="mt-3">
-                                <p><strong>Evaluasi Telah Diberikan:</strong></p>
-                                <div class="p-3 bg-white border rounded shadow-sm">
-                                    {!! nl2br(e($item->evaluasi)) !!}
+                                    </div>
+
+                                    {{-- Kolom 3: Feedback dari Industri --}}
+                                    <div class="col-lg-4 mb-3 d-flex align-items-stretch">
+                                        <div class="card h-100 w-100">
+                                             <div class="card-header">
+                                                 <h6 class="card-title fw-bold"><i class="fas fa-building me-2"></i>Feedback Industri</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                 @if (!empty($item->feedback_industri))
+                                                    <p class="text-muted fst-italic">"{!! nl2br(e($item->feedback_industri)) !!}"</p>
+                                                @else
+                                                    <p class="text-muted fst-italic">Belum ada feedback dari industri.</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endif

@@ -97,6 +97,7 @@ class DatabaseSeeder extends Seeder
                 'nama_lengkap' => 'Admin Satu',
                 'email'        => 'admin@example.com',
                 'password'     => Hash::make('password'),
+                'is_superadmin' => 1,
                 'created_at'   => $now,
             ],
         ];

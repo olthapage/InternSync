@@ -146,7 +146,7 @@ class ManajemenMagangController extends Controller
 
                 $buttons = '<div class="btn-group" role="group">';
                 // Tombol ini akan mengarah ke halaman action baru
-                $buttons .= '<a href="' . $actionUrl . '" class="btn btn-xs btn-outline-primary" title="Kelola Magang"><i class="fas fa-tasks"></i> Kelola</a>';
+                $buttons .= '<a href="' . $actionUrl . '" class="btn bg-gradient-info btn-sm text-white" title="Kelola Magang"><i class="fas fa-tasks"></i> Kelola</a>';
                 // Anda bisa tambahkan tombol lain jika perlu, misal lihat profil mahasiswa
                 // $buttons .= '<a href="#" class="btn btn-xs btn-outline-info ms-1" title="Lihat Profil Mahasiswa"><i class="fas fa-user"></i></a>';
                 $buttons .= '</div>';

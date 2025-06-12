@@ -37,8 +37,8 @@ class LogHarianDosenController extends Controller
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('tanggal', fn($row) => $row->logHarian->tanggal ?? '-')
-             ->addColumn('mahasiswa', fn($row) => $row->logHarian->mahasiswaMagang->mahasiswa->nama_lengkap ?? '-')
+            ->addColumn('tanggal', fn($row) => $row->logHarian?->tanggal ?? '-')
+            ->addColumn('mahasiswa', fn($row) => $row->logHarian?->mahasiswaMagang?->mahasiswa?->nama_lengkap ?? '-')
             ->addColumn('kegiatan', fn($row) => $row->isi ?? '-')
             ->addColumn('lokasi', fn($row) => $row->lokasi ?? '-')
             ->addColumn('status_industri', function ($row) {
@@ -48,7 +48,7 @@ class LogHarianDosenController extends Controller
                 } elseif ($status == 'ditolak') {
                     return '<span class="badge bg-danger">Ditolak</span>';
                 }
-                return '<span class="badge bg-warning">Pending</span>';
+                return '<span class="badge bg-warning text-dark">Pending</span>';
             })
             ->addColumn('status_dosen', function ($row) {
                 $status = $row->status_approval_dosen ?? 'pending';
@@ -57,11 +57,15 @@ class LogHarianDosenController extends Controller
                 } elseif ($status == 'ditolak') {
                     return '<span class="badge bg-danger">Ditolak</span>';
                 }
-                return '<span class="badge bg-warning">Pending</span>';
+                return '<span class="badge bg-warning text-dark">Pending</span>';
             })
             ->addColumn('aksi', function ($row) {
-                $detailUrl = route('logharian_dosen.show', ['id' => $row->logHarianDetail_id]);
-                return '<button class="btn btn-sm btn-info" onclick="modalAction(\'' . $detailUrl . '\')">Detail</button>';
+                // PERBAIKAN: Kirim ID dari logHarian (induk), bukan logHarianDetail (anak)
+                if ($row->logHarian) {
+                    $detailUrl = route('logharian_dosen.show', ['id' => $row->logHarian->logHarian_id]);
+                    return '<button class="btn btn-sm btn-info" onclick="modalAction(\'' . $detailUrl . '\')">Detail</button>';
+                }
+                return '<button class="btn btn-sm btn-secondary" disabled>Detail</button>';
             })
             ->rawColumns(['status_industri', 'status_dosen', 'aksi'])
             ->make(true);

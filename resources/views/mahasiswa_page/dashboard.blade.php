@@ -81,7 +81,9 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0">Status Magang Anda</h6>
                         @if (Auth::user()->magang && Auth::user()->magang->status == 'sedang')
-                            <span class="badge bg-gradient-success">Sedang Magang</span>
+                            <span class="badge bg-gradient-info">Sedang Magang</span>
+                        @elseif(Auth::user()->magang && Auth::user()->magang->status == 'selesai')
+                            <span class="badge bg-gradient-success">Magang Selesai</span>
                         @else
                             <div class="text-end">
                                 <span class="badge bg-gradient-warning mb-2">Belum Magang</span><br>
@@ -91,7 +93,7 @@
                 </div>
                 <div class="card-body p-3 bg-white">
                     @if (Auth::user()->magang && Auth::user()->magang->status == 'sedang')
-                        <div class="alert alert-success">
+                        <div class="alert alert-info">
                             <div class="row">
                                 <div class="col-md-8">
                                     <h6 class="text-white">Anda sedang dalam program magang</h6>
@@ -99,6 +101,15 @@
                                 </div>
                                 <div class="col-md-4 text-end d-flex align-items-center justify-content-end">
                                     <a href="{{ route('mahasiswa.magang.index') }}" class="btn btn-sm btn-success mb-0">Logbook</a>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif(Auth::user()->magang && Auth::user()->magang->status == 'selesai')
+                        <div class="alert alert-success">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="text-white">Apa kata industri</h6>
+                                    <p class="text-sm mb-0 text-white">{{ Auth::user()->magang->feedback_industri ?? '-' }}</p>
                                 </div>
                             </div>
                         </div>

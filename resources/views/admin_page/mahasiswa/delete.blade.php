@@ -75,7 +75,7 @@
           if (res.status) {
             $('#myModal').modal('hide');
             Swal.fire('Berhasil', res.message, 'success');
-            dataMhs.ajax.reload();
+            dataTableInstance.ajax.reload();
           } else {
             Swal.fire('Gagal', res.message, 'error');
           }

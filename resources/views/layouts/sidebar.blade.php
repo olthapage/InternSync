@@ -136,14 +136,17 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="dropdown-item d-flex align-items-center border-bottom py-2 text-sm {{ $activeMenu == 'admin' ? 'active text-success' : '' }}"
-                            href="{{ route('admin.index') }}">
-                            <i
-                                class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
-                            <span class="nav-link {{ $activeMenu == 'admin' ? 'active text-success' : '' }}">Admin</span>
-                        </a>
-                    </li>
+                    @if (auth()->user()->is_superadmin)
+                        <li class="nav-item">
+                            <a class="dropdown-item d-flex align-items-center border-bottom py-2 text-sm {{ $activeMenu == 'admin' ? 'active text-success' : '' }}"
+                                href="{{ route('admin.index') }}">
+                                <i
+                                    class="fas fa-user-shield me-2 {{ $activeMenu == 'admin' ? 'text-success' : 'text-dark' }}"></i>
+                                <span
+                                    class="nav-link {{ $activeMenu == 'admin' ? 'active text-success' : '' }}">Admin</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </li>
 
@@ -270,7 +273,7 @@
                 <div class="docs-info">
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
                     <p class="text-xs font-weight-bold">Hubungi Admin</p>
-                    <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
+                    <a href="https://api.whatsapp.com/send/?phone=6281357717345" target="_blank"
                         class="btn btn-white btn-sm w-100 mb-0 d-flex align-items-center justify-content-center gap-2">
                         <img src="{{ asset('assets/wa.svg') }}" alt="WhatsApp Logo" style="width: 16px; height: 16px;">
                         Whatsapp
@@ -297,7 +300,7 @@
                 <div class="docs-info">
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
                     <p class="text-xs font-weight-bold">Hubungi Admin</p>
-                    <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
+                    <a href="https://api.whatsapp.com/send/?phone=6281357717345" target="_blank"
                         class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
                 </div>
             </div>
@@ -320,7 +323,7 @@
                 <div class="docs-info">
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
                     <p class="text-xs font-weight-bold">Hubungi Admin</p>
-                    <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
+                    <a href="https://api.whatsapp.com/send/?phone=6281357717345" target="_blank"
                         class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
                 </div>
             </div>
@@ -343,7 +346,7 @@
                 <div class="docs-info">
                     <h6 class="text-white up mb-0">Butuh bantuan?</h6>
                     <p class="text-xs font-weight-bold">Hubungi Admin</p>
-                    <a href="https://api.whatsapp.com/send/?phone=628123456789" target="_blank"
+                    <a href="https://api.whatsapp.com/send/?phone=6281357717345" target="_blank"
                         class="btn btn-white btn-sm w-100 mb-0">Whatsapp</a>
                 </div>
             </div>

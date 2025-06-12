@@ -1,36 +1,37 @@
 <?php
 namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\DosenModel;
 use App\Models\ProdiModel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class DosenController extends Controller
 {
     public function index()
     {
-        $dosen      = DosenModel::with('prodi')->get();
         $activeMenu = 'dosen';
-        return view('admin_page.dosen.index', compact('dosen', 'activeMenu'));
+
+        $prodi = ProdiModel::all();
+
+        return view('admin_page.dosen.index', compact('prodi', 'activeMenu'));
     }
     public function list(Request $request)
     {
-        $users = DosenModel::select(
-            'dosen_id',
-            'nama_lengkap',
-            'email',
-            'nip',
-            'prodi_id',
-        )
-            ->with(['prodi']);
+        $dosenQuery = DosenModel::with('prodi');
 
-        return DataTables::of($users)
+        // TAMBAHKAN: Logika untuk memfilter berdasarkan prodi_id dari AJAX.
+        if ($request->filled('prodi_id')) {
+            $dosenQuery->where('prodi_id', $request->prodi_id);
+        }
+
+        return DataTables::of($dosenQuery)
             ->addIndexColumn()
             ->addColumn('prodi', function ($user) {
                 return $user->prodi->nama_prodi ?? '-';
@@ -56,18 +57,29 @@ class DosenController extends Controller
     public function store(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
+
+            Log::info('Mencoba menyimpan dosen baru. Data request:', $request->all());
+
             $rules = [
-                'nama_lengkap' => 'required',
+                'nama_lengkap' => 'required|string|max:255',
                 'email'        => 'required|email|unique:m_dosen,email',
-                'telepon'      => 'required|min:9|max:15',
+                'nip'          => 'required|numeric|unique:m_dosen,nip',
                 'password'     => 'required|min:6',
-                'nip'          => 'required|unique:m_dosen,nip',
-                'prodi_id'     => 'required',
+                'prodi_id'     => 'required|exists:tabel_prodi,prodi_id',
+                'role_dosen'   => 'required|in:dpa,pembimbing',
+                'telepon'      => 'nullable|numeric',
             ];
 
-            $validator = Validator::make($request->all(), $rules);
+            $messages = [
+                'role_dosen.required' => 'Role dosen wajib dipilih.',
+                'nip.numeric'         => 'NIP hanya boleh berisi angka.',
+                'telepon.numeric'     => 'Nomor telepon hanya boleh berisi angka.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
+                Log::warning('Validasi gagal saat menambahkan dosen.', $validator->errors()->toArray());
                 return response()->json([
                     'status'   => false,
                     'message'  => 'Validasi Gagal',
@@ -75,21 +87,38 @@ class DosenController extends Controller
                 ]);
             }
 
-            DosenModel::create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'email'        => $request->email,
-                'telepon'      => $request->telepon,
-                'password'     => $request->password,
-                'nip'          => $request->nip,
-                'prodi_id'     => $request->prodi_id,
-            ]);
+            try {
+                $dataToCreate = [
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'email'        => $request->email,
+                    'telepon'      => $request->telepon,
+                    'password'     => Hash::make($request->password),
+                    'nip'          => $request->nip,
+                    'prodi_id'     => $request->prodi_id,
+                    'role_dosen'   => $request->role_dosen,
+                ];
 
-            return response()->json([
-                'status'  => true,
-                'message' => 'Dosen berhasil ditambahkan',
-            ]);
+                Log::info('Data yang akan dibuat:', $dataToCreate);
+
+                DosenModel::create($dataToCreate);
+
+                Log::info('Dosen baru berhasil disimpan ke database.');
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Dosen berhasil ditambahkan',
+                ]);
+
+            } catch (\Exception $e) {
+                // INI BAGIAN PALING PENTING UNTUK DEBUGGING
+                Log::error('EXCEPTION SAAT MEMBUAT DOSEN: ' . $e->getMessage());
+
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Terjadi kesalahan internal pada server. Silakan cek log.',
+                ], 500);
+            }
         }
-
         return redirect('/');
     }
 
@@ -135,7 +164,7 @@ class DosenController extends Controller
                 'email'        => 'required|email|unique:m_dosen,email,' . $id . ',dosen_id',
                 'telepon'      => 'nullable|string|min:9|max:15',
                 'nip'          => 'required|string|unique:m_dosen,nip,' . $id . ',dosen_id',
-                'prodi_id'     => 'required|exists:m_prodi,prodi_id',
+                'prodi_id'     => 'required|exists:tabel_prodi,prodi_id',
                 'foto'         => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ];
             $allowedData = ['nama_lengkap', 'email', 'telepon', 'nip', 'prodi_id'];

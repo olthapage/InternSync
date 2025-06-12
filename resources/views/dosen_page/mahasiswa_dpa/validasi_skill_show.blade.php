@@ -6,25 +6,20 @@
     <style>
         :root {
             --app-border-color: #e0e0e0;
-            /* Warna border abu-abu sedikit lebih soft */
             --app-text-muted: #6c757d;
             --app-text-dark: #212529;
             --app-bg-light-section: #f9f9f9;
-            /* Background untuk section/card yang lebih soft */
             --app-success-color: #198754;
-            /* Warna hijau utama */
             --app-primary-text-color: #0d6efd;
             --app-info-badge-bg: #0dcaf0;
             --app-pending-badge-bg: #ffc107;
             --app-pending-badge-text: #212529;
-            /* Teks lebih gelap untuk kontras di kuning */
             --app-invalid-badge-bg: #dc3545;
         }
 
         .main-card-validation {
             border: 1px solid var(--app-border-color);
             box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .05);
-            /* Shadow lebih tipis */
         }
 
         .profile-header-validation {
@@ -32,12 +27,10 @@
             padding: 1.5rem;
             border-bottom: 1px solid var(--app-border-color);
             margin-bottom: 1.5rem;
-            /* Kurangi margin bawah */
         }
 
         .profile-avatar-validation {
             width: 80px;
-            /* Sedikit lebih kecil agar tidak dominan */
             height: 80px;
             object-fit: cover;
             border: 2px solid var(--app-border-color);
@@ -48,16 +41,12 @@
             margin-bottom: 1rem;
             color: var(--app-text-dark);
             font-weight: 500;
-            /* Sedikit lebih ringan dari 600 */
             font-size: 1.15rem;
-            /* Sedikit lebih kecil */
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--app-success-color);
-            /* Aksen hijau */
         }
 
         .section-title-validation:first-of-type {
-            /* Hapus margin atas untuk judul section pertama */
             margin-top: 0;
         }
 
@@ -67,24 +56,28 @@
             margin-bottom: 1rem;
             border-radius: .375rem;
             box-shadow: none;
+            transition: box-shadow 0.3s ease-in-out;
         }
 
-        .skill-validation-item-card.is-invalid-form {
-            /* Untuk menandai jika ada error validasi di form ini */
-            border-color: var(--app-invalid-badge-bg);
+        .skill-card-highlight-success {
+            box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.5); /* Shadow hijau */
+        }
+
+        .skill-card-highlight-error {
+             box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.5); /* Shadow merah */
         }
 
         .skill-validation-item-card .card-body {
             padding: 1rem 1.25rem;
         }
 
-        .portfolio-list-validation {
+        .portfolio-list-clean {
             list-style: none;
             padding-left: 0;
             margin-top: 0.75rem;
         }
 
-        .portfolio-list-validation li {
+        .portfolio-list-clean li {
             background-color: var(--app-bg-light-section);
             border: 1px solid #e7e7e7;
             padding: 0.5rem 0.75rem;
@@ -93,57 +86,48 @@
             font-size: 0.875rem;
         }
 
-        .portfolio-title-validation {
+        .portfolio-title-clean {
             font-weight: 500;
         }
 
-        .portfolio-type-validation {
+        .portfolio-type-clean {
             font-size: 0.8em;
             color: var(--app-text-muted);
         }
 
-        .portfolio-link-validation a {
-            word-break: break-all;
-            font-size: 0.85em;
+        .portfolio-link-clean a {
             text-decoration: none;
             color: var(--app-primary-text-color);
         }
 
-        .portfolio-link-validation a:hover {
+        .portfolio-link-clean a:hover {
             text-decoration: underline;
         }
 
-        .badge.status-badge-validation {
-            font-size: 0.75rem;
-            /* Ukuran badge diseragamkan */
-            padding: .35em .6em;
+        .badge.custom-badge {
+            font-size: 0.8rem;
+            padding: .4em .65em;
             font-weight: 500;
-            color: white;
             vertical-align: middle;
         }
 
-        .badge.bg-level-validation {
-            background-color: var(--app-info-badge-bg) !important;
+        .badge.bg-level {
+             background-color: var(--app-info-badge-bg) !important;
+             color: var(--app-text-dark) !important;
         }
 
-        .badge.bg-valid-validation {
+        .badge.bg-valid {
             background-color: var(--app-success-color) !important;
         }
 
-        .badge.bg-pending-validation {
+        .badge.bg-pending {
             background-color: var(--app-pending-badge-bg) !important;
             color: var(--app-pending-badge-text) !important;
         }
 
-        .badge.bg-invalid-validation {
+        .badge.bg-invalid {
             background-color: var(--app-invalid-badge-bg) !important;
         }
-
-        .badge.bg-secondary-validation {
-            background-color: #6c757d !important;
-        }
-
-        /* Untuk status default jika ada */
 
         .validation-form-column {
             background-color: var(--app-bg-light-section);
@@ -161,16 +145,12 @@
             font-size: 0.875rem;
         }
 
-        .btn-save-validation {
-            background-color: var(--app-success-color);
-            border-color: var(--app-success-color);
-            color: white;
+        .ajax-error-message {
+            color: #dc3545;
+            font-size: .875em;
+            margin-top: .25rem;
         }
 
-        .btn-save-validation:hover {
-            background-color: #146c43;
-            border-color: #13653f;
-        }
     </style>
 @endpush
 
@@ -179,37 +159,18 @@
         <div class="row mb-3">
             <div class="col-12">
                 @php
-                    // Tentukan URL dan Teks Tombol berdasarkan parameter 'from'
-                    $backUrl = route('home'); // Tujuan default jika 'from' tidak ada
+                    $backUrl = route('home');
                     $backText = 'Kembali ke Dashboard';
-
                     if (request('from') === 'validasi') {
-                        // Jika datang dari halaman validasi, arahkan kembali ke sana
-                        // PASTIKAN nama route ini benar sesuai dengan file web.php Anda
                         $backUrl = route('dosen.mahasiswa-dpa.index');
-                        $backText = 'Kembali ke Validasi Skill';
+                        $backText = 'Kembali ke Daftar Mahasiswa DPA';
                     }
                 @endphp
-
                 <a href="{{ $backUrl }}" class="btn btn-sm btn-outline-dark">
                     <i class="fas fa-arrow-left me-1"></i> {{ $backText }}
                 </a>
             </div>
         </div>
-
-        {{-- Notifikasi Sukses/Error Global --}}
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
 
         <div class="card main-card-validation">
             <div class="card-body p-lg-4">
@@ -227,31 +188,21 @@
                             <p class="text-muted mb-0"><i class="fas fa-graduation-cap fa-fw me-1"></i>Prodi:
                                 {{ optional($mahasiswa->prodi)->nama_prodi ?? '-' }}</p>
                         </div>
-                        {{-- Informasi DPA bisa ditambahkan di sini jika perlu --}}
-                        {{-- <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <h6 class="mb-1 text-muted">Dosen Penasehat Akademik:</h6>
-                        <p class="fw-bold mb-0">{{ $dpa->nama_lengkap }}</p>
-                    </div> --}}
                     </div>
                 </div>
 
                 <h4 class="section-title-validation">Daftar Keahlian Mahasiswa</h4>
                 @if ($skillsForValidation->isEmpty())
                     <div class="alert alert-secondary text-center">
-                        <i class="fas fa-info-circle me-1"></i> Mahasiswa ini belum menambahkan skill apapun untuk
-                        divalidasi.
+                        <i class="fas fa-info-circle me-1"></i> Mahasiswa ini belum menambahkan skill apapun untuk divalidasi.
                     </div>
                 @else
                     @foreach ($skillsForValidation as $index => $mskill)
-                        <div
-                            class="card skill-validation-item-card {{ session('error_skill_id') == $mskill->mahasiswa_skill_id ? 'border-danger' : '' }}">
+                        <div class="card skill-validation-item-card" id="skill-card-{{ $mskill->mahasiswa_skill_id }}">
                             <div class="card-body">
-                                <form
-                                    action="{{ route('dosen.mahasiswa-dpa.skill.update_validasi', $mskill->mahasiswa_skill_id) }}"
-                                    method="POST">
+                                <form action="{{ route('dosen.mahasiswa-dpa.skill.update_validasi', $mskill->mahasiswa_skill_id) }}" method="POST" class="validation-form">
                                     @csrf
                                     <div class="row">
-                                        {{-- Kolom Kiri: Detail Skill & Portofolio --}}
                                         <div class="col-md-7">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <h5 class="mb-0">{{ $index + 1 }}.
@@ -259,139 +210,76 @@
                                                 </h5>
                                                 <div>
                                                     <span class="badge custom-badge bg-level me-1"
-                                                        title="Level diajukan mahasiswa">{{ $mskill->level_kompetensi }}</span>
+                                                          id="level-badge-{{ $mskill->mahasiswa_skill_id }}"
+                                                          title="Level divalidasi DPA">{{ $mskill->level_kompetensi }}</span>
                                                 </div>
                                             </div>
                                             <p class="mb-1 small text-muted">
                                                 Status Verifikasi Saat Ini:
                                                 @php
-                                                    $currentStatusClass = 'bg-secondary-validation'; // Default untuk Pending
-                                                    if ($mskill->status_verifikasi === 'Valid') {
-                                                        $currentStatusClass = 'bg-valid-validation';
-                                                    }
-                                                    if ($mskill->status_verifikasi === 'Invalid') {
-                                                        $currentStatusClass = 'bg-invalid-validation';
-                                                    }
-                                                    if ($mskill->status_verifikasi === 'Pending') {
-                                                        $currentStatusClass = 'bg-pending-validation';
-                                                    }
+                                                    $statusClass = 'bg-pending';
+                                                    if ($mskill->status_verifikasi === 'Valid') $statusClass = 'bg-valid';
+                                                    if ($mskill->status_verifikasi === 'Invalid') $statusClass = 'bg-invalid';
                                                 @endphp
-                                                <span
-                                                    class="badge custom-badge {{ $currentStatusClass }}">{{ $mskill->status_verifikasi }}</span>
+                                                <span class="badge custom-badge {{ $statusClass }}" id="status-badge-{{ $mskill->mahasiswa_skill_id }}">
+                                                    {{ $mskill->status_verifikasi }}
+                                                </span>
                                             </p>
 
                                             @if ($mskill->linkedPortofolios->isNotEmpty())
-                                                <p class="mt-2 mb-1 text-xs text-uppercase fw-bold text-muted">Bukti
-                                                    Portofolio Terkait:</p>
+                                                <p class="mt-2 mb-1 text-xs text-uppercase fw-bold text-muted">Bukti Portofolio Terkait:</p>
                                                 <ul class="portfolio-list-clean">
-                                                    {{-- $portfolioLink di sini adalah instance dari PortofolioMahasiswa --}}
                                                     @foreach ($mskill->linkedPortofolios as $portfolioItem)
                                                         <li>
                                                             <div class="d-flex justify-content-between align-items-center">
                                                                 <div>
-                                                                    {{-- Akses langsung atribut dari $portfolioItem --}}
-                                                                    <span
-                                                                        class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
-                                                                    <span class="portfolio-type-clean">
-                                                                        ({{ ucfirst($portfolioItem->tipe_portofolio) }})
-                                                                    </span>
+                                                                    <span class="portfolio-title-clean">{{ $portfolioItem->judul_portofolio }}</span>
+                                                                    <span class="portfolio-type-clean"> ({{ ucfirst($portfolioItem->tipe_portofolio) }})</span>
                                                                 </div>
                                                                 <span class="portfolio-link-clean">
                                                                     @if (in_array($portfolioItem->tipe_portofolio, ['url', 'video']))
-                                                                        <a href="{{ $portfolioItem->lokasi_file_atau_url }}"
-                                                                            target="_blank"
-                                                                            class="btn btn-sm btn-outline-dark py-0 px-1"
-                                                                            title="Lihat Link"><i
-                                                                                class="fas fa-external-link-alt"></i></a>
+                                                                        <a href="{{ $portfolioItem->lokasi_file_atau_url }}" target="_blank" class="btn btn-sm btn-outline-dark py-0 px-1" title="Lihat Link"><i class="fas fa-external-link-alt"></i></a>
                                                                     @elseif(in_array($portfolioItem->tipe_portofolio, ['file', 'gambar']))
-                                                                        <a href="{{ asset('storage/' . $portfolioItem->lokasi_file_atau_url) }}"
-                                                                            target="_blank"
-                                                                            class="btn btn-sm btn-outline-dark py-0 px-1"
-                                                                            title="Lihat File"><i
-                                                                                class="fas fa-download"></i></a>
+                                                                        <a href="{{ asset('storage/' . $portfolioItem->lokasi_file_atau_url) }}" target="_blank" class="btn btn-sm btn-outline-dark py-0 px-1" title="Lihat File"><i class="fas fa-download"></i></a>
                                                                     @endif
                                                                 </span>
                                                             </div>
-                                                            {{-- Akses data pivot melalui atribut 'pivot' pada objek $portfolioItem --}}
                                                             @if ($portfolioItem->pivot->deskripsi_penggunaan_skill)
-                                                                <p class="small text-muted mt-1 mb-0 fst-italic">
-                                                                    "{{ $portfolioItem->pivot->deskripsi_penggunaan_skill }}"
-                                                                </p>
+                                                                <p class="small text-muted mt-1 mb-0 fst-italic">"{{ $portfolioItem->pivot->deskripsi_penggunaan_skill }}"</p>
                                                             @endif
                                                         </li>
                                                     @endforeach
                                                 </ul>
                                             @else
-                                                <p class="small text-muted fst-italic mt-2 mb-0">Tidak ada portofolio yang
-                                                    dikaitkan untuk skill ini.</p>
+                                                <p class="small text-muted fst-italic mt-2 mb-0">Tidak ada portofolio yang dikaitkan.</p>
                                             @endif
                                         </div>
-                                        {{-- Kolom Kanan: Form Validasi DPA --}}
+
                                         <div class="col-md-5 border-start-md ps-md-3 mt-3 mt-md-0 validation-form-column">
                                             <p class="fw-bold mb-2 text-center">Form Validasi DPA</p>
                                             <div class="mb-3">
-                                                <label for="level_kompetensi_{{ $mskill->mahasiswa_skill_id }}"
-                                                    class="form-label">Validasi Level Kompetensi <span
-                                                        class="text-danger">*</span></label>
-                                                <select name="level_kompetensi"
-                                                    id="level_kompetensi_{{ $mskill->mahasiswa_skill_id }}"
-                                                    class="form-select @error('level_kompetensi', $mskill->mahasiswa_skill_id . '_errors') is-invalid @enderror"
-                                                    required>
-                                                    <option value="Beginner"
-                                                        {{ (old('level_kompetensi', $mskill->level_kompetensi) ?? $mskill->level_kompetensi) == 'Beginner' ? 'selected' : '' }}>
-                                                        Beginner</option>
-                                                    <option value="Intermediate"
-                                                        {{ (old('level_kompetensi', $mskill->level_kompetensi) ?? $mskill->level_kompetensi) == 'Intermediate' ? 'selected' : '' }}>
-                                                        Intermediate</option>
-                                                    <option value="Expert"
-                                                        {{ (old('level_kompetensi', $mskill->level_kompetensi) ?? $mskill->level_kompetensi) == 'Expert' ? 'selected' : '' }}>
-                                                        Expert</option>
+                                                <label for="level_kompetensi_{{ $mskill->mahasiswa_skill_id }}" class="form-label">Validasi Level Kompetensi <span class="text-danger">*</span></label>
+                                                <select name="level_kompetensi" id="level_kompetensi_{{ $mskill->mahasiswa_skill_id }}" class="form-select" required>
+                                                    <option value="Beginner" {{ old('level_kompetensi', $mskill->level_kompetensi) == 'Beginner' ? 'selected' : '' }}>Beginner</option>
+                                                    <option value="Intermediate" {{ old('level_kompetensi', $mskill->level_kompetensi) == 'Intermediate' ? 'selected' : '' }}>Intermediate</option>
+                                                    <option value="Expert" {{ old('level_kompetensi', $mskill->level_kompetensi) == 'Expert' ? 'selected' : '' }}>Expert</option>
                                                 </select>
-                                                @error('level_kompetensi', $mskill->mahasiswa_skill_id . '_errors')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
+                                                <div class="ajax-error-message" data-field="level_kompetensi"></div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="status_verifikasi_{{ $mskill->mahasiswa_skill_id }}"
-                                                    class="form-label">Ubah Status Verifikasi <span
-                                                        class="text-danger">*</span></label>
-                                                <select name="status_verifikasi"
-                                                    id="status_verifikasi_{{ $mskill->mahasiswa_skill_id }}"
-                                                    class="form-select @error('status_verifikasi', $mskill->mahasiswa_skill_id . '_errors') is-invalid @enderror"
-                                                    required>
-                                                    <option value="Pending"
-                                                        {{ (old('status_verifikasi', $mskill->status_verifikasi) ?? $mskill->status_verifikasi) == 'Pending' ? 'selected' : '' }}>
-                                                        Pending</option>
-                                                    <option value="Valid"
-                                                        {{ (old('status_verifikasi', $mskill->status_verifikasi) ?? $mskill->status_verifikasi) == 'Valid' ? 'selected' : '' }}>
-                                                        Valid</option>
-                                                    <option value="Invalid"
-                                                        {{ (old('status_verifikasi', $mskill->status_verifikasi) ?? $mskill->status_verifikasi) == 'Invalid' ? 'selected' : '' }}>
-                                                        Invalid</option>
+                                                <label for="status_verifikasi_{{ $mskill->mahasiswa_skill_id }}" class="form-label">Ubah Status Verifikasi <span class="text-danger">*</span></label>
+                                                <select name="status_verifikasi" id="status_verifikasi_{{ $mskill->mahasiswa_skill_id }}" class="form-select" required>
+                                                    <option value="Pending" {{ old('status_verifikasi', $mskill->status_verifikasi) == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="Valid" {{ old('status_verifikasi', $mskill->status_verifikasi) == 'Valid' ? 'selected' : '' }}>Valid</option>
+                                                    <option value="Invalid" {{ old('status_verifikasi', $mskill->status_verifikasi) == 'Invalid' ? 'selected' : '' }}>Invalid</option>
                                                 </select>
-                                                @error('status_verifikasi', $mskill->mahasiswa_skill_id . '_errors')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
+                                                 <div class="ajax-error-message" data-field="status_verifikasi"></div>
                                             </div>
-                                            <button type="submit" class="btn btn-sm btn-save-validation w-100"><i
-                                                    class="fas fa-save me-1"></i> Simpan Validasi Skill</button>
+                                            <button type="submit" class="btn btn-sm btn-success w-100"><i class="fas fa-save me-1"></i> Simpan Validasi</button>
                                         </div>
                                     </div>
                                 </form>
-                                {{-- Menampilkan error validasi per form skill --}}
-                                @if (session('error_skill_id') == $mskill->mahasiswa_skill_id && $errors->any())
-                                    <div class="alert alert-danger mt-2 py-2 small">
-                                        <ul class="mb-0 ps-3">
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
                             </div>
-                            @if (!$loop->last)
-                                <hr class="my-3">
-                            @endif
                         </div>
                     @endforeach
                 @endif
@@ -401,8 +289,123 @@
 @endsection
 
 @push('js')
-    <script>
-        // JS tidak ada yang spesifik dibutuhkan untuk styling ini.
-        // Pastikan Bootstrap JS dimuat untuk fungsionalitas alert dismissal dan modal.
-    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Karena template sudah memiliki CSRF token, kita bisa langsung mengambilnya.
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        document.querySelectorAll('.validation-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const currentForm = this;
+                const actionUrl = currentForm.getAttribute('action');
+                const formData = new FormData(currentForm);
+                const submitButton = currentForm.querySelector('button[type="submit"]');
+                const originalButtonHtml = submitButton.innerHTML;
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...`;
+                currentForm.querySelectorAll('.ajax-error-message').forEach(el => el.textContent = '');
+
+                fetch(actionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message || 'Validasi skill berhasil diperbarui.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        updateSkillCardUI(currentForm, data.newData);
+
+                    }
+                    // Note: penanganan error validasi (else) akan ditangkap oleh .catch jika response.ok adalah false
+                })
+                .catch(errorData => {
+                    // Blok ini akan menangani error jaringan dan error validasi dari server (status 422)
+                    let errorMessage = 'Terjadi kesalahan teknis. Silakan coba lagi.';
+
+                    if (errorData && errorData.errors) {
+                         // Ini adalah error validasi
+                        errorMessage = errorData.message || 'Data yang diberikan tidak valid.';
+                        displayValidationErrors(currentForm, errorData.errors);
+                    } else if (errorData && errorData.message) {
+                        // Error server lain dengan pesan JSON
+                        errorMessage = errorData.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: errorMessage,
+                    });
+                     console.error('Fetch Error:', errorData);
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonHtml;
+                });
+            });
+        });
+
+        function updateSkillCardUI(form, newData) {
+            const skillId = form.closest('.skill-validation-item-card').id.split('-').pop();
+            const levelBadge = document.getElementById(`level-badge-${skillId}`);
+            if (levelBadge) {
+                levelBadge.textContent = newData.level_kompetensi;
+            }
+            const statusBadge = document.getElementById(`status-badge-${skillId}`);
+            if (statusBadge) {
+                statusBadge.textContent = newData.status_verifikasi;
+                statusBadge.className = 'badge custom-badge'; // Reset class
+                if (newData.status_verifikasi === 'Valid') {
+                    statusBadge.classList.add('bg-valid');
+                } else if (newData.status_verifikasi === 'Invalid') {
+                    statusBadge.classList.add('bg-invalid');
+                } else {
+                    statusBadge.classList.add('bg-pending');
+                }
+            }
+            const card = document.getElementById(`skill-card-${skillId}`);
+            if(card) {
+                card.classList.add('skill-card-highlight-success');
+                setTimeout(() => {
+                    card.classList.remove('skill-card-highlight-success');
+                }, 2500);
+            }
+        }
+
+        function displayValidationErrors(form, errors) {
+            const card = form.closest('.skill-validation-item-card');
+            if(card) {
+                card.classList.add('skill-card-highlight-error');
+                 setTimeout(() => {
+                    card.classList.remove('skill-card-highlight-error');
+                }, 2500);
+            }
+
+            for (const field in errors) {
+                const errorContainer = form.querySelector(`.ajax-error-message[data-field="${field}"]`);
+                if (errorContainer) {
+                    errorContainer.textContent = errors[field][0];
+                }
+            }
+        }
+    });
+</script>
 @endpush

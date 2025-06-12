@@ -164,7 +164,7 @@
                     <div class="card h-100">
                         <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Mahasiswa Bimbingan Magang</h6>
-                            <a href="{{-- route('dosen.bimbingan.index') --}}" class="btn btn-sm bg-gradient-primary mb-0">Lihat Semua</a>
+                            <a href="{{ route('mahasiswa-bimbingan.index') }}" class="btn btn-sm bg-gradient-primary mb-0">Lihat Semua</a>
                         </div>
                         <div class="card-body p-3">
                             <div class="table-responsive">
@@ -246,7 +246,7 @@
                     <div class="card h-100">
                         <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">Mahasiswa Perwalian (Terverifikasi)</h6>
-                            <a href="{{-- route('dosen.wali.index') --}}" class="btn btn-sm bg-gradient-primary mb-0">Lihat Semua</a>
+                            <a href="{{ route('dosen.mahasiswa-dpa.index') }}" class="btn btn-sm bg-gradient-primary mb-0">Lihat Semua</a>
                         </div>
                         <div class="card-body p-3">
                             <div class="table-responsive">

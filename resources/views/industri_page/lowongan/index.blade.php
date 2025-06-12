@@ -18,7 +18,7 @@
             <div class="row">
                 @foreach ($lowongan_industri as $lowongan)
                     <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 border rounded shadow-sm">
+                        <div class="card h-100 border rounded shadow-none">
                             {{-- Atribut data-toggle dan data-target untuk modal bisa dipertahankan jika masih dipakai --}}
                             <div class="card-body d-flex flex-column justify-content-between">
                                 <div>
@@ -63,7 +63,7 @@
                                     </p>
                                 </div>
                                 <div class="mt-3">
-                                    <a class="btn btn-outline-dark btn-sm w-100" href="{{ url('industri/lowongan/'. $lowongan->lowongan_id . '/show') }}">Buka</a>
+                                    <a class="btn btn-dark btn-sm w-100" href="{{ url('industri/lowongan/'. $lowongan->lowongan_id . '/show') }}">Buka</a>
                                 </div>
                             </div>
                         </div>
@@ -77,7 +77,7 @@
 <div class="card card-outline card-primary mt-4">
         <div class="card-body text-sm">
             <h3 class="mb-4">Semua Pelamar</h3>
-            <div class="table-responsive">
+            <div class="table-responsive" id="semua-pelamar">
                 <table class="table table-hover align-middle mb-0 text-center" id="table_pengajuan">
                     <thead>
                         <tr>

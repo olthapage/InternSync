@@ -12,8 +12,6 @@
                         <tr>
                             <th class="text-start">No</th>
                             <th class="text-start">Nama</th>
-                            <th>NIM</th>
-                            <th>Prodi</th>
                             <th>Tempat Magang</th>
                             <th>Judul Lowongan</th>
                             <th>Status</th>
@@ -45,11 +43,12 @@
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
                     { data: 'nama_lengkap', name: 'nama_lengkap', className: 'text-start' },
-                    { data: 'nim', name: 'nim' },
-                    { data: 'prodi', name: 'prodi.nama_prodi', className: 'text-center' },
-                    { data: 'tempat_magang', name: 'magang.lowongan.industri.nama_industri', className: 'text-center' },
-                    { data: 'judul_lowongan', name: 'magang.lowongan.judul_lowongan', className: 'text-center' },
-                    { data: 'status_magang', name: 'magang.status', className: 'text-center' },
+
+                    // PERBAIKAN DI SINI: Nonaktifkan sort & search untuk kolom dari relasi yang bisa null
+                    { data: 'tempat_magang', name: 'tempat_magang', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'judul_lowongan', name: 'judul_lowongan', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'status_magang', name: 'status_magang', orderable: false, searchable: false, className: 'text-center' },
+
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center' },
                 ],
                 language: {

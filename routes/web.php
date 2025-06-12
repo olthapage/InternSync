@@ -115,6 +115,7 @@ Route::middleware(['auth:web,mahasiswa,dosen,industri', \App\Http\Middleware\Pre
         Route::get('/', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
         Route::post('/list', [MahasiswaController::class, 'list'])->name('mahasiswa.list');
         Route::get('/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
+         Route::get('/get-dosen-by-prodi/{prodi_id}', [MahasiswaController::class, 'getDosenByProdi'])->name('dosen.getByProdi');
         Route::get('/{id}/show', [MahasiswaController::class, 'show'])->name('mahasiswa.show');
         Route::get('{id}/verifikasi', [MahasiswaController::class, 'verifikasi'])->name('mahasiswa.verifikasi');
         Route::put('{id}/verifikasi', [MahasiswaController::class, 'updateVerifikasi'])->name('mahasiswa.updateVerifikasi');
