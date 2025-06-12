@@ -250,10 +250,6 @@
                                         class="list-group-item list-group-item-action" target="_blank">
                                         📄 Panduan InternSync
                                     </a>
-                                    <a href="{{ asset('files/sertifikat_sample.pdf') }}"
-                                        class="list-group-item list-group-item-action" target="_blank">
-                                        🎖 Contoh Sertifikat
-                                    </a>
                                 </ul>
                             </div>
                         </div>
