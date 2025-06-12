@@ -274,13 +274,13 @@
                 </a>
 
                 <h1
-                    class="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-6 reveal animation-delay-100 text-center">
+                    class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-6 reveal animation-delay-100 text-center">
                     <em>Intern
                     <span class="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent inline-block">
-                        Sync 
+                        Sync
                     </span>
                     </em>
-                    <br class="hidden md:block">
+                    <br>
                     Jembatan Menuju Karir Impian
                 </h1>
 
@@ -732,57 +732,6 @@
                 </div>
             </div>
         </div>
-
-
-        <section id="testimonials" class="py-16 md:py-24 bg-slate-50">
-            <div class="container mx-auto px-4 sm:px-6">
-                <div class="text-center mb-12 md:mb-16 reveal">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Apa Kata Mereka?</h2>
-                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
-                        Pengalaman positif dari mahasiswa dan perusahaan yang telah menggunakan InternSync.
-                    </p>
-                </div>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 reveal flex flex-col">
-                        <div class="flex items-center mb-4">
-                            <img src="{{ asset('assets/default-profile.png') }}" alt="Adinda Putri" class="w-12 h-12 rounded-full mr-4 bg-slate-200 object-cover">
-                            <div>
-                                <h4 class="font-semibold text-slate-800">Adinda Putri</h4>
-                                <p class="text-sm text-slate-500">Mahasiswa Desain Komunikasi Visual</p>
-                            </div>
-                        </div>
-                        <p class="text-base text-slate-700 italic flex-grow">"InternSync sangat membantu saya menemukan tempat magang yang sesuai dengan passion saya di bidang UI/UX. Prosesnya cepat dan platformnya sangat mudah digunakan!"</p>
-                    </div>
-
-
-                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 reveal flex flex-col animation-delay-200">
-                        <div class="flex items-center mb-4">
-                            <img src="{{ asset('assets/default-profile.png') }}" alt="Bima Sanjaya" class="w-12 h-12 rounded-full mr-4 bg-slate-200 object-cover">
-                            <div>
-                                <h4 class="font-semibold text-slate-800">Bima Sanjaya</h4>
-                                <p class="text-sm text-slate-500">Mahasiswa Teknik Informatika</p>
-                            </div>
-                        </div>
-                        <p class="text-base text-slate-700 italic flex-grow">"Berkat rekomendasi cerdas dari InternSync, saya diterima magang di salah satu startup teknologi terkemuka. Pengalaman yang luar biasa untuk portofolio saya."</p>
-                    </div>
-
-
-                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 reveal flex flex-col animation-delay-400">
-                        <div class="flex items-center mb-4">
-                            <img src="{{ asset('assets/default-profile.png') }}" alt="Citra Lestari" class="w-12 h-12 rounded-full mr-4 bg-slate-200 object-cover">
-                            <div>
-                                <h4 class="font-semibold text-slate-800">Citra Lestari</h4>
-                                <p class="text-sm text-slate-500">Mahasiswa Sistem Informasi</p>
-                            </div>
-                        </div>
-                        <p class="text-base text-slate-700 italic flex-grow">"Fitur pelacakan lamaran sangat transparan. Saya tidak lagi bingung dengan status aplikasi saya. Sangat direkomendasikan untuk mahasiswa tingkat akhir!"</p>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
 
         <section id="contact" class="py-16 md:py-24 text-center bg-white">
             <div class="container mx-auto px-4 sm:px-6 reveal">
