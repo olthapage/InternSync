@@ -24,7 +24,7 @@
         <table class="table table-bordered table-striped table-hover table-sm">
           <tr><th>ID</th>                <td>{{ $lowongan->lowongan_id }}</td></tr>
           <tr><th>Judul Lowongan</th>   <td>{{ $lowongan->judul_lowongan }}</td></tr>
-          <tr><th>Deskripsi</th>        <td>{{ $lowongan->deskripsi ?? '-' }}</td></tr>
+          <tr><th>Deskripsi</th>        <td style="white-space: pre-wrap; word-wrap: break-word;">{{ $lowongan->deskripsi ?? '-' }}</td></tr>
           <tr><th>Industri</th>         <td>{{ $lowongan->industri->industri_nama ?? '-' }}</td></tr>
           <tr><th>Dibuat pada</th>      <td>{{ $lowongan->created_at }}</td></tr>
           <tr><th>Diupdate pada</th>    <td>{{ $lowongan->updated_at }}</td></tr>

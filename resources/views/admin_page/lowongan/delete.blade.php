@@ -38,7 +38,7 @@
             </tr>
             <tr>
               <th class="text-right">Deskripsi:</th>
-              <td>{{ $lowongan->deskripsi }}</td>
+              <td style="white-space: pre-wrap; word-wrap: break-word;">{{ $lowongan->deskripsi ?? '-' }}</td>
             </tr>
           </table>
         </div>
