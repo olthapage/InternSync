@@ -3,10 +3,13 @@
     <p class="text-muted small">
         Tentukan bobot (tingkat kepentingan relatif) untuk setiap kriteria. Total akumulasi bobot idealnya adalah 100%.
     </p>
+    <p class="text-muted small">
+        Sistem memberi kebebasan dalam menentukan bobot, namun disarankan untuk <strong>skill yang lebih penting diberikan bobot lebih tinggi.</strong>
+    </p>
 
     <div id="totalBobotError-{{ $lowongan->lowongan_id }}" class="alert py-2" style="display: none; font-size: 0.875rem;"></div>
     <div class="mb-3 text-end">
-        <span class="fw-bold">Total Bobot Saat Ini: <span id="currentTotalBobot-{{ $lowongan->lowongan_id }}">0</span>%</span>
+        <span class="fw-bold text-white">Total Bobot Saat Ini: <span id="currentTotalBobot-{{ $lowongan->lowongan_id }}">0</span>%</span>
     </div>
 
     <h6 class="text-dark-blue fw-bold border-bottom pb-2 mb-3">Kriteria Keahlian (Skill)</h6>
@@ -30,7 +33,7 @@
                             <td>
                                 <input type="number" class="form-control form-control-sm spk-bobot-input"
                                        name="bobot_skill[{{ $reqSkill->skill_id }}]"
-                                       value="{{ old('bobot_skill.' . $reqSkill->skill_id, $reqSkill->bobot ?? 30) }}"
+                                       value="0"
                                        min="0" max="100" step="1" required
                                        aria-label="Bobot untuk {{ optional($reqSkill->skill)->skill_nama }}">
                                 @error('bobot_skill.' . $reqSkill->skill_id) <div class="invalid-feedback text-xs d-block">{{ $message }}</div> @enderror
@@ -149,15 +152,15 @@
                 // ... (logika display error/info/success total bobot Anda) ...
                  if (totalBobot > 100) {
                     totalBobotErrorDiv.textContent = 'Peringatan: Total bobot melebihi 100% (' + totalBobot + '%). Sistem akan menormalisasi bobot ini, namun disarankan total bobot adalah 100%.';
-                    totalBobotErrorDiv.className = 'alert alert-danger py-2'; totalBobotErrorDiv.style.display = 'block';
+                    totalBobotErrorDiv.className = 'alert alert-danger py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
                     if(submitButton) submitButton.classList.add('btn-warning');
                 } else if (totalBobot < 100 && totalBobot > 0) {
                     totalBobotErrorDiv.textContent = 'Info: Total bobot saat ini adalah ' + totalBobot + '%. Idealnya 100%. Sistem akan menormalisasi bobot ini.';
-                    totalBobotErrorDiv.className = 'alert alert-info py-2'; totalBobotErrorDiv.style.display = 'block';
+                    totalBobotErrorDiv.className = 'alert alert-info py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
                      if(submitButton) submitButton.classList.remove('btn-warning');
                 } else if (totalBobot === 100) {
                     totalBobotErrorDiv.textContent = 'Total bobot sudah 100%. Sempurna!';
-                    totalBobotErrorDiv.className = 'alert alert-success py-2'; totalBobotErrorDiv.style.display = 'block';
+                    totalBobotErrorDiv.className = 'alert alert-success py-2 text-white'; totalBobotErrorDiv.style.display = 'block';
                      if(submitButton) submitButton.classList.remove('btn-warning');
                 } else {
                     totalBobotErrorDiv.style.display = 'none';

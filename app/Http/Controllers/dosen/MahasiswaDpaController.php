@@ -82,9 +82,9 @@ class MahasiswaDpaController extends Controller
                 // Untuk lebih eksplisit dan memastikan kita menghitung relasi yang sudah difilter saat eager loading:
                 $count = $row->relationLoaded('skills') ? $row->skills->count() : 0;
                 if ($count > 0) {
-                    return '<span class="badge bg-warning text-dark">' . $count . ' Skill Menunggu Verifikasi</span>';
+                    return '<span class="badge bg-gradient-warning text-dark">' . $count . ' Skill Menunggu Verifikasi</span>';
                 }
-                return '<span class="badge bg-success">Semua Skill Terverifikasi</span>';
+                return '<span class="badge bg-gradient-success">Semua Skill Terverifikasi</span>';
             })
             ->addColumn('aksi', function ($row) {
                 // Tambahkan parameter 'from' => 'validasi'
@@ -92,7 +92,7 @@ class MahasiswaDpaController extends Controller
                     'mahasiswa' => $row->mahasiswa_id,
                     'from'      => 'validasi',
                 ]);
-                return '<a href="' . $validasiUrl . '" class="btn btn-sm btn-primary"><i class="fas fa-user-shield me-1"></i> Validasi Skill</a>';
+                return '<a href="' . $validasiUrl . '" class="btn btn-sm bg-gradient-info"><i class="fas fa-user-shield me-1"></i> Validasi Skill</a>';
             })
             ->rawColumns(['nama_lengkap_mahasiswa', 'skill_pending_count', 'aksi'])
             ->make(true);
@@ -134,32 +134,42 @@ class MahasiswaDpaController extends Controller
     {
         $dpa = Auth::user();
 
-                                                        // Autorisasi: Pastikan DPA hanya bisa memvalidasi skill mahasiswa dari prodinya
-                                                        // dan mahasiswaSkill yang diupdate memang milik mahasiswa di prodi DPA
-        $mahasiswaTerkait = $mahasiswaSkill->mahasiswa; // Akses relasi mahasiswa dari mahasiswaSkill
+        // Autorisasi: Pastikan DPA yang login adalah yang berhak.
+        $mahasiswaTerkait = $mahasiswaSkill->mahasiswa;
         if (is_null($dpa->prodi_id) || is_null($mahasiswaTerkait) || $mahasiswaTerkait->prodi_id !== $dpa->prodi_id) {
-            return redirect()->back()->with('error', 'Aksi tidak diizinkan.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Aksi tidak diizinkan.'
+            ], 403); // HTTP 403 Forbidden
         }
 
         $validator = Validator::make($request->all(), [
             'status_verifikasi' => 'required|string|in:Pending,Valid,Invalid',
             'level_kompetensi'  => 'required|string|in:Beginner,Intermediate,Expert',
-            // 'catatan_dpa' => 'nullable|string|max:500' // Jika ada field catatan
         ]);
 
+        // Jika validasi gagal, kembalikan error sebagai JSON
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput()
-                ->with('error_skill_id', $mahasiswaSkill->mahasiswa_skill_id); // Untuk fokus ke form yg error jika ada
+            return response()->json([
+                'success' => false,
+                'message' => 'Data yang diberikan tidak valid.',
+                'errors'  => $validator->errors()
+            ], 422); // HTTP 422 Unprocessable Entity
         }
 
+        // Simpan data
         $mahasiswaSkill->status_verifikasi = $request->status_verifikasi;
-        $mahasiswaSkill->level_kompetensi  = $request->level_kompetensi; // DPA bisa menyesuaikan level
-                                                                         // $mahasiswaSkill->catatan_dpa = $request->catatan_dpa; // Jika ada
+        $mahasiswaSkill->level_kompetensi  = $request->level_kompetensi;
         $mahasiswaSkill->save();
 
-        return redirect()->route('dosen.mahasiswa-dpa.validasi.skill.show', $mahasiswaSkill->mahasiswa_id)
-            ->with('success', 'Status verifikasi dan level untuk skill "' . ($mahasiswaSkill->detailSkill->skill_nama ?? '') . '" berhasil diperbarui.');
+        // Kembalikan respons sukses sebagai JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'Validasi untuk skill "' . ($mahasiswaSkill->detailSkill->skill_nama ?? 'skill') . '" berhasil diperbarui.',
+            'newData' => [
+                'status_verifikasi' => $mahasiswaSkill->status_verifikasi,
+                'level_kompetensi'  => $mahasiswaSkill->level_kompetensi,
+            ]
+        ]);
     }
 }

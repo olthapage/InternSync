@@ -69,7 +69,7 @@
                         </div>
                     </div>
                     <div class="card-footer pt-0 bg-transparent">
-                        <a href="{{ route('pengajuan.index') }}" class="text-sm font-weight-bold">Lihat data pelamar <i
+                        <a href="{{ route('industri.lowongan.index') }}#semua_pelamar" class="text-sm font-weight-bold">Lihat data pelamar <i
                                 class="fa fa-arrow-right ms-1"></i></a>
                     </div>
                 </div>

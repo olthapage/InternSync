@@ -142,13 +142,13 @@ class AuthController extends Controller
         $username = $request->input('username');
         $role_guess = null;
         if (preg_match('/^\d{10}$/', $username)) {
-            $role_guess = 'dosen';
-        } elseif (preg_match('/^\d{8,9}$/', $username)) {
             $role_guess = 'mahasiswa';
+        } elseif (preg_match('/^\d{8,9}$/', $username)) {
+            $role_guess = 'dosen';
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Format NIM (8–9 digit) atau NIDN (10 digit) tidak valid.'
+                'message' => 'Format NIM (10 digit) atau NIDN (8-9 digit) tidak valid.'
             ], 422);
         }
 

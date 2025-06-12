@@ -11,6 +11,29 @@
                     <i class="fas fa-plus me-1"></i> Tambah Mahasiswa
                 </button>
             </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-form-label col-md-auto">Filter Data:</label>
+                        <div class="col-md-3">
+                            <select class="form-control form-control-sm" id="prodi_id_filter" name="prodi_id_filter">
+                                <option value="">- Semua Program Studi -</option>
+                                @foreach ($prodi as $item)
+                                    <option value="{{ $item->prodi_id }}">{{ $item->nama_prodi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control form-control-sm" id="status_magang_filter" name="status_magang_filter">
+                                <option value="">- Semua Status Magang -</option>
+                                <option value="belum">Belum Magang</option>
+                                <option value="sedang">Sedang/Akan Magang</option>
+                                <option value="selesai">Magang Selesai</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-center" id="table_mahasiswa"> {{-- Tambah table-bordered & text-sm --}}
                     <thead class=""> {{-- Thead lebih terang --}}
@@ -47,7 +70,7 @@
             });
         }
 
-        var dataMhs; // dataMhs harusnya dataTableInstance
+        var dataTableInstance; // dataMhs harusnya dataTableInstance
 
         $(document).ready(function() {
             $.ajaxSetup({
@@ -66,7 +89,8 @@
                     type: "POST", // Atau GET jika method list Anda GET
                     dataType: "json",
                     data: function(d) {
-                        // d.level_id = $('#level_id_filter').val(); // Jika ada filter
+                        d.prodi_id = $('#prodi_id_filter').val();
+                        d.status_magang = $('#status_magang_filter').val();
                     }
                 },
                 columns: [{
@@ -134,6 +158,9 @@
                         previous: "<i class='fas fa-angle-left'></i>"
                     }
                 },
+            });
+             $('#prodi_id_filter, #status_magang_filter').on('change', function() {
+                dataTableInstance.ajax.reload(); // Memuat ulang data tabel
             });
         });
     </script>

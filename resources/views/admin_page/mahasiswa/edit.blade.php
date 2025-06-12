@@ -256,7 +256,7 @@
                             if (typeof dataTableInstance !== 'undefined') { // Cek jika dataTableInstance ada
                                 dataTableInstance.ajax.reload(null, false);
                             } else if (typeof dataMhs !== 'undefined') { // Fallback ke dataMhs
-                                dataMhs.ajax.reload(null,false);
+                                dataTableInstance.ajax.reload(null,false);
                             } else {
                                 location.reload(); // fallback paling akhir
                             }

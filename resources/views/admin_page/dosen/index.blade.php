@@ -8,6 +8,22 @@
                 <button onclick="modalAction('{{ route('dosen.create') }}')" class="btn btn-sm btn-primary">+ Tambah
                     Dosen</button>
             </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-form-label col-md-auto">Filter Program Studi:</label>
+                        <div class="col-md-4">
+                            <select class="form-control form-control-sm" id="prodi_id_filter" name="prodi_id_filter">
+                                <option value="">- Semua Prodi -</option>
+                                {{-- Loop dari variabel $prodi yang dikirim controller --}}
+                                @foreach ($prodi as $item)
+                                    <option value="{{ $item->prodi_id }}">{{ $item->nama_prodi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-center" id="table_dosen">
                     <thead>
@@ -34,6 +50,14 @@
             $('#myModal').load(url, function() {
                 $('#myModal').modal('show');
             });
+            $('#myModal').load(url, function(response, status, xhr) {
+                if (status == "error") {
+                    // Jika gagal load, tampilkan pesan error
+                    var msg = "Maaf, konten gagal dimuat: " + xhr.status + " " + xhr.statusText;
+                    $('#myModal .modal-content').html('<div class="modal-body"><div class="alert alert-danger">' +
+                        msg + '</div></div>');
+                }
+            });
         }
 
         var dataDosen;
@@ -51,6 +75,9 @@
                     url: "{{ url('dosen/list') }}",
                     dataType: "json",
                     type: "POST",
+                    data: function(d) {
+                        d.prodi_id = $('#prodi_id_filter').val();
+                    }
                 },
                 columns: [{
                         data: "DT_RowIndex",
@@ -107,6 +134,9 @@
                     },
                     processing: '<div class="d-flex justify-content-center"><i class="fas fa-spinner fa-pulse fa-2x fa-fw text-primary"></i><span class="ms-2">Memuat data...</span></div>'
                 },
+            });
+            $('#prodi_id_filter').on('change', function() {
+                dataDosen.ajax.reload();
             });
         });
     </script>

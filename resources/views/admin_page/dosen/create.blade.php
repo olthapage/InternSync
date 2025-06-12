@@ -1,107 +1,149 @@
-    <form action="{{ route('dosen.store') }}" method="POST" id="form-create">
-        @csrf
-        <div id="modal-master" class="modal-dialog modal-lg" role="document" style="max-width:60vw;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Dosen</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control"
-                               value="{{ old('nama_lengkap') }}" required>
-                        <small id="error-nama_lengkap" class="error-text form-text text-danger"></small>
+<form action="{{ route('dosen.store') }}" method="POST" id="form-create-dosen">
+    @csrf
+    <div class="modal-dialog modal-lg" role="document"> {{-- Wrapper ini WAJIB ADA --}}
+        <div class="modal-content"> {{-- Wrapper ini WAJIB ADA --}}
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Data Dosen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_lengkap" class="form-control" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" required>
+                            <small id="error-email" class="error-text text-danger"></small>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Telepon</label>
+                            <input type="tel" name="telepon" class="form-control">
+                            <small id="error-telepon" class="error-text text-danger"></small>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" id="email" class="form-control"
-                               value="{{ old('email') }}" required>
-                        <small id="error-email" class="error-text form-text text-danger"></small>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="form-label">NIP <span class="text-danger">*</span></label>
+                            <input type="text" name="nip" class="form-control" required>
+                            <small id="error-nip" class="error-text text-danger"></small>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Program Studi <span class="text-danger">*</span></label>
+                            <select name="prodi_id" class="form-select" required>
+                                <option value="">-- Pilih Prodi --</option>
+                                @foreach ($prodi as $p)
+                                    <option value="{{ $p->prodi_id }}">{{ $p->nama_prodi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Role Dosen <span class="text-danger">*</span></label>
+                            <select name="role_dosen" class="form-select" required>
+                                <option value="">-- Pilih Role --</option>
+                                <option value="dpa">Dosen DPA</option>
+                                <option value="pembimbing">Dosen Pembimbing</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                            <label>Telepon</label>
-                            <input type="text" name="telepon" class="form-control"
-                                value="{{ old('telepon') }}" required pattern="^(\+62|0)[0-9]{8,15}$" title="Masukkan nomor telepon yang valid, contoh: 081234567890">
-                            <small id="error-telepon" class="error-text form-text text-danger"></small>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" id="password" class="form-control" required>
-                        <small id="error-password" class="error-text form-text text-danger"></small>
-                    </div>
-                    <div class="form-group">
-                        <label>NIP</label>
-                        <input type="text" name="nip" id="nip" class="form-control"
-                               value="{{ old('nip') }}" required>
-                        <small id="error-nip" class="error-text form-text text-danger"></small>
-                    </div>
-                    <div class="form-group">
-                        <label>Program Studi</label>
-                        <select name="prodi_id" id="prodi_id" class="form-control" required>
-                            <option value="">-- Pilih Prodi --</option>
-                            @foreach($prodi as $prd)
-                                <option value="{{ $prd->prodi_id }}">{{ $prd->nama_prodi }}</option>
-                            @endforeach
-                        </select>
-                        <small id="error-prodi_id" class="error-text form-text text-danger"></small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"
-                            onclick="$('#myModal').modal('hide')">Batal</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
         </div>
-    </form>
+    </div>
+</form>
 
-    <script>
-    $(document).ready(function () {
-        $("#form-create").validate({
-            rules: {
-                nama_lengkap: { required: true, minlength: 3 },
-                email:        { required: true, email: true },
-                telepon:      { required: true, minlength: 9, maxlength: 15},
-                password:     { required: true, minlength: 6 },
-                nip:          { required: true },
-                prodi_id:     { required: true, number: true }
+<script>
+    // Script sederhana untuk submit form via AJAX
+    $("#form-create-dosen").validate({
+        rules: {
+            nama_lengkap: {
+                required: true,
+                minlength: 3
             },
-            submitHandler: function (form) {
-                $.ajax({
-                    url:    form.action,
-                    type:   form.method,
-                    data:   $(form).serialize(),
-                    success: function (res) {
-                        if (res.status) {
-                            $('#myModal').modal('hide');
-                            Swal.fire('Berhasil', res.message, 'success');
-                            dataDosen.ajax.reload();
-                        } else {
-                            $('.error-text').text('');
-                            $.each(res.msgField, function (key, val) {
-                                $('#error-' + key).text(val[0]);
-                            });
-                            Swal.fire('Gagal', res.message, 'error');
-                        }
-                    },
-                    error: function () {
-                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
-                    }
-                });
-                return false;
+            email: {
+                required: true,
+                email: true
             },
-            errorElement: 'span',
-            errorPlacement: function (error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
+            password: {
+                required: true,
+                minlength: 6
             },
-            highlight: function (element) {
-                $(element).addClass('is-invalid');
+            nip: {
+                required: true,
+                digits: true // Hanya memperbolehkan angka
             },
-            unhighlight: function (element) {
-                $(element).removeClass('is-invalid');
+            telepon: {
+                digits: true // Hanya memperbolehkan angka
+            },
+            prodi_id: {
+                required: true
+            },
+            role_dosen: {
+                required: true
             }
-        });
+        },
+        messages: {
+            nip: {
+                digits: "NIP hanya boleh berisi angka."
+            },
+            telepon: {
+                digits: "Nomor telepon hanya boleh berisi angka."
+            },
+            // Tambahkan pesan lain jika perlu
+        },
+        submitHandler: function(form) {
+            $.ajax({
+                url: $(form).attr('action'),
+                type: $(form).attr('method'),
+                data: $(form).serialize(),
+                success: function(res) {
+                    if (res.status) {
+                        $('#myModal').modal('hide');
+                        Swal.fire('Berhasil', res.message, 'success');
+                        dataDosen.ajax.reload();
+                    } else {
+                        $('.error-text').text('');
+                        if (res.msgField) {
+                            $.each(res.msgField, function(key, val) {
+                                $('#error-' + key).text(val[0]);
+                                $('[name="' + key + '"]').addClass('is-invalid');
+                            });
+                        }
+                        Swal.fire('Gagal', res.message || 'Terjadi kesalahan.', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
+                }
+            });
+            return false;
+        },
+        errorElement: 'small',
+        errorClass: 'error-text text-danger d-block',
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+            $('#error-' + $(element).attr('name')).text('');
+        },
+        errorPlacement: function(error, element) {
+            var errorContainerId = '#error-' + element.attr('name');
+            if ($(errorContainerId).length) {
+                $(errorContainerId).text(error.text());
+            } else {
+                error.insertAfter(element);
+            }
+        }
     });
-    </script>
-@endempty
+</script>

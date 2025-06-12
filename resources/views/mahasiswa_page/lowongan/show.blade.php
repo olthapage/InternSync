@@ -1,6 +1,20 @@
 @php
     $mahasiswa = auth()->user();
+
     $profilLengkap = $mahasiswa && $mahasiswa->status_verifikasi == 'valid';
+
+    $pengajuanMahasiswa = $mahasiswa->pengajuan();
+
+    $sudahMengajukanDiLowonganIni = $pengajuanMahasiswa
+        ->clone()
+        ->where('lowongan_id', $lowongan->lowongan_id)
+        ->exists();
+
+    $punyaPengajuanAktifLain = $pengajuanMahasiswa
+        ->clone()
+        ->where('lowongan_id', '!=', $lowongan->lowongan_id) // Cek di lowongan LAIN
+        ->whereIn('status', ['belum', 'diterima']) // Gunakan whereIn
+        ->exists();
 @endphp
 
 
@@ -76,7 +90,7 @@
                     <div class="d-flex flex-wrap gap-2">
                         @foreach ($lowongan->lowonganSkill as $low)
                             @if ($low->skill)
-                                <span class="badge bg-light border text-dark px-3 py-2 mb-2">
+                                <span class="badge bg-gradient-info border text-white px-3 py-2 mb-2">
                                     {{ $low->skill->skill_nama }}
                                 </span>
                             @endif
@@ -153,22 +167,46 @@
         <!-- FOOTER -->
         <div
             class="modal-footer bg-white border-top-0 pt-0 px-4 pb-4 d-flex justify-content-between align-items-center">
-            @if (!$profilLengkap)
-                <small class="text-danger">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Belum bisa mengajukan magang karena profil belum lengkap
-                </small>
-            @endif
 
+            {{-- Grup pesan notifikasi di kiri --}}
+            <div>
+                @if (!$profilLengkap)
+                    <small class="text-danger">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        Lengkapi dan verifikasi profil Anda terlebih dahulu untuk bisa melamar.
+                    </small>
+                @elseif($sudahMengajukanDiLowonganIni)
+                    <small class="text-success fw-medium">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Anda sudah melamar di lowongan ini.
+                    </small>
+                @elseif($punyaPengajuanAktifLain)
+                    <small class="text-warning fw-medium">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Anda sudah memiliki lamaran aktif di lowongan lain.
+                    </small>
+                @endif
+            </div>
+
+            {{-- Grup tombol di kanan --}}
             <div class="ms-auto">
                 <button type="button" class="btn btn-secondary me-2"
                     onclick="$('#myModal').modal('hide')">Tutup</button>
 
-                @if ($profilLengkap)
+                {{-- Logika untuk menampilkan tombol "Lamar Sekarang" --}}
+                @if ($profilLengkap && !$sudahMengajukanDiLowonganIni && !$punyaPengajuanAktifLain)
                     <a href="{{ url('pengajuan/' . $lowongan->lowongan_id . '/create') }}"
-                        class="btn btn-primary px-4">Lamar Sekarang</a>
+                        class="btn btn-primary px-4">
+                        <i class="fas fa-paper-plane me-2"></i>Lamar Sekarang
+                    </a>
+                @else
+                    {{-- Tombol Lamar dinonaktifkan jika salah satu kondisi tidak terpenuhi --}}
+                    <button type="button" class="btn btn-primary px-4" disabled>
+                        <i class="fas fa-paper-plane me-2"></i>Lamar Sekarang
+                    </button>
                 @endif
             </div>
+
         </div>
 
     </div>

@@ -23,24 +23,20 @@ class MahasiswaBimbinganController extends Controller
     public function list(Request $request)
     {
         if ($request->ajax()) {
+            // Eager load semua relasi yang dibutuhkan untuk menghindari N+1 query problem
             $mahasiswa = MahasiswaModel::with(['prodi', 'magang.lowongan.industri'])
-                ->where('dosen_id', Auth::id())
-            // LANGKAH 1: Pastikan kolom 'foto' ada di sini
-                ->select('m_mahasiswa.mahasiswa_id', 'm_mahasiswa.nama_lengkap', 'm_mahasiswa.nim', 'm_mahasiswa.prodi_id', 'm_mahasiswa.foto');
+                ->where('dosen_id', Auth::id()); // Asumsi Auth::id() adalah dosen_id
 
             return DataTables::of($mahasiswa)
                 ->addIndexColumn()
-
-            // LANGKAH 2: Gunakan editColumn untuk mengubah tampilan kolom 'nama_lengkap'
                 ->editColumn('nama_lengkap', function ($row) {
-                    // Asumsi Anda punya accessor 'foto_url' di MahasiswaModel, jika tidak, buat logika URL di sini
-                    $fotoUrl = optional($row)->foto_url ?? asset('assets/default-profile.png');
+                    // Pastikan Anda memiliki accessor 'foto_url' di MahasiswaModel
+                    // atau sesuaikan logika path foto di sini
+                    $fotoUrl = $row->foto ? asset('storage/foto/' . $row->foto) : asset('assets/default-profile.png');
+                    $nama    = htmlspecialchars($row->nama_lengkap, ENT_QUOTES, 'UTF-8');
+                    $nim     = htmlspecialchars($row->nim, ENT_QUOTES, 'UTF-8');
 
-                    // Gunakan htmlspecialchars untuk keamanan
-                    $nama = htmlspecialchars($row->nama_lengkap, ENT_QUOTES, 'UTF-8');
-                    $nim  = htmlspecialchars($row->nim, ENT_QUOTES, 'UTF-8');
-
-                    // Bangun HTML sesuai referensi Anda
+                    // Menggunakan format HTML dari referensi Anda
                     return '
                     <div class="d-flex px-2 py-1">
                         <div>
@@ -51,20 +47,20 @@ class MahasiswaBimbinganController extends Controller
                             <p class="text-xs text-secondary mb-0">NIM: ' . $nim . '</p>
                         </div>
                     </div>
-                ';
-                })
-
-                ->addColumn('prodi', function ($row) {
-                    return $row->prodi->nama_prodi ?? '-';
+                    ';
                 })
                 ->addColumn('tempat_magang', function ($row) {
-                    return optional($row->magang->lowongan->industri)->industri_nama ?? '-';
+                    // PERBAIKAN: Gunakan nullsafe operator (?->) untuk mengakses relasi bertingkat dengan aman
+                    return $row->magang?->lowongan?->industri?->industri_nama ?? '-';
                 })
                 ->addColumn('judul_lowongan', function ($row) {
-                    return optional($row->magang->lowongan)->judul_lowongan ?? '-';
+                    // PERBAIKAN: Gunakan nullsafe operator (?->) di sini juga
+                    return $row->magang?->lowongan?->judul_lowongan ?? '-';
                 })
                 ->addColumn('status_magang', function ($row) {
-                    $status                     = optional($row->magang)->status ?? 'belum';
+                    // PERBAIKAN: Ambil status dengan aman
+                    $status = $row->magang?->status ?? 'belum';
+
                     [$badgeClass, $displayText] = match ($status) {
                         'sedang' => ['success', 'Sedang Magang'],
                         'selesai' => ['info', 'Selesai'],
@@ -74,17 +70,11 @@ class MahasiswaBimbinganController extends Controller
                     return '<span class="badge badge-sm bg-gradient-' . $badgeClass . '">' . $displayText . '</span>';
                 })
                 ->addColumn('aksi', function ($row) {
-                    // Buat URL untuk modal
                     $url = route('mahasiswa-bimbingan.show', $row->mahasiswa_id);
-
-                    // Gunakan tag <button> dengan atribut onclick untuk memanggil JavaScript.
-                    // Ini tidak akan menyebabkan navigasi halaman.
                     return '<button onclick="modalAction(\'' . $url . '\')" class="btn btn-info btn-sm" title="Lihat Detail">
-                            <i class="fas fa-eye"></i> Detail
-                        </button>';
+                                <i class="fas fa-eye"></i> Detail
+                            </button>';
                 })
-
-            // LANGKAH 3: Tambahkan 'nama_lengkap' ke rawColumns
                 ->rawColumns(['nama_lengkap', 'status_magang', 'aksi'])
                 ->make(true);
         }
