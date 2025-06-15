@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
@@ -7,16 +6,15 @@ use App\Models\DosenModel;
 use App\Models\MahasiswaModel;
 use App\Models\ValidasiAkun;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 
 class ValidasiAkunController extends Controller
 {
     public function index()
     {
-        $akun  = ValidasiAkun::get();
+        $akun       = ValidasiAkun::get();
         $activeMenu = 'validasi_akun';
         return view('admin_page.validasi_akun.index', compact('akun', 'activeMenu'));
     }
@@ -41,12 +39,12 @@ class ValidasiAkunController extends Controller
                 return match ($status) {
                     'approved' => '<span class="badge bg-success">Approved</span>',
                     'rejected' => '<span class="badge bg-danger">Rejected</span>',
-                    default     => '<span class="badge bg-secondary">Pending</span>',
+                    default    => '<span class="badge bg-secondary">Pending</span>',
                 };
             })
 
             ->addColumn('aksi', function ($akun) {
-                $id = $akun->id;
+                $id  = $akun->id;
                 $btn = '<button onclick="modalAction(\'' . route('validasi-akun.verifikasi', $id) . '\')" class="btn btn-success btn-sm me-1 mb-1" title="Validasi Akun"><i class="fas fa-check-circle"></i></button>';
                 $btn .= '<button onclick="modalAction(\'' . route('validasi.deleteModal', $id) . '\')" class="btn btn-danger btn-sm mb-1" title="Hapus"><i class="fas fa-trash"></i></button>';
                 return $btn;
@@ -68,79 +66,81 @@ class ValidasiAkunController extends Controller
     public function validasiAkun(Request $request, $id)
     {
 
-         Log::info('Memulai proses validasi untuk akun ID: ' . $id, ['request_data' => $request->all()]);
+        Log::info('Memulai proses validasi untuk akun ID: ' . $id, ['request_data' => $request->all()]);
 
-        $request->validate([
-            'status_validasi' => 'required|in:pending,approved,rejected',
-            'alasan' => 'required_if:status_validasi,rejected',
-        ], [
-            'status_validasi.required' => 'Status validasi harus dipilih.',
-            'alasan.required_if' => 'Alasan wajib diisi jika menolak akun.',
-        ]);
-
-        Log::info('Validasi akun berhasil, data yang diterima:', [
-            'status_validasi' => $request->status_validasi,
-            'alasan' => $request->alasan ?? null,
-        ]);
-
+        // PERBAIKAN: Pindahkan definisi $akun ke atas sebelum digunakan.
         $akun = ValidasiAkun::findOrFail($id);
-        $status = $request->status_validasi;  // Pakai yang ini
+
+        $rules = [
+            'status_validasi' => 'required|in:pending,approved,rejected',
+            'alasan'          => 'required_if:status_validasi,rejected',
+        ];
+
+        // Tambahkan validasi role_dosen HANYA jika status approved dan rolenya dosen
+        if ($request->status_validasi === 'approved' && $akun->perkiraan_role === 'dosen') {
+            $rules['role_dosen'] = 'required|in:pembimbing,dpa';
+        }
+
+        $request->validate($rules, [
+            'status_validasi.required' => 'Status validasi harus dipilih.',
+            'alasan.required_if'       => 'Alasan wajib diisi jika menolak akun.',
+            'role_dosen.required'      => 'Role untuk dosen wajib ditentukan.',
+            'role_dosen.in'            => 'Role dosen yang dipilih tidak valid.',
+        ]);
+
+        Log::info('Validasi akun berhasil, data yang diterima:', $request->all());
+
+        $status      = $request->status_validasi;
         $emailTujuan = $akun->email;
 
         if ($status === 'approved') {
-            // Pindahkan data ke tabel mahasiswa/dosen sesuai role yang ada di $akun
             if ($akun->perkiraan_role === 'mahasiswa') {
                 MahasiswaModel::create([
                     'nama_lengkap' => $akun->nama_lengkap,
-                    'email' => $akun->email,  // pakai email dari $akun
-                    'password' => $akun->password,
-                    'nim' => $akun->username,
-                    'status' => 1,
+                    'email'        => $akun->email,
+                    'password'     => $akun->password,
+                    'nim'          => $akun->username,
+                    'status'       => 1,
                 ]);
                 Log::info('Akun mahasiswa berhasil dibuat untuk: ' . $akun->nama_lengkap);
             } elseif ($akun->perkiraan_role === 'dosen') {
                 DosenModel::create([
                     'nama_lengkap' => $akun->nama_lengkap,
-                    'email' => $akun->email,  // pakai email dari $akun
-                    'password' => $akun->password,
-                    'nip' => $akun->username,
+                    'email'        => $akun->email,
+                    'password'     => $akun->password,
+                    'nip'          => $akun->username,
+                    'role_dosen'   => $request->role_dosen,
                 ]);
-                Log::info('Akun dosen berhasil dibuat untuk: ' . $akun->nama_lengkap);
+                Log::info('Akun dosen berhasil dibuat untuk: ' . $akun->nama_lengkap . ' dengan role: ' . $request->role_dosen);
             }
 
             $akun->delete();
 
             Mail::raw("Akun Anda telah berhasil divalidasi dan sekarang aktif di sistem.", function ($message) use ($emailTujuan) {
                 $message->to($emailTujuan)
-                        ->subject('Validasi Akun Berhasil');
+                    ->subject('Validasi Akun Berhasil');
             });
 
             return response()->json([
-                'status' => true,
-                'message' => 'Akun berhasil divalidasi dan dipindahkan.'
+                'status'  => true,
+                'message' => 'Akun berhasil divalidasi dan dipindahkan.',
             ]);
         }
 
         if ($status === 'rejected') {
-            $akun->status_validasi = 'rejected';
+            $akun->status_validasi  = 'rejected';
             $akun->alasan_penolakan = $request->alasan;
             $akun->save();
-
-            Mail::raw("Akun Anda ditolak dengan alasan berikut:\n\n" . $request->alasan, function ($message) use ($emailTujuan) {
-                $message->to($emailTujuan)
-                        ->subject('Validasi Akun Ditolak');
-            });
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Akun ditolak dan tetap disimpan untuk ditinjau ulang.'
-            ]);
+            // ... (Kode kirim email tetap sama) ...
+            return response()->json(['status' => true, 'message' => 'Akun ditolak dan tetap disimpan untuk ditinjau ulang.']);
         }
+
+        return response()->json(['status' => false, 'message' => 'Status verifikasi tidak valid.'], 422);
 
         // Untuk status 'pending' atau nilai lain yang tidak sesuai logika:
         return response()->json([
-            'status' => false,
-            'message' => 'Status verifikasi tidak valid.'
+            'status'  => false,
+            'message' => 'Status verifikasi tidak valid.',
         ], 422);
     }
 

@@ -37,6 +37,18 @@
                     <small id="error-status_validasi-{{$akun->id}}" class="error-text text-danger d-block"></small>
                 </div>
 
+                @if ($akun->perkiraan_role === 'dosen')
+                <div class="form-group mb-3" id="roleDosenGroup_{{ $akun->id }}">
+                    <label for="role_dosen_{{ $akun->id }}" class="form-label">Tentukan Role Dosen <span class="text-danger">*</span></label>
+                    <select name="role_dosen" id="role_dosen_{{ $akun->id }}" class="form-select form-select-sm">
+                        <option value="">-- Pilih Role --</option>
+                        <option value="pembimbing">Dosen Pembimbing</option>
+                        <option value="dpa">Dosen Pembimbing Akademik (DPA)</option>
+                    </select>
+                    <small id="error-role_dosen-{{$akun->id}}" class="error-text text-danger d-block"></small>
+                </div>
+                @endif
+
                 <div class="form-group mb-3" id="alasanGroup_{{ $akun->id }}" style="display: none;">
                     <label for="alasan_{{ $akun->id }}" class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
                     <textarea name="alasan" id="alasan_{{ $akun->id }}" class="form-control form-control-sm" rows="3" placeholder="Tuliskan alasan penolakan akun"></textarea>
@@ -122,8 +134,10 @@ $(function () {
                     contentType: false,
                     success: function (res) {
                         if (res.status) {  // sesuaikan dengan response controller
+
                             $('#myModal').modal('hide');
                             Swal.fire('Berhasil!', res.message, 'success');
+                            dataAkun.ajax.reload();
                             if (typeof dataTableInstance !== 'undefined') {
                                 dataTableInstance.ajax.reload(null, false);
                             } else if (typeof dataMhs !== 'undefined' && dataMhs.ajax) {

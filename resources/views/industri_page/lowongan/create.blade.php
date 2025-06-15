@@ -72,7 +72,7 @@
                             <div class="form-group mb-3">
                                 <label for="deskripsi" class="form-label">Deskripsi Lowongan <span
                                         class="text-danger">*</span></label>
-                                <textarea class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi" name="deskripsi" rows="5"
+                                <textarea class="form-control @error('deskripsi') is-invalid @enderror" id="deskripsi" name="deskripsi" rows="5" maxlength="100"
                                     required>{{ old('deskripsi') }}</textarea>
                                 @error('deskripsi')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -147,7 +147,7 @@
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="lokasi_alamat_lengkap" class="form-label">Alamat Lengkap Lowongan</label>
-                                    <textarea class="form-control @error('lokasi_alamat_lengkap') is-invalid @enderror" id="lokasi_alamat_lengkap"
+                                    <textarea class="form-control @error('lokasi_alamat_lengkap') is-invalid @enderror" id="lokasi_alamat_lengkap" maxlength="100"
                                         name="lokasi_alamat_lengkap" rows="3">{{ old('lokasi_alamat_lengkap') }}</textarea>
                                     @error('lokasi_alamat_lengkap')
                                         <div class="invalid-feedback">{{ $message }}</div>

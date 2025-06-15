@@ -1,5 +1,6 @@
 <style>
-    .table-responsive { max-height: 400px; }
+    /* Menambahkan style agar tabel bisa di-scroll jika terlalu lebar */
+    .table-responsive { max-height: 500px; }
 </style>
 
 <h4>Hasil Rekomendasi Lowongan Magang</h4>
@@ -23,17 +24,70 @@
                                 <th>Lowongan</th>
                                 <th>Perusahaan</th>
                                 <th>Nilai Utilitas ($N_i$)</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $rank = 1; @endphp
                             @foreach($nilai_N as $id => $skor)
-                                @php $lowongan = $alternatives->find($id); @endphp
+                                @php
+                                    $lowongan = $alternatives->find($id);
+
+                                    // --- LOGIKA UNTUK MENENTUKAN STATUS TOMBOL AJUKAN ---
+                                    $mahasiswa = auth()->user();
+                                    $bisaMelamar = false;
+                                    $pesanDisabled = '';
+
+                                    if ($mahasiswa) {
+                                        // Validasi #1: Profil mahasiswa harus sudah terverifikasi.
+                                        $profilLengkap = $mahasiswa->status_verifikasi == 'valid';
+
+                                        // Validasi #2: Slot lowongan harus tersedia.
+                                        $slotTersedia = $lowongan->slotTersedia() > 0;
+
+                                        // Validasi #3: Belum pernah mengajukan di lowongan ini.
+                                        $sudahMengajukanDiLowonganIni = $mahasiswa->pengajuan()->where('lowongan_id', $lowongan->lowongan_id)->exists();
+
+                                        // Validasi #4: Tidak sedang memiliki magang aktif.
+                                        $punyaMagangAktif = $mahasiswa->magang()->whereIn('status', ['belum', 'sedang'])->exists();
+
+                                        // Validasi #5: Tidak memiliki pengajuan lain yang pending.
+                                        $punyaPengajuanPendingLain = $mahasiswa->pengajuan()->where('status', 'belum')->exists();
+
+                                        // Logika untuk menonaktifkan tombol berdasarkan urutan prioritas
+                                        if (!$profilLengkap) {
+                                            $pesanDisabled = 'Profil Anda harus terverifikasi untuk melamar.';
+                                        } elseif (!$slotTersedia) {
+                                            $pesanDisabled = 'Slot untuk lowongan ini sudah penuh.';
+                                        } elseif ($sudahMengajukanDiLowonganIni) {
+                                            $pesanDisabled = 'Anda sudah melamar di lowongan ini.';
+                                        } elseif ($punyaMagangAktif) {
+                                            $pesanDisabled = 'Anda tidak bisa melamar karena sedang dalam periode magang aktif.';
+                                        } elseif ($punyaPengajuanPendingLain) {
+                                            $pesanDisabled = 'Anda masih memiliki pengajuan lain yang sedang diproses.';
+                                        } else {
+                                            $bisaMelamar = true;
+                                        }
+                                    }
+                                @endphp
                                 <tr>
                                     <td><span class="badge bg-success">{{ $rank++ }}</span></td>
                                     <td>{{ $lowongan->judul_lowongan }}</td>
                                     <td>{{ $lowongan->industri->industri_nama }}</td>
                                     <td><strong>{{ number_format($skor, 2) }}%</strong></td>
+                                    <td class="text-center">
+                                        @if ($bisaMelamar)
+                                            <a href="{{ route('mahasiswa.pengajuan.create', $lowongan->lowongan_id) }}"
+                                               class="btn btn-sm btn-info"
+                                               title="Ajukan magang untuk lowongan ini">
+                                               <i class="fas fa-paper-plane me-1"></i> Ajukan
+                                            </a>
+                                        @else
+                                            <button class="btn btn-sm btn-secondary" disabled title="{{ $pesanDisabled }}">
+                                                <i class="fas fa-paper-plane me-1"></i> Ajukan
+                                            </button>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -62,7 +62,7 @@
           if (res.status) {
             $('#myModal').modal('hide');
             Swal.fire('Berhasil', res.message, 'success');
-            dataLowongan.ajax.reload();
+            dataLow.ajax.reload();
           } else {
             Swal.fire('Gagal', res.message, 'error');
           }

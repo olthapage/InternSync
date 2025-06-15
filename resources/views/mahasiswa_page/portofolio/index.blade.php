@@ -234,7 +234,7 @@
                     <div class="mb-3">
                         <label for="deskripsi_portofolio" class="form-label">Deskripsi</label>
                         <textarea name="deskripsi_portofolio" id="deskripsi_portofolio"
-                            class="form-control @error('deskripsi_portofolio', 'storePortfolioErrors') is-invalid @enderror" rows="3">{{ old('deskripsi_portofolio') }}</textarea>
+                            class="form-control @error('deskripsi_portofolio', 'storePortfolioErrors') is-invalid @enderror" rows="3" maxlength="200">{{ old('deskripsi_portofolio') }}</textarea>
                         @error('deskripsi_portofolio', 'storePortfolioErrors')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

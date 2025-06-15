@@ -18,7 +18,8 @@
 
                 <div class="mb-3">
                     <label for="tanggal" class="form-label">Tanggal Log <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" id="tanggal" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                    <input type="date" class="form-control" id="tanggal" name="tanggal"
+                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
                 </div>
 
                 {{-- Table aktivitas dinamis --}}
@@ -36,15 +37,17 @@
                     <tbody>
                         <tr>
                             <td>
-                                <textarea name="aktivitas[0][deskripsi]" class="form-control" rows="2" required>{{ old('aktivitas.0.deskripsi') }}</textarea>
+                                <textarea name="aktivitas[0][deskripsi]" class="form-control" rows="2" required maxlength="100">{{ old('aktivitas.0.deskripsi') }}</textarea>
                             </td>
                             <td>
                                 {{-- Pastikan name konsisten dengan validasi dan store method: aktivitas[0][tanggal] atau aktivitas[0][tanggal_kegiatan] --}}
-                                <input type="date" name="aktivitas[0][tanggal]" class="form-control" required value="{{ old('aktivitas.0.tanggal', date('Y-m-d')) }}">
+                                <input type="date" name="aktivitas[0][tanggal]" class="form-control" required
+                                    value="{{ old('aktivitas.0.tanggal', date('Y-m-d')) }}">
                             </td>
                             <td>
                                 {{-- Input lokasi sekarang bisa diedit, value diisi default lokasi magang --}}
-                                <input type="text" name="aktivitas[0][lokasi]" class="form-control" value="{{ old('aktivitas.0.lokasi', $defaultLokasiMagang ?? '') }}" required>
+                                <input type="text" name="aktivitas[0][lokasi]" class="form-control"
+                                    value="{{ old('aktivitas.0.lokasi', $defaultLokasiMagang ?? '') }}" required>
                             </td>
                             <td>
                                 <select name="aktivitas[0][status_approval]" class="form-select" disabled>
@@ -52,7 +55,8 @@
                                 </select>
                             </td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm remove-row" disabled>&times;</button>
+                                <button type="button" class="btn btn-danger btn-sm remove-row"
+                                    disabled>&times;</button>
                             </td>
                         </tr>
                     </tbody>
@@ -71,7 +75,7 @@
 </div>
 
 <script>
-    $(function () {
+    $(function() {
         let aktivitasIndex = 1;
         // Tentukan batas maksimal aktivitas yang bisa ditambahkan
         const maxAktivitas = 3;
@@ -92,21 +96,21 @@
         }
 
         // --- MODIFIKASI: Event click untuk Tambah Aktivitas ---
-        $('#addAktivitas').click(function () {
+        $('#addAktivitas').click(function() {
             // Pengecekan dilakukan di dalam fungsi updateAddButtonState
             // jadi kita tidak perlu cek di sini lagi sebelum menambah
             const today = new Date().toISOString().slice(0, 10);
             const newRow = `
                 <tr>
                     <td>
-                        <textarea name="aktivitas[${aktivitasIndex}][deskripsi]" class="form-control" rows="2" required></textarea>
+                        <textarea name="aktivitas[${aktivitasIndex}][deskripsi]" class="form-control" rows="2" required maxlength="100"></textarea>
                     </td>
                     <td>
                         <input type="date" name="aktivitas[${aktivitasIndex}][tanggal]" class="form-control" required value="${today}">
                     </td>
                     <td>
-                        <input type="text" name="aktivitas[${aktivitasIndex}][lokasi]" class="form-control" value="${defaultLokasiMagangJs}" required>
-                    </td>
+            <textarea name="aktivitas[${aktivitasIndex}][deskripsi]" class="form-control" rows="2" required maxlength="100"></textarea>
+        </td>
                     <td>
                         <select name="aktivitas[${aktivitasIndex}][status_approval]" class="form-select" disabled>
                             <option value="pending" selected>Pending</option>
@@ -125,7 +129,7 @@
         });
 
         // --- MODIFIKASI: Event click untuk Hapus Aktivitas ---
-        $('#aktivitasTable').on('click', '.remove-row', function () {
+        $('#aktivitasTable').on('click', '.remove-row', function() {
             $(this).closest('tr').remove();
 
             // Panggil fungsi untuk update status tombol setelah menghapus baris
@@ -136,7 +140,7 @@
         updateAddButtonState();
 
         // --- Bagian AJAX Submit Form (Tidak ada perubahan) ---
-        $('#formTambahLog').submit(function (e) {
+        $('#formTambahLog').submit(function(e) {
             e.preventDefault();
             const form = $(this);
             $('#alert-errors').addClass('d-none');
@@ -146,7 +150,7 @@
                 url: form.attr('action'),
                 method: 'POST',
                 data: form.serialize(),
-                success: function (response) {
+                success: function(response) {
                     $('#myModal').modal('hide'); // Asumsi modal Anda memiliki id="myModal"
                     if (typeof $('#table_logharian').DataTable === 'function') {
                         $('#table_logharian').DataTable().ajax.reload();
@@ -162,34 +166,38 @@
                         timerProgressBar: true,
                         didOpen: (toast) => {
                             toast.addEventListener('mouseenter', Swal.stopTimer)
-                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            toast.addEventListener('mouseleave', Swal
+                                .resumeTimer)
                         }
                     });
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     if (xhr.status === 422) { // Validation error
                         const errors = xhr.responseJSON.errors;
                         $('#alert-errors').removeClass('d-none');
-                        $.each(errors, function (key, messages) {
+                        $.each(errors, function(key, messages) {
                             let fieldName = key;
                             if (key.includes('.')) {
                                 fieldName = key.split('.').slice(1).join(' ');
-                                fieldName = fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Capitalize
+                                fieldName = fieldName.replace(/_/g, ' ').replace(
+                                    /\b\w/g, l => l.toUpperCase()); // Capitalize
                             }
                             messages.forEach(msg => {
-                                $('#list-errors').append('<li>' + msg.replace(key, fieldName) + '</li>');
+                                $('#list-errors').append('<li>' + msg
+                                    .replace(key, fieldName) + '</li>');
                             });
                         });
-                    } else if (xhr.responseJSON && xhr.responseJSON.error) { // Custom error dari controller
+                    } else if (xhr.responseJSON && xhr.responseJSON
+                        .error) { // Custom error dari controller
                         $('#alert-errors').removeClass('d-none');
                         $('#list-errors').append('<li>' + xhr.responseJSON.error + '</li>');
-                         Swal.fire({
+                        Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
-                            text: xhr.responseJSON.error || 'Terjadi kesalahan saat menyimpan log.',
+                            text: xhr.responseJSON.error ||
+                                'Terjadi kesalahan saat menyimpan log.',
                         });
-                    }
-                    else {
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',

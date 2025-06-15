@@ -135,7 +135,7 @@
                                                         <div class="form-group">
                                                             <label for="evaluasi-{{ $item->mahasiswa_magang_id }}">Tulis evaluasi Anda tentang pengalaman magang.</label>
                                                             <textarea class="form-control @error('evaluasi') is-invalid @enderror" id="evaluasi-{{ $item->mahasiswa_magang_id }}"
-                                                                name="evaluasi" rows="4" required>{{ old('evaluasi') }}</textarea>
+                                                                name="evaluasi" rows="4" required maxlength="100">{{ old('evaluasi') }}</textarea>
                                                             @error('evaluasi')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
