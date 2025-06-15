@@ -364,7 +364,7 @@
                                                                                     :</label>
                                                                                 <textarea name="catatan_industri_approve_{{ $detail->logHarianDetail_id }}"
                                                                                     id="catatan_industri_approve_{{ $detail->logHarianDetail_id }}" class="form-control form-control-sm"
-                                                                                    rows="3"></textarea>
+                                                                                    rows="3" maxlength="100"></textarea>
                                                                             </div>
                                                                         </div>
                                                                         <div class="modal-footer">
@@ -414,7 +414,7 @@
                                                                                     id="catatan_industri_reject_{{ $detail->logHarianDetail_id }}"
                                                                                     class="form-control form-control-sm @if (
                                                                                         $errors->has('catatan_industri_reject_' . $detail->logHarianDetail_id) &&
-                                                                                            old('error_reject_id') == $detail->logHarianDetail_id) is-invalid @endif" rows="3" required>{{ old('catatan_industri_reject_' . $detail->logHarianDetail_id) }}</textarea>
+                                                                                            old('error_reject_id') == $detail->logHarianDetail_id) is-invalid @endif" rows="3" required maxlength="100">{{ old('catatan_industri_reject_' . $detail->logHarianDetail_id) }}</textarea>
                                                                                 @if (
                                                                                     $errors->has('catatan_industri_reject_' . $detail->logHarianDetail_id) &&
                                                                                         old('error_reject_id') == $detail->logHarianDetail_id)

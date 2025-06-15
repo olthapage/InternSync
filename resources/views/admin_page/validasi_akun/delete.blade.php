@@ -62,10 +62,11 @@
         type:   $(this).find('input[name="_method"]').val() || 'POST',
         data:   $(this).serialize(),
         success: function(res) {
+
           if (res.status) {
             $('#myModal').modal('hide');
             Swal.fire('Berhasil', res.message, 'success');
-            dataMhs.ajax.reload();
+            dataAkun.ajax.reload();
           } else {
             Swal.fire('Gagal', res.message, 'error');
           }

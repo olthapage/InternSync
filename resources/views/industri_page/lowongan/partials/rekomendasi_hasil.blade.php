@@ -1,7 +1,6 @@
 @if(isset($error_message))
     <div class="alert alert-danger">{{ $error_message }}</div>
 @elseif(!isset($rankedMahasiswa) || $rankedMahasiswa->isEmpty())
-    {{-- Tampilkan pesan jika tidak ada pendaftar --}}
     <div class="alert alert-info mt-3 text-center">
         <i class="fas fa-info-circle me-1"></i>
         {{ $message ?? 'Tidak ada pendaftar yang dapat dirangking.' }}
@@ -32,12 +31,13 @@
                             </th>
                         @endforeach
                     @endif
+                    {{-- ===== PERUBAHAN: Menambahkan header kolom baru ===== --}}
+                    <th class="text-center" style="width: 10%;">Review</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($rankedMahasiswa as $index => $mahasiswaData)
                     @php
-                        // Logika untuk highlight baris peringkat teratas
                         $rank = $index + 1;
                         $rowClass = '';
                         $rankIcon = '';
@@ -48,9 +48,8 @@
                     <tr class="{{ $rowClass }}">
                         <td class="text-center fw-bold">{!! $rankIcon !!}{{ $rank }}</td>
                         <td>
-                            <a href="{{ route('industri.lowongan.pendaftar.show_profil', $mahasiswaData['pengajuan_id']) }}" target="_blank">
-                                {{ optional($mahasiswaData['mahasiswa'])->nama_lengkap }}
-                            </a>
+                            {{-- PERUBAHAN: Menghapus link dari nama --}}
+                            {{ optional($mahasiswaData['mahasiswa'])->nama_lengkap }}
                         </td>
                         <td class="text-center fw-bolder">{{ number_format($mahasiswaData['skor_akhir_as'], 4) }}</td>
 
@@ -58,12 +57,20 @@
                         @if(isset($criteriaView) && !empty($criteriaView))
                             @foreach($criteriaView as $cv)
                                 <td class="text-center small">
-                                    {{-- Tampilkan nilai asli sebelum dinormalisasi --}}
-                                    {{-- (Logika untuk menampilkan nilai asli bisa ditambahkan di sini jika perlu) --}}
                                     {{ number_format($mahasiswaData['nilai_kriteria'][$cv['id']] ?? 0, 1) }}
                                 </td>
                             @endforeach
                         @endif
+
+                        {{-- ===== PERUBAHAN: Menambahkan kolom dengan tombol Review ===== --}}
+                        <td class="text-center">
+                            <a href="{{ route('industri.lowongan.pendaftar.show_profil', $mahasiswaData['pengajuan_id']) }}"
+                               class="btn btn-sm btn-outline-info"
+                               target="_blank"
+                               title="Review Profil Pendaftar">
+                                <i class="fas fa-user-check"></i>
+                            </a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
